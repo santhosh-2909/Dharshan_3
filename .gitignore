@@ -46,3 +46,7 @@ desktop.ini
 *.log
 coverage/
 .nyc_output/
+
+# Large datasets — fetch separately, see README
+data/*.zip
+data/*.csv
