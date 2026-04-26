@@ -1,11 +1,8 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "cd temple/frontend && npm install && npm run build",
+  "outputDirectory": "temple/frontend/dist",
   "rewrites": [
-    { "source": "/api/(.*)", "destination": "/index.py" },
-    { "source": "/health", "destination": "/index.py" },
-    { "source": "/docs", "destination": "/index.py" },
-    { "source": "/openapi.json", "destination": "/index.py" },
-    { "source": "/", "destination": "/frontend/index.html" },
-    { "source": "/app", "destination": "/frontend/index.html" }
+    { "source": "/((?!api/).*)", "destination": "/index.html" }
   ]
 }

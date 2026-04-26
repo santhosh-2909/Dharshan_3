@@ -1,9 +1,11 @@
-# Web app
+# Vercel serverless dependencies for /api/*.py functions.
+# Mirrors temple/backend/requirements.txt — keep them in sync.
 fastapi>=0.115.0
-uvicorn[standard]>=0.30.0
-
-# Image processing
-Pillow>=10.4.0
-
-# Utilities
-python-dotenv==1.0.0
+SQLAlchemy>=2.0.30
+pydantic>=2.7.0
+pydantic-settings>=2.3.0
+python-jose[cryptography]>=3.3.0
+passlib[bcrypt]>=1.7.4
+bcrypt>=4.0.1,<4.1
+python-multipart>=0.0.9
+email-validator>=2.1.0
