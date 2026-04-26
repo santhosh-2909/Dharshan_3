@@ -1,0 +1,275 @@
+:root {
+  /* Light — sandalwood by day */
+  --c-bg: #fbf6ec;
+  --c-bg-elev: #ffffff;
+  --c-surface: #f5edd9;
+  --c-stone: #6b6258;
+  --c-ink: #2a1d1a;
+  --c-ink-soft: #5a4a44;
+  --c-border: rgba(107, 31, 42, 0.12);
+  --c-border-strong: rgba(107, 31, 42, 0.22);
+
+  --c-saffron: #c45a1b;
+  --c-saffron-deep: #a34715;
+  --c-maroon: #6b1f2a;
+  --c-maroon-deep: #4d1620;
+  --c-gold: #c8a94a;
+  --c-gold-soft: #e7d28a;
+  --c-ivory: #fbf6ec;
+  --c-beige: #e8ddc6;
+
+  --c-success: #4a7d4a;
+  --c-warn: #c47a1b;
+  --c-danger: #a8382b;
+
+  --shadow-soft: 0 1px 2px rgba(42, 29, 26, 0.04), 0 8px 24px rgba(42, 29, 26, 0.06);
+  --shadow-lift: 0 4px 12px rgba(42, 29, 26, 0.08), 0 24px 48px rgba(42, 29, 26, 0.10);
+  --gold-gradient: linear-gradient(135deg, #d4b96a 0%, #c8a94a 45%, #a98935 100%);
+  --hero-gradient: linear-gradient(135deg, rgba(107, 31, 42, 0.96) 0%, rgba(164, 71, 21, 0.92) 100%);
+
+  --r-sm: 8px;
+  --r-md: 14px;
+  --r-lg: 20px;
+  --r-xl: 28px;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+
+  /* One font, site-wide. Noto Serif Tamil ships with full Latin coverage,
+     so headings, body and Tamil glyphs all use the same typeface and the
+     site reads as a single visual system. */
+  --font-serif: "Noto Serif Tamil", "Iowan Old Style", Georgia, serif;
+  --font-tamil: "Noto Serif Tamil", "Iowan Old Style", Georgia, serif;
+  --font-sans:  "Noto Serif Tamil", "Iowan Old Style", Georgia, serif;
+
+  --container-max: 1240px;
+
+  color-scheme: light;
+}
+
+[data-theme="dark"] {
+  /* Dark — temple at night, lamp-lit */
+  --c-bg: #1a0f12;
+  --c-bg-elev: #221518;
+  --c-surface: #2a1a1f;
+  --c-stone: #b8a99a;
+  --c-ink: #f4ead4;
+  --c-ink-soft: #c9b89a;
+  --c-border: rgba(232, 221, 198, 0.10);
+  --c-border-strong: rgba(232, 221, 198, 0.20);
+
+  --c-saffron: #e07a3b;
+  --c-saffron-deep: #c45a1b;
+  --c-maroon: #8a2a36;
+  --c-maroon-deep: #6b1f2a;
+  --c-gold: #d4b96a;
+  --c-gold-soft: #e7d28a;
+
+  --shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.40), 0 12px 28px rgba(0, 0, 0, 0.45);
+  --shadow-lift: 0 4px 14px rgba(0, 0, 0, 0.50), 0 28px 56px rgba(0, 0, 0, 0.55);
+  --hero-gradient: linear-gradient(135deg, rgba(107, 31, 42, 0.85) 0%, rgba(26, 15, 18, 0.95) 100%);
+
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  /* Solid deep-maroon fills any letterbox bars left by the contained
+     photo on body::before — keeps the framing intentional. */
+  background: #14090c;
+  color: var(--c-ink);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: "ss01", "cv01";
+  line-height: 1.55;
+  transition: background-color 200ms ease, color 200ms ease;
+  position: relative;
+  isolation: isolate;
+}
+
+/* Site-wide photographic backdrop — Brihadeeswarar at dusk.
+   Two fixed layers behind everything:
+     1. body::before — the entire temple photo at `contain` size so nothing
+                       is cropped, centred, dimmed for text contrast.
+     2. body::after  — a soft top + bottom vignette that anchors text without
+                       erasing the photo. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  background-image: url("/temple-bg.png");
+  background-size: cover;            /* fill the entire viewport */
+  background-position: center 35%;   /* favour the gopuram + lit walls over the ground when cropping */
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  /* Dimmed enough that text stays crisp, bright enough that the warm-lit
+     walls and dusk sky read clearly. */
+  filter: brightness(0.62) saturate(112%) contrast(104%);
+  pointer-events: none;
+}
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  /* Light wash + side vignettes — keeps text contrast without erasing the photo. */
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(20, 11, 13, 0.55) 0%, transparent 55%),
+    radial-gradient(ellipse at 50% 100%, rgba(20, 11, 13, 0.55) 0%, transparent 55%),
+    linear-gradient(180deg, rgba(20, 11, 13, 0.30) 0%, rgba(26, 15, 18, 0.40) 100%);
+  pointer-events: none;
+}
+
+/* Dark theme — slightly more dim + a touch deeper wash so the night-time photo
+   sits comfortably behind the UI without going black. */
+[data-theme="dark"] body::before {
+  filter: brightness(0.42) saturate(112%) contrast(104%);
+}
+[data-theme="dark"] body::after {
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(10, 5, 7, 0.60) 0%, transparent 55%),
+    radial-gradient(ellipse at 50% 100%, rgba(10, 5, 7, 0.60) 0%, transparent 55%),
+    linear-gradient(180deg, rgba(10, 5, 7, 0.40) 0%, rgba(20, 11, 13, 0.55) 100%);
+}
+
+/* Phones: drop fixed attachment — iOS Safari jitters with `background-attachment: fixed`. */
+@media (max-width: 760px) {
+  body::before { background-attachment: scroll; }
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-serif);
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  color: var(--c-ink);
+  margin: 0;
+}
+
+h1 {
+  font-size: clamp(2rem, 1.4rem + 2.6vw, 3.2rem);
+  line-height: 1.08;
+}
+h2 {
+  font-size: clamp(1.5rem, 1.1rem + 1.4vw, 2.1rem);
+  line-height: 1.15;
+}
+h3 {
+  font-size: 1.25rem;
+}
+h4 {
+  font-size: 1.05rem;
+}
+
+p {
+  margin: 0;
+  color: var(--c-ink-soft);
+}
+
+a {
+  color: var(--c-maroon);
+  text-decoration: none;
+}
+[data-theme="dark"] a {
+  color: var(--c-gold-soft);
+}
+a:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.tamil {
+  font-family: var(--font-tamil);
+  font-weight: 500;
+  letter-spacing: 0;
+}
+
+/* When the whole UI is in Tamil, swap heading + body fonts for the Tamil serif
+   and loosen line-height a touch. Tamil glyphs need more vertical room. */
+[lang="ta"] body,
+[lang="ta"] h1,
+[lang="ta"] h2,
+[lang="ta"] h3,
+[lang="ta"] h4,
+[lang="ta"] .l-display,
+[lang="ta"] .intro-title {
+  font-family: var(--font-tamil);
+  letter-spacing: 0;
+}
+[lang="ta"] body {
+  line-height: 1.7;
+}
+[lang="ta"] h1,
+[lang="ta"] h2,
+[lang="ta"] h3,
+[lang="ta"] h4 {
+  line-height: 1.25;
+  font-weight: 600;
+}
+[lang="ta"] .kicker {
+  letter-spacing: 0.10em;
+}
+
+.kicker {
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--c-saffron-deep);
+}
+[data-theme="dark"] .kicker {
+  color: var(--c-gold);
+}
+
+::selection {
+  background: var(--c-gold-soft);
+  color: var(--c-maroon-deep);
+}
+
+:focus-visible {
+  outline: 2px solid var(--c-gold);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 12px;
+  background: var(--c-maroon);
+  color: var(--c-ivory);
+  padding: 8px 14px;
+  border-radius: var(--r-sm);
+  z-index: 100;
+}
+.skip-link:focus {
+  top: 12px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001s !important;
+    transition-duration: 0.001s !important;
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "files.exclude": {
+    "**/node_modules/.vite": true,
+    "**/node_modules/.cache": true,
+    "**/__pycache__": true
+  },
+  "files.watcherExclude": {
+    "**/node_modules/**": true,
+    "**/.vite/**": true
+  },
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/dist": true,
+    "**/build": true
+  },
+  "edge-devtools.problems.exclude": [
+    "**/node_modules/**"
+  ],
+  "eslint.options": {
+    "ignorePath": ".gitignore"
+  }
+}

@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Temple Flow CMS</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+    <div class="app-shell">
+        <aside class="sidebar">
+            <div class="brand-card">
+                <div class="brand-icon">▣</div>
+                <div>
+                    <h1>Temple Flow CMS</h1>
+                    <p>Crowd Management</p>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <p class="sidebar-label">Main Menu</p>
+                <nav class="menu-list" aria-label="Main menu">
+                    <button class="menu-item active" data-page="dashboard" type="button"><span class="menu-icon">◈</span><span>Dashboard</span></button>
+                    <button class="menu-item" data-page="live-monitoring" type="button"><span class="menu-icon">◫</span><span>Live Monitoring</span></button>
+                    <button class="menu-item" data-page="cctv-feeds" type="button"><span class="menu-icon">◉</span><span>CCTV Feeds</span></button>
+                    <button class="menu-item" data-page="ai-predictions" type="button"><span class="menu-icon">◌</span><span>AI Predictions</span></button>
+                    <button class="menu-item" data-page="controls" type="button"><span class="menu-icon">⚙</span><span>Controls</span></button>
+                    <button class="menu-item" data-page="parking" type="button"><span class="menu-icon">▤</span><span>Parking</span></button>
+                    <button class="menu-item" data-page="smart-gates" type="button"><span class="menu-icon">⌂</span><span>Smart Gates</span></button>
+                    <button class="menu-item" data-page="darshan-bookings" type="button"><span class="menu-icon">☷</span><span>Darshan Bookings</span></button>
+                    <button class="menu-item" data-page="security" type="button"><span class="menu-icon">⛨</span><span>Security</span></button>
+                </nav>
+            </div>
+
+            <section class="sidebar-card">
+                <div class="sidebar-card-header">
+                    <span>System Status</span>
+                    <strong id="status-text">Online</strong>
+                </div>
+                <dl class="status-grid">
+                    <div><dt>Active Cameras</dt><dd id="active-cameras">--</dd></div>
+                    <div><dt>AI Models</dt><dd>4 Active</dd></div>
+                    <div><dt>Alerts</dt><dd id="alert-count">--</dd></div>
+                </dl>
+            </section>
+
+            <section class="visitor-card">
+                <p>Current Visitors</p>
+                <strong id="current-visitors">--</strong>
+                <span id="visitor-delta">Updating from live monitor</span>
+            </section>
+        </aside>
+
+        <main class="main-shell">
+            <header class="topbar">
+                <div>
+                    <p class="section-kicker">SmartDarshan</p>
+                    <h2 class="topbar-title">Operational Dashboard</h2>
+                </div>
+                <div class="topbar-actions">
+                    <label class="topbar-search">
+                        <span>Search</span>
+                        <input id="global-search" type="search" placeholder="Search pages or actions">
+                    </label>
+                    <button id="notification-button" class="notification-chip" type="button">3 Alerts</button>
+                </div>
+                <details class="settings-menu global-settings">
+                    <summary class="settings-trigger"><span class="settings-icon">⚙</span><span>Menu</span></summary>
+                    <div class="settings-panel">
+                        <section>
+                            <p class="settings-title">Appearance</p>
+                            <label class="settings-field">
+                                <span>Theme</span>
+                                <select id="theme-select">
+                                    <option value="light">Light</option>
+                                    <option value="dark">Dark</option>
+                                    <option value="system">System</option>
+                                </select>
+                            </label>
+                        </section>
+                        <section>
+                            <p class="settings-title">Pages</p>
+                            <div class="global-menu-links">
+                                <button class="menu-shortcut" data-page-target="feedback" type="button">Feedback</button>
+                                <button class="menu-shortcut" data-page-target="faq" type="button">FAQ</button>
+                                <button class="menu-shortcut" data-page-target="about" type="button">About</button>
+                                <button class="menu-shortcut" data-page-target="profile" type="button">Profile</button>
+                            </div>
+                        </section>
+                        <section>
+                            <p class="settings-title">Display</p>
+                            <label class="settings-field checkbox">
+                                <input id="high-contrast-toggle" type="checkbox">
+                                <span>High contrast</span>
+                            </label>
+                            <label class="settings-field checkbox">
+                                <input id="large-text-toggle" type="checkbox">
+                                <span>Larger text</span>
+                            </label>
+                            <label class="settings-field checkbox">
+                                <input id="reduce-motion-toggle" type="checkbox">
+                                <span>Reduce motion</span>
+                            </label>
+                            <label class="settings-field checkbox">
+                                <input id="compact-toggle" type="checkbox">
+                                <span>Compact layout</span>
+                            </label>
+                        </section>
+                    </div>
+                </details>
+            </header>
+
+            <header class="top-summary">
+                <article class="summary-strip">
+                    <span>Total Footfall Today</span>
+                    <strong id="metric-images">--</strong>
+                    <small>Across all gates</small>
+                </article>
+                <article class="summary-strip progress">
+                    <span>Gates operational</span>
+                    <div class="mini-progress"><span id="gate-progress-bar"></span></div>
+                    <small id="metric-peak-hour">--</small>
+                </article>
+                <article class="summary-strip">
+                    <span>Average crowd score</span>
+                    <strong id="metric-average">--</strong>
+                    <small id="date-range">Preparing archive window</small>
+                </article>
+                <article class="summary-strip highlight">
+                    <span>Current pace</span>
+                    <strong id="metric-busiest-day">--</strong>
+                    <small id="pace-copy">15% faster</small>
+                </article>
+            </header>
+
+            <section class="screen active" data-screen="dashboard">
+                <div class="content-card">
+                    <div class="section-header">
+                        <div>
+                            <p class="section-kicker">Overview</p>
+                            <h2>Dashboard</h2>
+                            <p id="dashboard-intro" class="muted page-subtitle">Basic temple operations overview</p>
+                        </div>
+                    </div>
+                    <div id="dashboard-cards" class="forecast-summary"></div>
+                </div>
+                <div class="split-layout">
+                    <section class="content-card">
+                        <div class="section-header">
+                            <div>
+                                <p class="section-kicker">Visual Snapshot</p>
+                                <h2>Live archive spotlight</h2>
+                            </div>
+                        </div>
+                        <div class="live-preview dashboard-preview">
+                            <img id="dashboard-hero-image" alt="Dashboard live snapshot">
+                            <div class="live-overlay">
+                                <span class="live-chip">Current dataset image</span>
+                                <strong id="dashboard-hero-title">Preparing live frame</strong>
+                                <p id="dashboard-hero-copy">Loading image-linked summary</p>
+                            </div>
+                        </div>
+                    </section>
+                    <section class="content-card">
+                        <div class="section-header">
+                            <div>
+                                <p class="section-kicker">Recent Frames</p>
+                                <h2>Image-backed highlights</h2>
+                            </div>
+                        </div>
+                        <div id="dashboard-frame-list" class="stack-list"></div>
+                    </section>
+                </div>
+                <div class="split-layout">
+                    <section class="content-card">
+                        <div class="section-header">
+                            <div>
+                                <p class="section-kicker">Snapshot</p>
+                                <h2>Current status</h2>
+                            </div>
+                        </div>
+                        <div id="dashboard-highlights" class="stack-list"></div>
+                    </section>
+                    <section class="content-card">
+                        <div class="section-header">
+                            <div>
+                                <p class="section-kicker">Quick Access</p>
+                                <h2>Popular areas</h2>
+                            </div>
+                        </div>
+                        <div id="dashboard-links" class="stack-list"></div>
+                    </section>
+                </div>
+            </section>
+
+            <section class="screen" data-screen="smart-gates">
+                <div class="content-card">
+                    <div class="section-header">
+                        <div>
+                            <p class="section-kicker">Smart Gates</p>
+                            <h2>Gate Status Overview</h2>
+                        </div>
+                        <details class="settings-menu">
+                            <summary class="settings-trigger">Controls</summary>
+                            <div class="settings-panel">
+                                <section>
+                                    <p class="settings-title">Advanced</p>
+                                    <label class="settings-field">
+                                        <span>Temple</span>
+                                        <select id="temple-select"></select>
+                                    </label>
+                                    <label class="settings-field">
+                                        <span>Hourly forecast days</span>
+                                        <input id="days-range" type="range" min="1" max="14" value="7">
+                                        <strong id="days-range-value">7 days</strong>
+                                    </label>
+                                    <label class="settings-field checkbox">
+                                        <input id="show-gallery-toggle" type="checkbox" checked>
+                                        <span>Show gallery</span>
+                                    </label>
+                                    <label class="settings-field checkbox">
+                                        <input id="show-image-labels-toggle" type="checkbox" checked>
+                                        <span>Show image labels</span>
+                                    </label>
+                                </section>
+                            </div>
+                        </details>
+                    </div>
+                    <div class="gate-grid" id="gate-grid"></div>
+                </div>
+
+                <div class="split-layout">
+                    <section class="content-card">
+                        <div class="section-header">
+                            <div>
+                                <p class="section-kicker">Smart Gates</p>
+                                <h2>Main Entrance - Details</h2>
+                            </div>
+                        </div>
+                        <div class="detail-grid">
+                            <article class="detail-card"><span>Gate ID</span><strong id="main-gate-id">GATE-01</strong></article>
+                            <article class="detail-card"><span>Gate Name</span><strong id="main-gate-name">Main Entrance</strong></article>
+                            <article class="detail-card"><span>Status</span><strong id="main-gate-status">active</strong></article>
+                            <article class="detail-card"><span>Time Slot</span><strong id="main-gate-slot">08:00 - 10:00</strong></article>
+                            <article class="detail-card"><span>Max Capacity</span><strong id="main-gate-capacity">200 persons</strong></article>
+                            <article class="detail-card"><span>Occupancy</span><strong id="main-gate-occupancy">145 / 200</strong></article>
+                        </div>
+                    </section>
+                    <section class="content-card">
+                        <div class="section-header">
+                            <div>
+                                <p class="section-kicker">Entry Log</p>
+                                <h2>Recent movements</h2>
+                            </div>
+                        </div>
+                        <div id="entry-log-list" class="entry-log-list"></div>
+                    </section>
+                </div>
+            </section>
+
+            <section class="screen" data-screen="live-monitoring">
+                <div class="content-card">
+                    <div class="section-header">
+                        <div>
+                            <p class="section-kicker">Live Monitoring</p>
+                            <h2>Temple Flow</h2>
+                            <p class="muted page-subtitle">Real-time monitoring and AI-powered predictions</p>
+                        </div>
+                        <p class="live-state">Live System Active</p>
+                    </div>
+                    <div class="split-layout monitoring-layout">
+                        <section class="content-card nested">
+                            <div class="live-preview">
+                                <img id="live-image" alt="Latest crowd frame">
+                                <div class="live-overlay">
+                                    <span class="live-chip">Live frame proxy</span>
+                                    <strong id="live-score">--</strong>
+                                    <p id="live-caption">Preparing latest reading</p>
+                                </div>
+                            </div>
+                            <div class="mini-metrics">
+                                <div class="mini-metric"><span>Now</span><strong id="live-now">--</strong></div>
+                                <div class="mini-metric"><span>Rolling avg</span><strong id="live-average">--</strong></div>
+                                <div class="mini-metric"><span>Session peak</span><strong id="live-peak">--</strong></div>
+                            </div>
+                            <div id="live-chart" class="chart chart-line"></div>
+                        </section>
+                        <section class="content-card nested">
+                            <div class="section-header compact">
+                                <div>
+                                    <p class="section-kicker">Zones</p>
+                                    <h2>Monitoring Stations</h2>
+                                </div>
+                            </div>
+                            <div id="monitoring-zones" class="stack-list"></div>
+                        </section>
+                    </div>
+                </div>
+            </section>
+
+            <section class="screen" data-screen="cctv-feeds">
+                <div class="content-card">
+                    <div class="section-header">
+                        <div>
+                            <p class="section-kicker">CCTV Feeds</p>
+                            <h2>Camera coverage</h2>
+                            <p class="muted page-subtitle">Live camera network status and busiest captured frames</p>
+                        </div>
+                    </div>
+                    <div class="split-layout">
+                        <section class="content-card nested">
+                            <div class="section-header compact">
+                                <div>
+                                    <p class="section-kicker">Network</p>
+                                    <h2>CCTV Network Status</h2>
+                                </div>
+                            </div>
+                            <div id="cctv-network-list" class="stack-list"></div>
+                        </section>
+                        <section class="content-card nested">
+                            <div class="section-header compact">
+                                <div>
+                                    <p class="section-kicker">Feeds</p>
+                                    <h2>Captured Frames</h2>
+                                </div>
+                            </div>
+                            <div id="gallery-grid" class="gallery-grid"></div>
+                        </section>
+                    </div>
+                </div>
+            </section>
+
+            <section class="screen" data-screen="ai-predictions">
+                <div class="content-card">
+                    <div class="section-header">
+                        <div>
+                            <p class="section-kicker">AI Predictions</p>
+                            <h2>21-day footfall outlook</h2>
+                        </div>
+                    </div>
+                    <div class="forecast-summary" id="forecast-summary"></div>
+                    <div id="surge-alert" class="alert hidden"></div>
+                    <div class="split-layout comparison-layout">
+                        <section class="content-card nested">
+                            <div class="section-header compact">
+                                <div>
+                                    <p class="section-kicker">Comparison</p>
+                                    <h2>Historical vs current dataset</h2>
+                                </div>
+                            </div>
+                            <div id="comparison-summary" class="forecast-summary"></div>
+                            <p id="comparison-copy" class="muted page-subtitle">Preparing comparison insights</p>
+                        </section>
+                        <section class="content-card nested">
+                            <div class="section-header compact">
+                                <div>
+                                    <p class="section-kicker">Weekday Comparison</p>
+                                    <h2>Reference against live archive</h2>
+                                </div>
+                            </div>
+                            <div id="comparison-weekdays" class="stack-list"></div>
+                        </section>
+                    </div>
+                    <div id="history-forecast-chart" class="chart chart-wide"></div>
+                    <div id="forecast-grid" class="forecast-grid"></div>
+                </div>
+                <div class="split-layout">
+                    <section class="content-card">
+                        <div class="section-header">
+                            <div>
+                                <p class="section-kicker">Hourly Forecast</p>
+                                <h2>Gate pressure by hour</h2>
+                            </div>
+                        </div>
+                        <div class="hourly-summary" id="hourly-summary"></div>
+                        <div id="forecast-heatmap" class="heatmap date-heatmap"></div>
+                    </section>
+                    <section class="content-card">
+                        <div class="section-header">
+                            <div>
+                                <p class="section-kicker">Tomorrow Profile</p>
+                                <h2>Demand distribution</h2>
+                            </div>
+                        </div>
+                        <p id="tomorrow-profile-caption" class="muted page-subtitle">Hourly intensity band</p>
+                        <div id="tomorrow-profile" class="chart chart-line"></div>
+                        <div class="section-header compact with-top-gap">
+                            <div>
+                                <p class="section-kicker">Trend</p>
+                                <h2>Daily crowd trend</h2>
+                            </div>
+                        </div>
+                        <div id="timeline-chart" class="chart chart-bars"></div>
+                    </section>
+                </div>
+            </section>
+
+            <section class="screen" data-screen="controls">
+                <div class="content-card">
+                    <div class="section-header">
+                        <div>
+                            <p class="section-kicker">Controls</p>
+                            <h2>Temple Flow</h2>
+                            <p class="muted page-subtitle">Real-time monitoring and AI-powered predictions</p>
+                        </div>
+                        <p class="live-state">Live System Active</p>
+                    </div>
+                    <div class="split-layout">
+                        <section class="content-card nested">
+                            <div class="section-header compact">
+                                <div>
+                                    <p class="section-kicker">PA Control</p>
+                                    <h2>PA System Control</h2>
+                                </div>
+                                <span class="pill success">Gemini Live Enabled</span>
+                            </div>
+                            <div class="control-stack">
+                                <label class="control-block">
+                                    <span>Master Volume</span>
+                                    <input id="master-volume" type="range" value="75" min="0" max="100">
+                                </label>
+                                <div class="language-grid">
+                                    <button class="lang-button active" data-language="English" type="button">US<br><small>English</small></button>
+                                    <button class="lang-button" data-language="Hindi" type="button">IN<br><small>Hindi</small></button>
+                                    <button class="lang-button" data-language="Tamil" type="button">IN<br><small>Tamil</small></button>
+                                    <button class="lang-button" data-language="Telugu" type="button">IN<br><small>Telugu</small></button>
+                                    <button class="lang-button" data-language="Kannada" type="button">IN<br><small>Kannada</small></button>
+                                </div>
+                                <label class="control-block">
+                                    <span>Announcement Message</span>
+                                    <textarea id="announcement-message" rows="4" placeholder="Type your announcement message..."></textarea>
+                                </label>
+                                <div id="quick-messages" class="quick-message-list"></div>
+                                <button id="broadcast-button" class="primary-action" type="button">Broadcast via AI Voice</button>
+                                <p id="broadcast-status" class="muted page-subtitle">Broadcast panel ready</p>
+                            </div>
+                        </section>
+                        <section class="content-card nested">
+                            <div class="section-header compact">
+                                <div>
+                                    <p class="section-kicker">Zones</p>
+                                    <h2>PA Zone Status</h2>
+                                </div>
+                            </div>
+                            <div id="pa-zone-list" class="stack-list"></div>
+                        </section>
+                    </div>
+                </div>
+            </section>
+
+            <section class="screen" data-screen="parking">
+                <div class="content-card">
+                    <div class="section-header">
+                        <div>
+                            <p class="section-kicker">Parking</p>
+                            <h2>Smart Parking Management</h2>
+                        </div>
+                        <div class="action-row">
+                            <span class="pill">IoT Enabled</span>
+                            <button id="parking-directions-button" class="ghost-action" type="button">Directions</button>
+                        </div>
+                    </div>
+                    <div id="parking-metrics" class="forecast-summary"></div>
+                    <div id="parking-grid" class="gate-grid parking-grid"></div>
+                    <div class="content-card nested shuttle-card">
+                        <div class="section-header compact">
+                            <div>
+                                <p class="section-kicker">Temple Shuttle Service</p>
+                                <h2>Transport updates</h2>
+                            </div>
+                        </div>
+                        <div id="shuttle-status" class="stack-list"></div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="screen" data-screen="darshan-bookings">
+                <div class="content-card">
+                    <div class="section-header">
+                        <div>
+                            <p class="section-kicker">Darshan Bookings</p>
+                            <h2>Time Slot Availability</h2>
+                        </div>
+                    </div>
+                    <div id="booking-slot-grid" class="gate-grid booking-grid"></div>
+                </div>
+                <div class="content-card">
+                    <div class="section-header">
+                        <div>
+                            <p class="section-kicker">All Bookings</p>
+                            <h2>Visitor reservations</h2>
+                        </div>
+                        <div class="action-row">
+                            <input id="booking-search" class="search-input" type="search" placeholder="Search by name, ID, or phone">
+                            <select id="booking-status-filter" class="status-filter" aria-label="Filter bookings by status">
+                                <option>All Status</option>
+                                <option>Confirmed</option>
+                                <option>Pending</option>
+                                <option>Priority</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div id="booking-list" class="booking-list"></div>
+                </div>
+            </section>
+
+            <section class="screen" data-screen="security">
+                <div class="content-card">
+                    <div class="section-header">
+                        <div>
+                            <p class="section-kicker">Security</p>
+                            <h2>Temple Flow</h2>
+                            <p class="muted page-subtitle">Real-time monitoring and AI-powered predictions</p>
+                        </div>
+                        <p class="live-state">Live System Active</p>
+                    </div>
+                    <div class="split-layout">
+                        <section class="content-card nested">
+                            <div class="section-header compact">
+                                <div>
+                                    <p class="section-kicker">CCTV</p>
+                                    <h2>CCTV Network Status</h2>
+                                </div>
+                            </div>
+                            <div id="security-network-list" class="stack-list"></div>
+                        </section>
+                        <section class="content-card nested">
+                            <div class="section-header compact">
+                                <div>
+                                    <p class="section-kicker">AI Models</p>
+                                    <h2>AI Detection Models</h2>
+                                </div>
+                            </div>
+                            <div id="security-model-list" class="stack-list"></div>
+                        </section>
+                    </div>
+                </div>
+            </section>
+
+            <section class="screen" data-screen="feedback">
+                <div class="content-card">
+                    <div class="section-header">
+                        <div>
+                            <p class="section-kicker">Feedback</p>
+                            <h2>Share your experience</h2>
+                        </div>
+                    </div>
+                    <div class="stack-list">
+                        <div class="split-layout feedback-form-grid">
+                            <label class="control-block">
+                                <span>Name</span>
+                                <input id="feedback-name" type="text" placeholder="Optional name">
+                            </label>
+                            <label class="control-block">
+                                <span>Email</span>
+                                <input id="feedback-email" type="email" placeholder="Optional email">
+                            </label>
+                        </div>
+                        <label class="control-block">
+                            <span>Message</span>
+                            <textarea id="feedback-message" rows="6" placeholder="Tell us what should be improved..."></textarea>
+                        </label>
+                        <button id="feedback-submit" class="primary-action" type="button">Submit Feedback</button>
+                        <p id="feedback-status" class="muted page-subtitle">Feedback center ready</p>
+                        <div id="feedback-history" class="stack-list"></div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="screen" data-screen="faq">
+                <div class="content-card">
+                    <div class="section-header">
+                        <div>
+                            <p class="section-kicker">FAQ</p>
+                            <h2>Frequently asked questions</h2>
+                        </div>
+                    </div>
+                    <div id="faq-list" class="stack-list"></div>
+                </div>
+            </section>
+
+            <section class="screen" data-screen="about">
+                <div class="content-card">
+                    <div class="section-header">
+                        <div>
+                            <p class="section-kicker">About</p>
+                            <h2>Platform summary</h2>
+                        </div>
+                    </div>
+                    <div id="about-list" class="stack-list"></div>
+                </div>
+            </section>
+
+            <section class="screen" data-screen="profile">
+                <div class="content-card">
+                    <div class="section-header">
+                        <div>
+                            <p class="section-kicker">Profile</p>
+                            <h2>Account overview</h2>
+                        </div>
+                    </div>
+                    <div id="profile-list" class="stack-list"></div>
+                    <button id="logout-button" class="ghost-action profile-logout" type="button">Sign Out</button>
+                    <p id="profile-status" class="muted page-subtitle">Session active</p>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <template id="forecast-card-template">
+        <article class="forecast-card">
+            <span class="forecast-day"></span>
+            <strong class="forecast-score"></strong>
+            <p class="forecast-meta"></p>
+            <span class="forecast-badge"></span>
+        </article>
+    </template>
+
+    <script src="./script.js"></script>
+</body>
+</html>
