@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: dharshan-aalayam
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    autoDeployTrigger: commit
+    healthCheckPath: /health
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ACCESS_TOKEN_EXPIRE_MINUTES
+        value: "1440"
