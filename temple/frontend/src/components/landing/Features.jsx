@@ -13,7 +13,15 @@ const FEATURE_KEYS = [
 export default function Features() {
   const { t } = useTranslation();
   return (
-    <section className="l-section">
+    <section className="l-section l-features-section">
+      {/* Background image: temple figures */}
+      <img
+        className="l-features-bg"
+        src="/images/temple-figures.jpeg"
+        alt=""
+        aria-hidden="true"
+        draggable={false}
+      />
       <div className="container">
         <div className="l-section-head reveal">
           <span className="kicker">{t("landing.features.kicker")}</span>

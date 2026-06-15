@@ -5,6 +5,14 @@ export default function Hero({ stats }) {
   const { t } = useTranslation();
   return (
     <section className="l-hero">
+      {/* Decorative sculpture panel behind hero */}
+      <img
+        className="l-hero-sculpture"
+        src="/images/sculpture-panel.jpeg"
+        alt=""
+        aria-hidden="true"
+        draggable={false}
+      />
       <div className="container">
         <div className="l-hero-grid">
           <div>
@@ -23,21 +31,28 @@ export default function Hero({ stats }) {
             </div>
             <div className="l-trust reveal reveal-4">
               <div>
-                <strong>{stats?.devotees_served?.toLocaleString("en-IN") ?? "—"}</strong>
+                <strong>{stats?.devotees_served?.toLocaleString("en-IN") ?? "\u2014"}</strong>
                 {t("landing.hero.trustDevotees")}
               </div>
               <div>
-                <strong>{stats?.active_temples ?? "—"}</strong>
+                <strong>{stats?.active_temples ?? "\u2014"}</strong>
                 {t("landing.hero.trustTemples")}
               </div>
               <div>
-                <strong>{stats?.average_rating?.toFixed(1) ?? "—"}</strong>
+                <strong>{stats?.average_rating?.toFixed(1) ?? "\u2014"}</strong>
                 {t("landing.hero.trustRating")}
               </div>
             </div>
           </div>
 
           <div className="l-hero-visual reveal reveal-2" aria-hidden="true">
+            {/* Chariot wheel watermark behind cards */}
+            <img
+              className="l-hero-wheel"
+              src="/images/chariot-wheel.jpeg"
+              alt=""
+              draggable={false}
+            />
             <div className="l-stack-card glass c1">
               <span className="label">{t("landing.hero.card1Label")}</span>
               <span className="value">
@@ -63,7 +78,7 @@ export default function Hero({ stats }) {
             <div className="l-stack-card glass c4">
               <span className="label">{t("landing.hero.card4Label")}</span>
               <span className="value">
-                ₹{stats?.donations_inr ? Math.round(stats.donations_inr / 1000) + "K" : "—"}
+                {"\u20B9"}{stats?.donations_inr ? Math.round(stats.donations_inr / 1000) + "K" : "\u2014"}
               </span>
               <span className="delta">{t("landing.hero.card4Delta")}</span>
             </div>

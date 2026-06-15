@@ -1,0 +1,207 @@
+Smart Darshan (Aalayam) - Temple Management & Footfall Prediction System
+=========================================================================
+
+Legend:  [DONE] = Implemented  |  [PARTIAL] = Partially built  |  [PLANNED] = Not yet built
+
+
+=====================================
+  A. CORE PLATFORM (IMPLEMENTED)
+=====================================
+
+1. [DONE] Authentication & User Management
+   - JWT-based registration and login (email + password)
+   - Admin role flag for operator access
+   - Bilingual support: English + Tamil (i18next)
+   - Dark / Light theme toggle
+
+2. [DONE] Seva Booking System
+   - Browse available sevas (poojas/rituals) with time slots
+   - Real-time availability checking per slot
+   - Multi-devotee booking with reference ID generation
+   - Booking history for logged-in users
+   - Booking stats dashboard: total bookings, devotees, 14-day trend, slot breakdown
+
+3. [DONE] Donation Management
+   - 4 donation causes: Annadhanam, Deepa Aaradhanai, Renovation, Vedic School
+   - Custom amount input with quick-select presets
+   - Checkout intent with reference tracking
+   - Recent donations list
+
+4. [DONE] Event & Festival Calendar
+   - Upcoming events list with date ranges
+   - Festival vs regular event filtering
+   - Bilingual titles (English + Tamil)
+
+5. [DONE] Crowd Analytics Dashboard
+   - Live visitor count with real-time occupancy percentage
+   - Crowd band indicator: Calm / Moderate / High / Very High
+   - Hourly crowd curve (today) with "now" marker
+   - 7-day forward forecast with daily breakdown
+   - Temple capacity tracking
+
+6. [DONE] Parking Management
+   - Multi-lot support (each lot has car/bike/bus/auto capacity)
+   - Vehicle entry/exit tracking with plate number + owner details
+   - Live occupancy percentage per lot and per vehicle type
+   - Parking stats: total entries, vehicles by type, peak times, utilization
+
+7. [DONE] CCTV People Counting
+   - Camera-based people count ingestion (POST endpoint)
+   - Hourly aggregate distribution
+   - Cameras online status tracking
+   - Historical people count data
+
+8. [DONE] Crowd Footfall Prediction
+   - Additive seasonal prediction model
+   - Factors: trend + weekday + month + festival adjustments
+   - Date picker to predict any future day
+   - Confidence range output
+
+9. [DONE] Feedback & Reviews
+   - 5-star rating system with name + message
+   - Recent feedback display on landing page (testimonials)
+
+10. [DONE] FAQ System
+    - Bilingual Q&A (question + answer in English and Tamil)
+    - Accordion-style expandable display
+    - Sortable ordering
+
+11. [DONE] Final Aggregate Report
+    - Combined devotee count: bookings + parking occupants + CCTV people
+    - Peak hour identification
+    - Capacity utilization visualization
+
+12. [DONE] Temple Information Directory
+    - Multi-temple support with slug-based routing
+    - Bilingual names, deity info, location
+    - History, architecture, and rituals descriptions
+    - Morning/evening timings
+
+13. [DONE] Landing Page & Marketing
+    - Hero section with live stats (devotees served, temples, rating)
+    - Feature showcase grid with icons
+    - Dashboard preview (interactive mockup)
+    - Crossfading background slideshow with temple sculpture imagery
+    - Cultural Heritage section with Tamil inscriptions scroll
+    - Gallery with real temple sculpture/mural photographs
+    - Testimonials from devotee feedback
+    - FAQ teaser with accordion
+    - CTA band with temple arch decoration
+    - Fully responsive; mobile-optimized
+
+
+==========================================
+  B. ADVANCED FEATURES (PLANNED / NEW)
+==========================================
+
+14. [PLANNED] Live Crowd Density Heatmap Inside Temple Premises
+    - Visual floor plan of the temple with color-coded zones:
+      sanctum sanctorum, queue corridors, prasad counters, parking areas
+    - Updated every 15 minutes from CCTV people count + prediction model
+    - Zone-level occupancy: Green (< 40%), Yellow (40-70%), Red (> 70%)
+    - Integration: extend /api/v1/cctv with camera_id -> zone mapping
+    - Frontend: interactive SVG floor plan on Dashboard page
+    - Backend: new model ZoneMapping (camera_id, zone_name, coordinates)
+
+15. [PLANNED] Festival Surge Predictor with Countdown
+    - Calendar view showing upcoming festivals with predicted footfall surge
+    - Surge percentage vs normal day, e.g. "Aadi Pooram: +340% expected"
+    - Countdown timer to next high-risk festival day
+    - Historical comparison: this year vs last year for same festival
+    - Integration: extend /api/v1/events with surge_pct field
+    - Use existing FootfallHistory + prediction model with festival flags
+    - Frontend: new FestivalSurge component on Dashboard + Events page
+
+16. [PLANNED] Queue Wait Time Estimator per Entry Gate
+    - Given predicted footfall + number of open gates, estimate wait time per gate
+    - Display: "North Gate: 23 min wait | East Gate: 8 min wait | Redirect here"
+    - Factors: current footfall, gate throughput rate, time of day
+    - Integration: new model EntryGate (name, throughput_per_min, is_open)
+    - New endpoint: GET /api/v1/crowd/queue-times
+    - Frontend: queue time cards on Dashboard + dedicated Queue page
+
+17. [PLANNED] Staff Deployment Recommender
+    - Based on predicted footfall for next 6 hours, recommend exact staffing
+    - "Deploy 4 queue marshals at North Gate from 9-11 AM, reduce to 2 post noon"
+    - Role types: queue marshal, prasad counter, parking attendant, security
+    - Exportable as daily shift schedule PDF
+    - Integration: new model StaffRole + StaffSchedule
+    - New endpoint: GET /api/v1/staff/recommendations?date=YYYY-MM-DD
+    - Frontend: new StaffPlanner page with printable schedule
+
+18. [PLANNED] Anomaly Alert System - "Something's Off Today"
+    - When actual footfall deviates > 25% from prediction, flag it
+    - Manual gate count input or sensor-driven comparison
+    - Auto-suggest reason: "Footfall 40% above forecast. Possible unannounced
+      religious event or VIP visit. Consider opening emergency queues."
+    - Push notification to admin users
+    - Integration: compare FootfallHistory.footfall vs prediction output
+    - New endpoint: GET /api/v1/alerts (active anomalies)
+    - Frontend: alert banner on Dashboard + notification bell in Nav
+
+19. [PLANNED] Devotee Flow Optimization
+    - Suggest optimal visit times based on prediction: "Visit between 2-4 PM
+      for shortest wait (est. 12 min vs 45 min at peak)"
+    - Route suggestion through temple to minimize congestion
+    - Integration: combine queue estimator + crowd heatmap
+    - Frontend: visitor-facing widget on Landing + Bookings page
+
+20. [PLANNED] Revenue Analytics Dashboard
+    - Combined view: booking revenue + donation income over time
+    - Festival vs non-festival revenue comparison
+    - Top seva slots by revenue, top donation causes
+    - Monthly/quarterly trend charts
+    - Integration: aggregate from existing Booking + Donation models
+    - Frontend: new Revenue page with charts (Chart.js or Recharts)
+
+21. [PLANNED] SMS / WhatsApp Notifications
+    - Booking confirmation with QR code
+    - Queue alert: "Your turn in ~15 minutes"
+    - Festival reminder: "Thai Pongal is tomorrow, expected crowd: High"
+    - Anomaly alert to temple admins
+    - Integration: Twilio / WhatsApp Business API
+
+22. [PLANNED] Smart Parking with ANPR
+    - Automatic Number Plate Recognition via CCTV cameras
+    - Auto vehicle entry/exit without manual input
+    - Pre-booking parking slots for festival days
+    - Integration: extend existing parking system with ANPR model
+    - New endpoint: POST /api/v1/parking/anpr-detect
+
+23. [PLANNED] Multilingual Voice Assistant
+    - Tamil + English voice commands for devotees
+    - "When is the next Archana?" / "How crowded is the temple now?"
+    - Integration: Web Speech API + existing endpoints
+    - Frontend: floating mic button on mobile
+
+
+==========================================
+  C. DEPLOYMENT & INFRASTRUCTURE
+==========================================
+
+24. [DONE] Render Deployment
+    - Multi-stage Docker build (Node frontend + Python backend)
+    - Serves on port 10000
+    - render.yaml configuration
+
+25. [DONE] Vercel Deployment
+    - Static frontend build + serverless Python API
+    - api/index.py re-exports FastAPI app
+    - SQLite fallback (/tmp); Postgres for production
+
+26. [PLANNED] Production Hardening
+    - Postgres database migration (SQLite -> Postgres)
+    - Redis caching for crowd analytics (reduce DB load)
+    - Rate limiting on public endpoints
+    - Image CDN for temple photographs (currently served from /public)
+    - Monitoring: health check endpoint + uptime alerting
+
+
+==========================================
+  D. TECHNICAL STACK
+==========================================
+
+Backend:   Python 3.11+ / FastAPI / SQLAlchemy / Pydantic / JWT
+Frontend:  React 18 / React Router 6 / Vite / i18next / Plain CSS
+Database:  SQLite (dev) / PostgreSQL (prod)
+Deploy:    Docker / Render / Vercel

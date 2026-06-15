@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { api } from "../api/client.js";
 import OpsLayout from "../components/OpsLayout.jsx";
+import Alert from "../components/Alert.jsx";
 
 const tomorrowISO = () => {
   const d = new Date();
@@ -45,17 +46,14 @@ export default function Prediction() {
         <div>
           <p className="kicker">{t("modules.prediction.kicker")}</p>
           <h1>{t("modules.prediction.title")}</h1>
-          <p style={{ marginTop: 8, maxWidth: "60ch", color: "var(--c-stone)" }}>
+          <p className="page-header-lede">
             {t("modules.prediction.lede")}
           </p>
         </div>
       </header>
 
       <article className="dash-card">
-        <form
-          onSubmit={submit}
-          style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 12, alignItems: "end" }}
-        >
+        <form onSubmit={submit} className="prediction-form">
           <div className="field">
             <label htmlFor="dt">{t("modules.prediction.datePicker")}</label>
             <input
@@ -78,29 +76,29 @@ export default function Prediction() {
             <span>{t("modules.prediction.submitting")}</span>
           </div>
         )}
-        {error && <div className="alert error" style={{ marginTop: 14 }}>{error}</div>}
+        <Alert type="error">{error}</Alert>
       </article>
 
       {!result && !busy && (
-        <p style={{ marginTop: 20, color: "var(--c-stone)" }}>
+        <p className="page-header-lede" style={{ marginTop: 20 }}>
           {t("modules.prediction.noPredictionYet")}
         </p>
       )}
 
       {result && (
         <>
-          <section className="fr-overall" style={{ marginTop: 18 }}>
+          <section className="fr-overall">
             <div className="label">{t("modules.prediction.predictedCrowd")}</div>
             <div className="value">{result.predicted_crowd.toLocaleString("en-IN")}</div>
             <div className="delta">
               <span className={`status-pill ${result.level_color}`}>{result.level}</span>
-              <span style={{ marginLeft: 10 }}>
+              <span className="delta-extra">
                 {t("modules.prediction.confidenceRange")}:{" "}
                 {result.confidence_low.toLocaleString("en-IN")}–
                 {result.confidence_high.toLocaleString("en-IN")}
               </span>
             </div>
-            <div style={{ marginTop: 12, color: "rgba(251,246,236,.7)", fontSize: "0.85rem" }}>
+            <div className="fr-overall-date">
               {new Date(result.target_date).toLocaleDateString(dateLocale, {
                 weekday: "long", day: "numeric", month: "long", year: "numeric",
               })}
@@ -110,7 +108,7 @@ export default function Prediction() {
             </div>
           </section>
 
-          <section className="dash-grid" style={{ marginTop: 18 }}>
+          <section className="dash-grid">
             <article className="dash-card">
               <header className="dash-card-head">
                 <h3>{t("modules.prediction.suggestions")}</h3>
@@ -172,7 +170,7 @@ export default function Prediction() {
             </article>
           </section>
 
-          <article className="dash-card" style={{ marginTop: 18 }}>
+          <article className="dash-card">
             <header className="dash-card-head">
               <h3>{t("modules.prediction.notesTitle")}</h3>
               <span className="card-tag">{result.method}</span>

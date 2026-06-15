@@ -1,31 +1,31 @@
 :root {
-  /* Light — sandalwood by day */
-  --c-bg: #fbf6ec;
-  --c-bg-elev: #ffffff;
-  --c-surface: #f5edd9;
-  --c-stone: #6b6258;
-  --c-ink: #2a1d1a;
-  --c-ink-soft: #5a4a44;
-  --c-border: rgba(107, 31, 42, 0.12);
-  --c-border-strong: rgba(107, 31, 42, 0.22);
+  /* Light — warm terracotta by day */
+  --c-bg: #fdf5ef;
+  --c-bg-elev: #fffaf6;
+  --c-surface: #f5e8dd;
+  --c-stone: #8b7568;
+  --c-ink: #3a2016;
+  --c-ink-soft: #6b5248;
+  --c-border: rgba(91, 35, 25, 0.12);
+  --c-border-strong: rgba(91, 35, 25, 0.22);
 
-  --c-saffron: #c45a1b;
-  --c-saffron-deep: #a34715;
-  --c-maroon: #6b1f2a;
-  --c-maroon-deep: #4d1620;
-  --c-gold: #c8a94a;
-  --c-gold-soft: #e7d28a;
-  --c-ivory: #fbf6ec;
-  --c-beige: #e8ddc6;
+  --c-saffron: #b07656;
+  --c-saffron-deep: #8b5539;
+  --c-maroon: #5b2319;
+  --c-maroon-deep: #3e1710;
+  --c-gold: #d49b82;
+  --c-gold-soft: #e2b9a5;
+  --c-ivory: #fdf5ef;
+  --c-beige: #ecddd0;
 
-  --c-success: #4a7d4a;
-  --c-warn: #c47a1b;
-  --c-danger: #a8382b;
+  --c-success: #5a8a5a;
+  --c-warn: #b07656;
+  --c-danger: #943023;
 
-  --shadow-soft: 0 1px 2px rgba(42, 29, 26, 0.04), 0 8px 24px rgba(42, 29, 26, 0.06);
-  --shadow-lift: 0 4px 12px rgba(42, 29, 26, 0.08), 0 24px 48px rgba(42, 29, 26, 0.10);
-  --gold-gradient: linear-gradient(135deg, #d4b96a 0%, #c8a94a 45%, #a98935 100%);
-  --hero-gradient: linear-gradient(135deg, rgba(107, 31, 42, 0.96) 0%, rgba(164, 71, 21, 0.92) 100%);
+  --shadow-soft: 0 1px 2px rgba(58, 32, 22, 0.05), 0 8px 24px rgba(58, 32, 22, 0.07);
+  --shadow-lift: 0 4px 12px rgba(58, 32, 22, 0.10), 0 24px 48px rgba(58, 32, 22, 0.12);
+  --gold-gradient: linear-gradient(135deg, #d49b82 0%, #b07656 45%, #8b5539 100%);
+  --hero-gradient: linear-gradient(135deg, rgba(91, 35, 25, 0.96) 0%, rgba(139, 85, 57, 0.92) 100%);
 
   --r-sm: 8px;
   --r-md: 14px;
@@ -54,26 +54,26 @@
 }
 
 [data-theme="dark"] {
-  /* Dark — temple at night, lamp-lit */
-  --c-bg: #1a0f12;
-  --c-bg-elev: #221518;
-  --c-surface: #2a1a1f;
-  --c-stone: #b8a99a;
-  --c-ink: #f4ead4;
-  --c-ink-soft: #c9b89a;
-  --c-border: rgba(232, 221, 198, 0.10);
-  --c-border-strong: rgba(232, 221, 198, 0.20);
+  /* Dark — terracotta by lamplight */
+  --c-bg: #1c100b;
+  --c-bg-elev: #261812;
+  --c-surface: #32201a;
+  --c-stone: #c4aa98;
+  --c-ink: #f5e8dd;
+  --c-ink-soft: #d4b9a5;
+  --c-border: rgba(212, 155, 130, 0.12);
+  --c-border-strong: rgba(212, 155, 130, 0.22);
 
-  --c-saffron: #e07a3b;
-  --c-saffron-deep: #c45a1b;
-  --c-maroon: #8a2a36;
-  --c-maroon-deep: #6b1f2a;
-  --c-gold: #d4b96a;
-  --c-gold-soft: #e7d28a;
+  --c-saffron: #c88e72;
+  --c-saffron-deep: #b07656;
+  --c-maroon: #7a3828;
+  --c-maroon-deep: #5b2319;
+  --c-gold: #d49b82;
+  --c-gold-soft: #e2b9a5;
 
   --shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.40), 0 12px 28px rgba(0, 0, 0, 0.45);
   --shadow-lift: 0 4px 14px rgba(0, 0, 0, 0.50), 0 28px 56px rgba(0, 0, 0, 0.55);
-  --hero-gradient: linear-gradient(135deg, rgba(107, 31, 42, 0.85) 0%, rgba(26, 15, 18, 0.95) 100%);
+  --hero-gradient: linear-gradient(135deg, rgba(91, 35, 25, 0.88) 0%, rgba(28, 16, 11, 0.95) 100%);
 
   color-scheme: dark;
 }
@@ -91,9 +91,7 @@ body,
 body {
   margin: 0;
   font-family: var(--font-sans);
-  /* Solid deep-maroon fills any letterbox bars left by the contained
-     photo on body::before — keeps the framing intentional. */
-  background: #14090c;
+  background: #1c100b;
   color: var(--c-ink);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -104,25 +102,19 @@ body {
   isolation: isolate;
 }
 
-/* Site-wide photographic backdrop — Brihadeeswarar at dusk.
-   Two fixed layers behind everything:
-     1. body::before — the entire temple photo at `contain` size so nothing
-                       is cropped, centred, dimmed for text contrast.
-     2. body::after  — a soft top + bottom vignette that anchors text without
-                       erasing the photo. */
+/* Site-wide photographic backdrop — uses temple sculpture/mural imagery.
+   body::before shows the default image; the landing page overlays its own
+   crossfading slideshow on top. body::after adds a vignette for contrast. */
 body::before {
   content: "";
   position: fixed;
   inset: 0;
   z-index: -2;
-  background-image: url("/temple-bg.png");
-  background-size: cover;            /* fill the entire viewport */
-  background-position: center 35%;   /* favour the gopuram + lit walls over the ground when cropping */
+  background-image: url("/images/gajalakshmi-mural.jpeg");
+  background-size: cover;
+  background-position: center center;
   background-repeat: no-repeat;
-  background-attachment: fixed;
-  /* Dimmed enough that text stays crisp, bright enough that the warm-lit
-     walls and dusk sky read clearly. */
-  filter: brightness(0.62) saturate(112%) contrast(104%);
+  filter: brightness(0.45) saturate(120%) contrast(108%);
   pointer-events: none;
 }
 body::after {
@@ -130,29 +122,21 @@ body::after {
   position: fixed;
   inset: 0;
   z-index: -1;
-  /* Light wash + side vignettes — keeps text contrast without erasing the photo. */
   background:
-    radial-gradient(ellipse at 50% 0%, rgba(20, 11, 13, 0.55) 0%, transparent 55%),
-    radial-gradient(ellipse at 50% 100%, rgba(20, 11, 13, 0.55) 0%, transparent 55%),
-    linear-gradient(180deg, rgba(20, 11, 13, 0.30) 0%, rgba(26, 15, 18, 0.40) 100%);
+    radial-gradient(ellipse at 50% 0%, rgba(28, 16, 11, 0.60) 0%, transparent 55%),
+    radial-gradient(ellipse at 50% 100%, rgba(28, 16, 11, 0.60) 0%, transparent 55%),
+    linear-gradient(180deg, rgba(28, 16, 11, 0.35) 0%, rgba(38, 24, 18, 0.50) 100%);
   pointer-events: none;
 }
 
-/* Dark theme — slightly more dim + a touch deeper wash so the night-time photo
-   sits comfortably behind the UI without going black. */
 [data-theme="dark"] body::before {
-  filter: brightness(0.42) saturate(112%) contrast(104%);
+  filter: brightness(0.30) saturate(120%) contrast(108%);
 }
 [data-theme="dark"] body::after {
   background:
-    radial-gradient(ellipse at 50% 0%, rgba(10, 5, 7, 0.60) 0%, transparent 55%),
-    radial-gradient(ellipse at 50% 100%, rgba(10, 5, 7, 0.60) 0%, transparent 55%),
-    linear-gradient(180deg, rgba(10, 5, 7, 0.40) 0%, rgba(20, 11, 13, 0.55) 100%);
-}
-
-/* Phones: drop fixed attachment — iOS Safari jitters with `background-attachment: fixed`. */
-@media (max-width: 760px) {
-  body::before { background-attachment: scroll; }
+    radial-gradient(ellipse at 50% 0%, rgba(14, 8, 5, 0.65) 0%, transparent 55%),
+    radial-gradient(ellipse at 50% 100%, rgba(14, 8, 5, 0.65) 0%, transparent 55%),
+    linear-gradient(180deg, rgba(14, 8, 5, 0.50) 0%, rgba(28, 16, 11, 0.65) 100%);
 }
 
 h1,
@@ -251,6 +235,9 @@ a:hover {
   outline: 2px solid var(--c-gold);
   outline-offset: 3px;
   border-radius: 4px;
+}
+[data-theme="dark"] :focus-visible {
+  outline-color: var(--c-gold-soft);
 }
 
 .skip-link {

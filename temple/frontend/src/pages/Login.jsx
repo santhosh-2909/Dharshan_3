@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../context/AuthContext.jsx";
+import Alert from "../components/Alert.jsx";
 
 export default function Login() {
   const { t } = useTranslation();
@@ -33,18 +34,25 @@ export default function Login() {
 
   return (
     <div className="center-screen">
+      <img
+        className="auth-decor"
+        src="/images/temple-arch.jpeg"
+        alt=""
+        aria-hidden="true"
+        draggable={false}
+      />
       <div className="card auth-card">
         <p className="kicker">{mode === "login" ? t("auth.welcomeBack") : t("auth.begin")}</p>
-        <h1 style={{ marginTop: 8, fontSize: "1.8rem" }}>
+        <h1 className="auth-title">
           {mode === "login" ? t("auth.signInTitle") : t("auth.registerTitle")}
         </h1>
-        <p style={{ marginTop: 8, color: "var(--c-stone)" }}>
+        <p className="auth-hint">
           {mode === "login" ? t("auth.demoHint") : t("auth.registerHint")}
         </p>
 
-        {error && <div className="alert error" style={{ marginTop: 16 }}>{error}</div>}
+        <Alert type="error">{error}</Alert>
 
-        <form className="form" onSubmit={submit} style={{ marginTop: 20 }}>
+        <form className="form" onSubmit={submit}>
           {mode === "register" && (
             <div className="field">
               <label htmlFor="name">{t("auth.name")}</label>
@@ -87,7 +95,7 @@ export default function Login() {
           </button>
         </form>
 
-        <p style={{ marginTop: 16, fontSize: "0.9rem" }}>
+        <p className="auth-switch">
           {mode === "login" ? (
             <>
               {t("auth.noAccount")}{" "}

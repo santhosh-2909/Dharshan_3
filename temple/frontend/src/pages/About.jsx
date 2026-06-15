@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { api } from "../api/client.js";
 import Loader from "../components/Loader.jsx";
+import PageHeader from "../components/PageHeader.jsx";
+import Alert from "../components/Alert.jsx";
 
 export default function About() {
   const { t, i18n } = useTranslation();
@@ -19,7 +21,7 @@ export default function About() {
       .catch((e) => setError(e.message));
   }, []);
 
-  if (error) return <div className="alert error">{t("common.error", { message: error })}</div>;
+  if (error) return <Alert type="error">{t("common.error", { message: error })}</Alert>;
   if (!temples) return <Loader />;
 
   const temple = temples.find((tt) => tt.slug === active) || temples[0];
@@ -30,13 +32,13 @@ export default function About() {
 
   return (
     <>
-      <header style={{ marginBottom: 24 }}>
-        <p className="kicker">{t("about.kicker")}</p>
-        <h1>{t("about.title")}</h1>
-      </header>
+      <PageHeader
+        kicker={t("about.kicker")}
+        title={t("about.title")}
+      />
 
       {temples.length > 1 && (
-        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 24 }}>
+        <div className="filter-bar">
           {temples.map((tt) => (
             <button
               key={tt.slug}
@@ -50,10 +52,10 @@ export default function About() {
         </div>
       )}
 
-      <article className="card">
+      <article className="card about-content">
         <p className="kicker">{temple.location}</p>
-        <h2 style={{ marginTop: 4 }}>{name}</h2>
-        <p className={isTa ? "" : "tamil"} style={{ fontSize: "1.1rem", color: "var(--c-stone)", marginTop: 4 }}>
+        <h2>{name}</h2>
+        <p className={`cause-item-sub about-subname ${isTa ? "" : "tamil"}`}>
           {subname}
         </p>
 
@@ -63,7 +65,7 @@ export default function About() {
           <dt>{t("about.deity")}</dt>
           <dd>
             {deity}
-            <div className={isTa ? "" : "tamil"} style={{ color: "var(--c-stone)", fontSize: "0.95rem" }}>{deitySub}</div>
+            <div className={`cause-item-sub about-deity-sub ${isTa ? "" : "tamil"}`}>{deitySub}</div>
           </dd>
           <dt>{t("about.morning")}</dt>
           <dd>{temple.timings_morning}</dd>
@@ -74,13 +76,13 @@ export default function About() {
         <hr className="divider" />
 
         <h3>{t("about.history")}</h3>
-        <p style={{ marginTop: 8 }}>{temple.history}</p>
+        <p>{temple.history}</p>
 
-        <h3 style={{ marginTop: 24 }}>{t("about.architecture")}</h3>
-        <p style={{ marginTop: 8 }}>{temple.architecture}</p>
+        <h3>{t("about.architecture")}</h3>
+        <p>{temple.architecture}</p>
 
-        <h3 style={{ marginTop: 24 }}>{t("about.rituals")}</h3>
-        <p style={{ marginTop: 8 }}>{temple.rituals}</p>
+        <h3>{t("about.rituals")}</h3>
+        <p>{temple.rituals}</p>
       </article>
     </>
   );

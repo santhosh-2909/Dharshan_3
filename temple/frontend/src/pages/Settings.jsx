@@ -1,6 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { useTheme } from "../context/ThemeContext.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
+import PageHeader from "../components/PageHeader.jsx";
 
 export default function Settings() {
   const { t, i18n } = useTranslation();
@@ -11,16 +12,16 @@ export default function Settings() {
 
   return (
     <>
-      <header style={{ marginBottom: 24 }}>
-        <p className="kicker">{t("settings.kicker")}</p>
-        <h1>{t("settings.title")}</h1>
-      </header>
+      <PageHeader
+        kicker={t("settings.kicker")}
+        title={t("settings.title")}
+      />
 
       <div className="grid grid-2">
         <section className="card">
           <h3>{t("settings.appearance")}</h3>
           <p style={{ marginTop: 8 }}>{t("settings.appearanceLede")}</p>
-          <div style={{ marginTop: 16, display: "flex", gap: 8 }}>
+          <div className="settings-options">
             {[
               { id: "light", label: t("theme.light") },
               { id: "dark", label: t("theme.dark") },
@@ -40,7 +41,7 @@ export default function Settings() {
 
           <h3>{t("settings.language")}</h3>
           <p style={{ marginTop: 8 }}>{t("settings.languageLede")}</p>
-          <div style={{ marginTop: 16, display: "flex", gap: 8 }}>
+          <div className="settings-options">
             {[
               { id: "en", label: t("lang.english") },
               { id: "ta", label: t("lang.tamil") },

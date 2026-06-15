@@ -297,3 +297,128 @@ class CrowdDashboard(BaseModel):
     band: str
     today_hourly: list[CrowdHourPoint]
     next_seven_days: list[CrowdForecastDay]
+
+
+# ── Feature 1: Zone Heatmap ──────────────────────────────────────────────
+
+class ZoneHeatmapItem(BaseModel):
+    zone_name: str
+    zone_type: str
+    camera_id: str
+    x_pct: float
+    y_pct: float
+    width_pct: float
+    height_pct: float
+    people_count: int
+    density_pct: float
+    band: str
+
+
+# ── Feature 2: Festival Surge Predictor ───────────────────────────────────
+
+class FestivalSurge(BaseModel):
+    event_id: int
+    title_en: str
+    title_ta: str
+    starts_on: date
+    days_away: int
+    normal_footfall: int
+    predicted_footfall: int
+    surge_pct: float
+    risk_level: str
+
+
+# ── Feature 3: Queue Wait Time Estimator ─────────────────────────────────
+
+class GateWaitTime(BaseModel):
+    gate_id: int
+    name_en: str
+    name_ta: str
+    slug: str
+    is_open: bool
+    throughput_per_min: int
+    estimated_wait_min: float
+    crowd_at_gate: int
+    recommendation: str
+
+
+# ── Feature 4: Staff Deployment Recommender ───────────────────────────────
+
+class StaffHourRecommendation(BaseModel):
+    hour: int
+    expected_visitors: int
+    queue_marshals: int
+    prasad_staff: int
+    parking_attendants: int
+    security: int
+    total: int
+
+
+class StaffDayPlan(BaseModel):
+    date: date
+    weekday: str
+    peak_hour: int
+    peak_staff: int
+    total_staff_hours: int
+    hourly: list[StaffHourRecommendation]
+
+
+# ── Feature 5: Anomaly Alerts ─────────────────────────────────────────────
+
+class AlertOut(ORMModel):
+    id: int
+    detected_at: datetime
+    alert_type: str
+    message: str
+    severity: str
+    actual_value: int
+    expected_value: int
+    deviation_pct: float
+    is_resolved: bool
+
+
+# ── Feature 6: Revenue Analytics ──────────────────────────────────────────
+
+class MonthRevenue(BaseModel):
+    month: str
+    booking_revenue: float
+    donation_revenue: float
+    total: float
+
+
+class SevaRevenue(BaseModel):
+    seva_name: str
+    count: int
+    revenue: float
+
+
+class CauseRevenue(BaseModel):
+    cause: str
+    count: int
+    revenue: float
+
+
+class RevenueAnalytics(BaseModel):
+    monthly: list[MonthRevenue]
+    top_sevas: list[SevaRevenue]
+    top_causes: list[CauseRevenue]
+    total_booking_revenue: float
+    total_donation_revenue: float
+    grand_total: float
+
+
+# ── Feature 7: Optimal Visit Times ───────────────────────────────────────
+
+class OptimalSlot(BaseModel):
+    hour: int
+    expected_visitors: int
+    estimated_wait_min: float
+    band: str
+    recommendation: str
+
+
+class OptimalVisitResponse(BaseModel):
+    best_slots: list[OptimalSlot]
+    avoid_hours: list[int]
+    current_band: str
+    current_wait_min: float

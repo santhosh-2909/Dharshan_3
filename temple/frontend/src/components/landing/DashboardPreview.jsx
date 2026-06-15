@@ -19,6 +19,14 @@ export default function DashboardPreview({ stats, crowd }) {
         </div>
 
         <div className="l-preview reveal reveal-1">
+          {/* Decorative elephant sculpture */}
+          <img
+            className="l-preview-decor"
+            src="/images/elephant-sculpture.jpeg"
+            alt=""
+            aria-hidden="true"
+            draggable={false}
+          />
           <div className="l-preview-grid">
             <aside className="l-preview-side">
               <div className="nav-row active"><Icon name="home" size={16} /> {t("landing.preview.navOverview")}</div>
@@ -44,12 +52,10 @@ export default function DashboardPreview({ stats, crowd }) {
                 </span>
               </div>
               <div className="l-preview-chart">
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "end" }}>
+                <div className="l-preview-chart-head">
                   <div>
-                    <div style={{ fontSize: "0.7rem", letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--c-stone)" }}>
-                      {t("landing.preview.chartTitle")}
-                    </div>
-                    <div style={{ fontFamily: "var(--font-serif)", fontSize: "1.2rem", marginTop: 4 }}>
+                    <div className="label">{t("landing.preview.chartTitle")}</div>
+                    <div className="l-preview-chart-today">
                       {t("landing.preview.chartToday", { date: todayLabel })}
                     </div>
                   </div>

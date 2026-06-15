@@ -1,0 +1,356 @@
+/* ═══════════════════════════════════════════
+   features.css — Styles for new feature pages
+   ═══════════════════════════════════════════ */
+
+/* ── Heatmap ────────────────────────────── */
+
+.heatmap-lede {
+  color: var(--c-stone);
+  margin-bottom: 16px;
+  font-size: 0.95rem;
+}
+
+.heatmap-legend {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.heatmap-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.82rem;
+  color: var(--c-stone);
+}
+
+.heatmap-legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.heatmap-container {
+  background: var(--c-bg-elev);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-md);
+  padding: 16px;
+  overflow: hidden;
+}
+
+.heatmap-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.heatmap-tooltip {
+  margin-top: 16px;
+  max-width: 360px;
+}
+
+.heatmap-tooltip-grid {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 6px 16px;
+  margin-top: 12px;
+  font-size: 0.9rem;
+  align-items: center;
+}
+
+/* ── Queue Times ────────────────────────── */
+
+.queue-recommended {
+  border: 1.5px solid var(--c-success);
+}
+
+.queue-closed {
+  opacity: 0.65;
+}
+
+.queue-stats {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.queue-wait {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--c-saffron);
+}
+
+.queue-wait-value {
+  font-family: var(--font-serif);
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.queue-wait-unit {
+  font-size: 0.85rem;
+  color: var(--c-stone);
+}
+
+.queue-meta {
+  display: flex;
+  gap: 24px;
+  font-size: 0.88rem;
+}
+
+.queue-meta div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* ── Staff Planner ──────────────────────── */
+
+.staff-peak-row {
+  background: rgba(176, 118, 86, 0.08);
+}
+
+.staff-peak-row td {
+  color: var(--c-saffron);
+}
+
+[data-theme="dark"] .staff-peak-row {
+  background: rgba(200, 142, 114, 0.10);
+}
+
+/* ── Revenue ────────────────────────────── */
+
+.revenue-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  height: 200px;
+  margin-top: 16px;
+  padding-bottom: 24px;
+  position: relative;
+}
+
+.revenue-bar-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  justify-content: flex-end;
+}
+
+.revenue-bar-stack {
+  width: 100%;
+  max-width: 40px;
+  display: flex;
+  flex-direction: column;
+  border-radius: 4px 4px 0 0;
+  overflow: hidden;
+  min-height: 2px;
+}
+
+.revenue-bar-booking {
+  background: var(--c-saffron);
+  min-height: 1px;
+}
+
+.revenue-bar-donation {
+  background: var(--c-gold);
+  min-height: 1px;
+}
+
+.revenue-bar-label {
+  font-size: 0.72rem;
+  color: var(--c-stone);
+  margin-top: 6px;
+  text-align: center;
+}
+
+.revenue-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 4px;
+  vertical-align: middle;
+}
+
+.revenue-dot-booking {
+  background: var(--c-saffron);
+}
+
+.revenue-dot-donation {
+  background: var(--c-gold);
+}
+
+.revenue-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--c-border);
+}
+
+.revenue-item:last-child {
+  border-bottom: none;
+}
+
+.revenue-rank {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  background: var(--c-surface);
+  border-radius: 50%;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--c-stone);
+  flex-shrink: 0;
+}
+
+/* ── Festival Surge ─────────────────────── */
+
+.festival-surge-card {
+  position: relative;
+}
+
+.festival-countdown {
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.festival-countdown-num {
+  display: block;
+  font-family: var(--font-serif);
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--c-saffron);
+  line-height: 1;
+}
+
+.festival-countdown-label {
+  display: block;
+  font-size: 0.72rem;
+  color: var(--c-stone);
+  margin-top: 2px;
+}
+
+.festival-surge-bar-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.festival-surge-bar-bg {
+  flex: 1;
+  height: 8px;
+  background: var(--c-surface);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.festival-surge-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--c-gold), var(--c-saffron));
+  border-radius: 4px;
+  transition: width 0.4s ease;
+}
+
+.festival-surge-pct {
+  font-family: var(--font-serif);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--c-saffron);
+  white-space: nowrap;
+}
+
+/* ── Optimal Visit ──────────────────────── */
+
+.optimal-slot {
+  position: relative;
+  text-align: center;
+}
+
+.optimal-rank {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--c-gold);
+  background: var(--c-surface);
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+}
+
+.optimal-time {
+  font-family: var(--font-serif);
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--c-ink);
+  line-height: 1.1;
+  margin-bottom: 4px;
+}
+
+/* ── Band badges (shared) ───────────────── */
+
+.band {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.band.calm {
+  background: rgba(74, 125, 74, 0.12);
+  color: var(--c-success);
+}
+
+.band.moderate {
+  background: rgba(176, 118, 86, 0.12);
+  color: var(--c-gold);
+}
+
+.band.high {
+  background: rgba(176, 118, 86, 0.12);
+  color: var(--c-saffron);
+}
+
+.band.very\ high,
+.band.very {
+  background: rgba(148, 48, 35, 0.12);
+  color: var(--c-danger);
+}
+
+/* ── Responsive ─────────────────────────── */
+
+@media (max-width: 640px) {
+  .revenue-chart {
+    height: 140px;
+  }
+
+  .queue-meta {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .heatmap-legend {
+    gap: 10px;
+  }
+
+  .festival-surge-bar-wrap {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

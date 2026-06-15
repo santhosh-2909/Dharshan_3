@@ -19,6 +19,7 @@ export default function IntroVideo() {
 
   function dismiss() {
     sessionStorage.setItem(SEEN_KEY, "1");
+    document.body.style.overflow = "";
     if (sectionRef.current) sectionRef.current.classList.add("intro-leave");
     setTimeout(() => setActive(false), 600);
   }

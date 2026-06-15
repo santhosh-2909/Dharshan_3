@@ -171,3 +171,41 @@ class FAQ(Base):
     answer_en: Mapped[str] = mapped_column(Text)
     answer_ta: Mapped[str] = mapped_column(Text)
     sort_order: Mapped[int] = mapped_column(Integer, default=0)
+
+
+class ZoneMapping(Base):
+    __tablename__ = "zone_mappings"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    zone_name: Mapped[str] = mapped_column(String(80))
+    camera_id: Mapped[str] = mapped_column(String(40))
+    zone_type: Mapped[str] = mapped_column(String(40))
+    x_pct: Mapped[float] = mapped_column(Float)
+    y_pct: Mapped[float] = mapped_column(Float)
+    width_pct: Mapped[float] = mapped_column(Float)
+    height_pct: Mapped[float] = mapped_column(Float)
+
+
+class EntryGate(Base):
+    __tablename__ = "entry_gates"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name_en: Mapped[str] = mapped_column(String(120))
+    name_ta: Mapped[str] = mapped_column(String(120))
+    slug: Mapped[str] = mapped_column(String(40), unique=True)
+    throughput_per_min: Mapped[int] = mapped_column(Integer, default=8)
+    is_open: Mapped[bool] = mapped_column(Boolean, default=True)
+
+
+class AnomalyAlert(Base):
+    __tablename__ = "anomaly_alerts"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    detected_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    alert_type: Mapped[str] = mapped_column(String(40))
+    message: Mapped[str] = mapped_column(String(500))
+    severity: Mapped[str] = mapped_column(String(20))
+    actual_value: Mapped[int] = mapped_column(Integer)
+    expected_value: Mapped[int] = mapped_column(Integer)
+    deviation_pct: Mapped[float] = mapped_column(Float)
+    is_resolved: Mapped[bool] = mapped_column(Boolean, default=False)

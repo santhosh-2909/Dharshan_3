@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { api } from "../api/client.js";
 import Loader from "../components/Loader.jsx";
 import OpsLayout from "../components/OpsLayout.jsx";
+import Alert from "../components/Alert.jsx";
 
 export default function BookingStats() {
   const { t } = useTranslation();
@@ -14,7 +15,7 @@ export default function BookingStats() {
     api.bookingStats().then(setStats).catch((e) => setError(e.message));
   }, []);
 
-  if (error) return <OpsLayout><div className="alert error">{error}</div></OpsLayout>;
+  if (error) return <OpsLayout><Alert type="error">{error}</Alert></OpsLayout>;
   if (!stats) return <OpsLayout><Loader /></OpsLayout>;
 
   const slotMax = Math.max(stats.by_slot.morning, stats.by_slot.afternoon, stats.by_slot.evening, 1);
@@ -49,7 +50,7 @@ export default function BookingStats() {
         </div>
       </section>
 
-      <div className="dash-grid" style={{ marginTop: 18 }}>
+      <div className="dash-grid">
         <article className="dash-card">
           <header className="dash-card-head"><h3>{t("modules.bookingOps.title")}</h3></header>
           {[

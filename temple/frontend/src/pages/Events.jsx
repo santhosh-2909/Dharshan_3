@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { api } from "../api/client.js";
 import Loader from "../components/Loader.jsx";
+import PageHeader from "../components/PageHeader.jsx";
+import Alert from "../components/Alert.jsx";
 
 export default function Events() {
   const { t, i18n } = useTranslation();
@@ -19,20 +21,20 @@ export default function Events() {
       .catch((e) => setError(e.message));
   }, []);
 
-  if (error) return <div className="alert error">{t("common.error", { message: error })}</div>;
+  if (error) return <Alert type="error">{t("common.error", { message: error })}</Alert>;
   if (!events) return <Loader />;
 
   const filtered = events.filter((e) => filter === "all" || (filter === "festival" && e.is_festival));
 
   return (
     <>
-      <header style={{ marginBottom: 24 }}>
-        <p className="kicker">{t("events.kicker")}</p>
-        <h1>{t("events.title")}</h1>
-        <p style={{ marginTop: 8, maxWidth: "60ch" }}>{t("events.lede")}</p>
-      </header>
+      <PageHeader
+        kicker={t("events.kicker")}
+        title={t("events.title")}
+        lede={t("events.lede")}
+      />
 
-      <div style={{ display: "flex", gap: 8, marginBottom: 24 }}>
+      <div className="filter-bar">
         {[
           { id: "all", label: t("events.all") },
           { id: "festival", label: t("events.festivalOnly") },
@@ -55,7 +57,7 @@ export default function Events() {
               {e.is_festival ? t("events.festival") : e.category}
             </span>
             <h3 style={{ marginTop: 12 }}>{isTa ? e.title_ta : e.title_en}</h3>
-            <p className={isTa ? "" : "tamil"} style={{ color: "var(--c-stone)" }}>
+            <p className={`cause-item-sub ${isTa ? "" : "tamil"}`}>
               {isTa ? e.title_en : e.title_ta}
             </p>
             <p style={{ marginTop: 12 }}>{e.description}</p>

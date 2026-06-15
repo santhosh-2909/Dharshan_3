@@ -13,12 +13,20 @@ export default function CrowdHighlight({ crowd }) {
   const weekdayLocale = i18n.language === "ta" ? "ta-IN" : "en-IN";
 
   return (
-    <section className="l-section" style={{ paddingTop: 0 }}>
+    <section className="l-section l-section-flush l-crowd-section">
+      {/* Decorative relief panel */}
+      <img
+        className="l-crowd-decor"
+        src="/images/relief-scene.jpeg"
+        alt=""
+        aria-hidden="true"
+        draggable={false}
+      />
       <div className="container">
         <div className="l-crowd">
           <div className="reveal">
             <span className="kicker">{t("landing.crowd.kicker")}</span>
-            <h2 style={{ marginTop: 14 }}>{t("landing.crowd.title")}</h2>
+            <h2 className="l-crowd-title">{t("landing.crowd.title")}</h2>
             <ul className="l-crowd-points">
               <li>{t("landing.crowd.p1")}</li>
               <li>{t("landing.crowd.p2")}</li>
@@ -32,9 +40,9 @@ export default function CrowdHighlight({ crowd }) {
             <div className="l-crowd-meta">
               <div>
                 <div className="kicker">{t("landing.crowd.liveNow")}</div>
-                <div className="now">{crowd?.current_visitors?.toLocaleString("en-IN") ?? "—"}</div>
-                <div style={{ fontSize: "0.85rem", color: "var(--c-stone)" }}>
-                  {t("landing.crowd.ofCapacity", { pct: crowd?.occupancy_pct ?? 0, cap: crowd?.capacity ?? "—" })}
+                <div className="now">{crowd?.current_visitors?.toLocaleString("en-IN") ?? "\u2014"}</div>
+                <div className="l-crowd-cap">
+                  {t("landing.crowd.ofCapacity", { pct: crowd?.occupancy_pct ?? 0, cap: crowd?.capacity ?? "\u2014" })}
                 </div>
               </div>
               <span className={bandClass(crowd?.band)}>{localizedBand(crowd?.band ?? "Calm")}</span>

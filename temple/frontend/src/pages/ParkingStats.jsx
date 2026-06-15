@@ -4,6 +4,8 @@ import { useTranslation } from "react-i18next";
 import { api } from "../api/client.js";
 import Loader from "../components/Loader.jsx";
 import OpsLayout from "../components/OpsLayout.jsx";
+import Alert from "../components/Alert.jsx";
+import EmptyState from "../components/EmptyState.jsx";
 
 const VEHICLE_TYPES = ["car", "bike", "bus", "auto"];
 
@@ -28,7 +30,7 @@ export default function ParkingStats() {
 
   useEffect(() => { refresh(); }, [refresh]);
 
-  if (error && !stats) return <OpsLayout><div className="alert error">{error}</div></OpsLayout>;
+  if (error && !stats) return <OpsLayout><Alert type="error">{error}</Alert></OpsLayout>;
   if (!lots || !stats) return <OpsLayout><Loader /></OpsLayout>;
 
   async function markExit(id) {
@@ -80,7 +82,7 @@ export default function ParkingStats() {
         </div>
       </section>
 
-      <article className="dash-card" style={{ marginTop: 18 }}>
+      <article className="dash-card">
         <header className="dash-card-head">
           <h3>{t("modules.parkingOps.byTypeTitle")}</h3>
           <span className={`status-pill ${stats.status_color}`}>
@@ -103,7 +105,7 @@ export default function ParkingStats() {
             );
           })}
         </div>
-        <p style={{ marginTop: 14, fontSize: "0.82rem", color: "var(--c-stone)" }}>
+        <p className="cause-item-sub" style={{ marginTop: 14, fontSize: "0.82rem" }}>
           {t("modules.parkingOps.logicNote")}
         </p>
       </article>
@@ -131,7 +133,6 @@ export default function ParkingStats() {
                 <div className="park-types">
                   {VEHICLE_TYPES.map((vt) => {
                     const cap = s.lot[`capacity_${vt}`];
-                    const occ = s.occupied[vt];
                     const avail = s.available[vt];
                     return (
                       <div key={vt} className={"t" + (avail === 0 ? " full" : "")}>
@@ -152,13 +153,13 @@ export default function ParkingStats() {
         </div>
       </section>
 
-      <article className="dash-card" style={{ marginTop: 18 }}>
+      <article className="dash-card">
         <header className="dash-card-head">
           <h3>{t("parking.exitTitle")}</h3>
         </header>
         <div>
           {active.length === 0 ? (
-            <p>{t("parking.exitNone")}</p>
+            <EmptyState icon="parking" message={t("parking.exitNone")} />
           ) : (
             active.map((v) => {
               const lot = lots.find((l) => l.lot.id === v.lot_id);

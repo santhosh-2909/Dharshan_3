@@ -5,6 +5,7 @@ import { api } from "../api/client.js";
 import Loader from "../components/Loader.jsx";
 import Sidebar from "../components/Sidebar.jsx";
 import Icon from "../components/Icon.jsx";
+import Alert from "../components/Alert.jsx";
 
 const fmtINR = (n) => "₹" + Math.round(n).toLocaleString("en-IN");
 
@@ -34,9 +35,37 @@ export default function Dashboard() {
   }, []);
 
   if (error && !parking && !booking && !cctv) {
-    return <div className="alert error">{t("common.error", { message: error })}</div>;
+    return <Alert type="error">{t("common.error", { message: error })}</Alert>;
   }
   if (!parking || !booking || !cctv || !report) return <Loader />;
+
+  const modules = [
+    {
+      to: "/dashboard/parking", icon: "parking",
+      label: t("nav.parking"), num: parking.currently_parked,
+      sub: t("modules.parkingOps.currentlyParked"),
+    },
+    {
+      to: "/dashboard/bookings", icon: "lotus",
+      label: t("nav.booking"), num: booking.total_bookings,
+      sub: t("modules.bookingOps.total"),
+    },
+    {
+      to: "/cctv", icon: "shield",
+      label: t("nav.cctv"), num: cctv.current_count,
+      sub: t("modules.cctv.currentCount"),
+    },
+    {
+      to: "/prediction", icon: "crystal",
+      label: t("nav.prediction"), num: "5y",
+      sub: t("modules.prediction.kicker"),
+    },
+    {
+      to: "/final-report", icon: "layers",
+      label: t("nav.finalReport"), num: report.overall_total_crowd.toLocaleString("en-IN"),
+      sub: t("modules.finalReport.overallTotal"),
+    },
+  ];
 
   return (
     <div className="dash-shell">
@@ -47,7 +76,7 @@ export default function Dashboard() {
           <div>
             <p className="kicker">{t("modules.dashboardHome.kicker")}</p>
             <h1>{t("modules.dashboardHome.title")}</h1>
-            <p style={{ marginTop: 8, maxWidth: "60ch", color: "var(--c-stone)" }}>
+            <p className="page-header-lede">
               {t("modules.dashboardHome.lede")}
             </p>
           </div>
@@ -66,7 +95,7 @@ export default function Dashboard() {
               <span className={`status-pill ${parking.status_color}`}>
                 {t(`modules.parkingOps.status${parking.status_color === "green" ? "Comfortable" : parking.status_color === "yellow" ? "Filling" : "Full"}`)}
               </span>
-              <span style={{ marginLeft: 8 }}>
+              <span className="delta-extra">
                 {t("modules.dashboardHome.parkingStatusSub", { available: parking.available_slots })}
               </span>
             </div>
@@ -87,59 +116,25 @@ export default function Dashboard() {
           </div>
         </section>
 
-        <section className="section" style={{ marginTop: 32 }}>
+        <section className="section">
           <div className="section-head">
             <p className="kicker">{t("modules.kicker")}</p>
-            <span style={{ color: "var(--c-stone)", fontSize: "0.9rem" }}>
+            <span className="page-header-lede" style={{ fontSize: "0.9rem", marginTop: 0 }}>
               {t("modules.dashboardHome.peakLine", { hour: String(report.peak_hour).padStart(2, "0") })}
             </span>
           </div>
           <div className="modules-grid">
-            <Link to="/dashboard/parking" className="module-card">
-              <div className="ico"><Icon name="parking" /></div>
-              <h3>{t("nav.parking")}</h3>
-              <span className="num">{parking.currently_parked}</span>
-              <span className="sub">{t("modules.parkingOps.currentlyParked")}</span>
-              <span style={{ marginTop: "auto", color: "var(--c-saffron-deep)", fontWeight: 600, fontSize: "0.85rem" }}>
-                {t("modules.dashboardHome.openModule")} →
-              </span>
-            </Link>
-            <Link to="/dashboard/bookings" className="module-card">
-              <div className="ico"><Icon name="lotus" /></div>
-              <h3>{t("nav.booking")}</h3>
-              <span className="num">{booking.total_bookings}</span>
-              <span className="sub">{t("modules.bookingOps.total")}</span>
-              <span style={{ marginTop: "auto", color: "var(--c-saffron-deep)", fontWeight: 600, fontSize: "0.85rem" }}>
-                {t("modules.dashboardHome.openModule")} →
-              </span>
-            </Link>
-            <Link to="/cctv" className="module-card">
-              <div className="ico"><Icon name="shield" /></div>
-              <h3>{t("nav.cctv")}</h3>
-              <span className="num">{cctv.current_count}</span>
-              <span className="sub">{t("modules.cctv.currentCount")}</span>
-              <span style={{ marginTop: "auto", color: "var(--c-saffron-deep)", fontWeight: 600, fontSize: "0.85rem" }}>
-                {t("modules.dashboardHome.openModule")} →
-              </span>
-            </Link>
-            <Link to="/prediction" className="module-card">
-              <div className="ico"><Icon name="crystal" /></div>
-              <h3>{t("nav.prediction")}</h3>
-              <span className="num">5y</span>
-              <span className="sub">{t("modules.prediction.kicker")}</span>
-              <span style={{ marginTop: "auto", color: "var(--c-saffron-deep)", fontWeight: 600, fontSize: "0.85rem" }}>
-                {t("modules.dashboardHome.openModule")} →
-              </span>
-            </Link>
-            <Link to="/final-report" className="module-card">
-              <div className="ico"><Icon name="layers" /></div>
-              <h3>{t("nav.finalReport")}</h3>
-              <span className="num">{report.overall_total_crowd.toLocaleString("en-IN")}</span>
-              <span className="sub">{t("modules.finalReport.overallTotal")}</span>
-              <span style={{ marginTop: "auto", color: "var(--c-saffron-deep)", fontWeight: 600, fontSize: "0.85rem" }}>
-                {t("modules.dashboardHome.openModule")} →
-              </span>
-            </Link>
+            {modules.map((m) => (
+              <Link key={m.to} to={m.to} className="module-card">
+                <div className="ico"><Icon name={m.icon} /></div>
+                <h3>{m.label}</h3>
+                <span className="num">{m.num}</span>
+                <span className="sub">{m.sub}</span>
+                <span className="module-link">
+                  {t("modules.dashboardHome.openModule")} →
+                </span>
+              </Link>
+            ))}
           </div>
         </section>
       </div>

@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { api } from "../api/client.js";
 import Loader from "../components/Loader.jsx";
+import PageHeader from "../components/PageHeader.jsx";
+import Alert from "../components/Alert.jsx";
 
 export default function FAQ() {
   const { t, i18n } = useTranslation();
@@ -13,16 +15,16 @@ export default function FAQ() {
     api.faq().then(setItems).catch((e) => setError(e.message));
   }, []);
 
-  if (error) return <div className="alert error">{t("common.error", { message: error })}</div>;
+  if (error) return <Alert type="error">{t("common.error", { message: error })}</Alert>;
   if (!items) return <Loader />;
 
   return (
     <>
-      <header style={{ marginBottom: 24 }}>
-        <p className="kicker">{t("faqPage.kicker")}</p>
-        <h1>{t("faqPage.title")}</h1>
-      </header>
-      <div style={{ display: "grid", gap: 12 }}>
+      <PageHeader
+        kicker={t("faqPage.kicker")}
+        title={t("faqPage.title")}
+      />
+      <div className="faq-list">
         {items.map((f) => (
           <details key={f.id} className="faq">
             <summary>{isTa ? f.question_ta : f.question_en}</summary>

@@ -3,7 +3,20 @@ from math import pi, sin
 
 from sqlalchemy.orm import Session
 
-from .models import CCTVCount, Event, FAQ, Feedback, FootfallHistory, ParkingLot, SevaSlot, TempleInfo, User
+from .models import (
+    AnomalyAlert,
+    CCTVCount,
+    EntryGate,
+    Event,
+    FAQ,
+    Feedback,
+    FootfallHistory,
+    ParkingLot,
+    SevaSlot,
+    TempleInfo,
+    User,
+    ZoneMapping,
+)
 from .security import hash_password
 
 
@@ -91,6 +104,146 @@ def _seed_cctv(db: Session) -> None:
         for cam_id, factor in cameras:
             rows.append(CCTVCount(camera_id=cam_id, recorded_at=ts, people_count=int(base_count * factor)))
     db.add_all(rows)
+
+
+def _seed_zones(db: Session) -> None:
+    if db.query(ZoneMapping).count() != 0:
+        return
+    db.add_all(
+        [
+            ZoneMapping(
+                zone_name="Sanctum Sanctorum",
+                camera_id="sanctum",
+                zone_type="sanctum",
+                x_pct=42.0,
+                y_pct=35.0,
+                width_pct=16.0,
+                height_pct=20.0,
+            ),
+            ZoneMapping(
+                zone_name="Main Queue Corridor",
+                camera_id="main",
+                zone_type="queue",
+                x_pct=15.0,
+                y_pct=40.0,
+                width_pct=25.0,
+                height_pct=12.0,
+            ),
+            ZoneMapping(
+                zone_name="South Gate Entry",
+                camera_id="south-gate",
+                zone_type="entry",
+                x_pct=45.0,
+                y_pct=85.0,
+                width_pct=20.0,
+                height_pct=10.0,
+            ),
+            ZoneMapping(
+                zone_name="Prasad Counter",
+                camera_id="main",
+                zone_type="prasad",
+                x_pct=70.0,
+                y_pct=45.0,
+                width_pct=14.0,
+                height_pct=10.0,
+            ),
+            ZoneMapping(
+                zone_name="Annadhanam Hall",
+                camera_id="south-gate",
+                zone_type="dining",
+                x_pct=72.0,
+                y_pct=70.0,
+                width_pct=22.0,
+                height_pct=18.0,
+            ),
+            ZoneMapping(
+                zone_name="Temple Tank",
+                camera_id="main",
+                zone_type="open",
+                x_pct=8.0,
+                y_pct=10.0,
+                width_pct=30.0,
+                height_pct=22.0,
+            ),
+        ]
+    )
+
+
+def _seed_entry_gates(db: Session) -> None:
+    if db.query(EntryGate).count() != 0:
+        return
+    db.add_all(
+        [
+            EntryGate(
+                name_en="North Gate",
+                name_ta="வடக்கு வாசல்",
+                slug="north-gate",
+                throughput_per_min=10,
+                is_open=True,
+            ),
+            EntryGate(
+                name_en="South Gate",
+                name_ta="தென் வாசல்",
+                slug="south-gate",
+                throughput_per_min=8,
+                is_open=True,
+            ),
+            EntryGate(
+                name_en="East Gate",
+                name_ta="கிழக்கு வாசல்",
+                slug="east-gate",
+                throughput_per_min=6,
+                is_open=True,
+            ),
+            EntryGate(
+                name_en="West Gate",
+                name_ta="மேற்கு வாசல்",
+                slug="west-gate",
+                throughput_per_min=5,
+                is_open=False,
+            ),
+        ]
+    )
+
+
+def _seed_anomaly_alerts(db: Session) -> None:
+    if db.query(AnomalyAlert).count() != 0:
+        return
+    now = datetime.now()
+    db.add_all(
+        [
+            AnomalyAlert(
+                detected_at=now - timedelta(hours=3),
+                alert_type="overcrowd",
+                message="Crowd count (1450) exceeds expected (980) by 48.0% at hour 10:00. Consider opening additional gates and deploying extra staff.",
+                severity="warning",
+                actual_value=1450,
+                expected_value=980,
+                deviation_pct=48.0,
+                is_resolved=False,
+            ),
+            AnomalyAlert(
+                detected_at=now - timedelta(hours=6),
+                alert_type="undercrowd",
+                message="Crowd count (120) is 65.7% below expected (350) at hour 7:00. Possible sensor issue or unexpected low turnout.",
+                severity="info",
+                actual_value=120,
+                expected_value=350,
+                deviation_pct=-65.7,
+                is_resolved=True,
+            ),
+            AnomalyAlert(
+                detected_at=now - timedelta(minutes=45),
+                alert_type="overcrowd",
+                message="Crowd count (1680) exceeds expected (1050) by 60.0% at hour 12:00. Consider opening additional gates and deploying extra staff.",
+                severity="critical",
+                actual_value=1680,
+                expected_value=1050,
+                deviation_pct=60.0,
+                is_resolved=False,
+            ),
+        ]
+    )
 
 
 def seed(db: Session) -> None:
@@ -330,6 +483,9 @@ def seed(db: Session) -> None:
 
     _seed_cctv(db)
     _seed_footfall_history(db)
+    _seed_zones(db)
+    _seed_entry_gates(db)
+    _seed_anomaly_alerts(db)
 
     if db.query(User).filter(User.email == "demo@aalayam.in").first() is None:
         db.add(

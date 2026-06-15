@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Link, NavLink, useNavigate } from "react-router-dom";
+import { Link, NavLink, useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../context/AuthContext.jsx";
 import { useTheme } from "../context/ThemeContext.jsx";
@@ -9,6 +9,7 @@ export default function Nav() {
   const { theme, toggle } = useTheme();
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const { pathname } = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const menuRef = useRef(null);
@@ -20,9 +21,15 @@ export default function Nav() {
     { to: "/donations", label: t("nav.donations") },
     { to: "/parking", label: t("nav.parking") },
     { to: "/dashboard", label: t("nav.dashboard") },
+    { to: "/heatmap", label: "Heatmap" },
+    { to: "/queue", label: "Queue" },
   ];
 
   const lang = i18n.resolvedLanguage || i18n.language || "en";
+
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [pathname]);
 
   useEffect(() => {
     function onClick(e) {
@@ -113,14 +120,14 @@ export default function Nav() {
               </button>
               {menuOpen && (
                 <div className="menu-panel" role="menu">
-                  <Link to="/settings" onClick={() => setMenuOpen(false)}>{t("nav.settings")}</Link>
-                  <Link to="/faq" onClick={() => setMenuOpen(false)}>{t("nav.faq")}</Link>
-                  <Link to="/feedback" onClick={() => setMenuOpen(false)}>{t("nav.feedback")}</Link>
-                  <Link to="/about" onClick={() => setMenuOpen(false)}>{t("nav.aboutTemple")}</Link>
+                  <Link to="/settings" role="menuitem" onClick={() => setMenuOpen(false)}>{t("nav.settings")}</Link>
+                  <Link to="/faq" role="menuitem" onClick={() => setMenuOpen(false)}>{t("nav.faq")}</Link>
+                  <Link to="/feedback" role="menuitem" onClick={() => setMenuOpen(false)}>{t("nav.feedback")}</Link>
+                  <Link to="/about" role="menuitem" onClick={() => setMenuOpen(false)}>{t("nav.aboutTemple")}</Link>
                   <hr />
                   {user ? (
                     <>
-                      <span style={{ padding: "8px 12px", fontSize: "0.85rem", color: "var(--c-stone)" }}>
+                      <span className="menu-panel-info">
                         {t("nav.signedInAs", { name: user.name })}
                       </span>
                       <button type="button" onClick={handleSignOut}>{t("nav.signOut")}</button>

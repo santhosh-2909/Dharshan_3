@@ -1,12 +1,12 @@
 import { useTranslation } from "react-i18next";
 
 const tiles = [
-  { layout: "t1", art: "art-gopuram", t: 1 },
-  { layout: "t2", art: "art-aarti", t: 2 },
-  { layout: "t3", art: "art-flowers", t: 3 },
-  { layout: "t4", art: "art-procession", t: 4 },
-  { layout: "t5", art: "art-deepa", t: 5 },
-  { layout: "t6", art: "art-tank", t: 6 },
+  { layout: "t1", img: "/images/gajalakshmi-mural.jpeg", t: 1 },
+  { layout: "t2", img: "/images/gopuram-sculptures.jpeg", t: 2 },
+  { layout: "t3", img: "/images/yali-pillar-color.jpeg", t: 3 },
+  { layout: "t4", img: "/images/chariot-wheel.jpeg", t: 4 },
+  { layout: "t5", img: "/images/elephant-sculpture.jpeg", t: 5 },
+  { layout: "t6", img: "/images/tamil-inscription.jpeg", t: 6 },
 ];
 
 export default function Gallery() {
@@ -26,7 +26,13 @@ export default function Gallery() {
               key={tile.t}
               className={`tile ${tile.layout} reveal reveal-${Math.min(4, (i % 4) + 1)}`}
             >
-              <div className={`art ${tile.art}`} aria-hidden="true" />
+              <img
+                className="art"
+                src={tile.img}
+                alt={t(`landing.gallery.t${tile.t}`)}
+                loading="lazy"
+                draggable={false}
+              />
               <figcaption className="cap">
                 <strong>{t(`landing.gallery.t${tile.t}`)}</strong>
                 <span>{t(`landing.gallery.s${tile.t}`)}</span>

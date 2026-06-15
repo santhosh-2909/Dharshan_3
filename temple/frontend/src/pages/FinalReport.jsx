@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { api } from "../api/client.js";
 import Loader from "../components/Loader.jsx";
 import OpsLayout from "../components/OpsLayout.jsx";
+import Alert from "../components/Alert.jsx";
 
 export default function FinalReport() {
   const { t } = useTranslation();
@@ -13,7 +14,7 @@ export default function FinalReport() {
     api.finalReport().then(setReport).catch((e) => setError(e.message));
   }, []);
 
-  if (error) return <OpsLayout><div className="alert error">{error}</div></OpsLayout>;
+  if (error) return <OpsLayout><Alert type="error">{error}</Alert></OpsLayout>;
   if (!report) return <OpsLayout><Loader /></OpsLayout>;
 
   const slices = [
@@ -29,7 +30,7 @@ export default function FinalReport() {
         <div>
           <p className="kicker">{t("modules.finalReport.kicker")}</p>
           <h1>{t("modules.finalReport.title")}</h1>
-          <p style={{ marginTop: 8, maxWidth: "60ch", color: "var(--c-stone)" }}>
+          <p className="page-header-lede">
             {t("modules.finalReport.lede")}
           </p>
         </div>
@@ -44,7 +45,7 @@ export default function FinalReport() {
         </div>
       </section>
 
-      <section className="fr-totals" style={{ marginTop: 18 }}>
+      <section className="fr-totals">
         {slices.map((s) => (
           <article key={s.key} className="dash-stat">
             <div className="label">{s.label}</div>
@@ -58,7 +59,7 @@ export default function FinalReport() {
         ))}
       </section>
 
-      <article className="dash-card" style={{ marginTop: 18 }}>
+      <article className="dash-card">
         <header className="dash-card-head">
           <h3>{t("modules.finalReport.summaryTitle")}</h3>
         </header>
@@ -67,7 +68,7 @@ export default function FinalReport() {
             <li key={line}>{line}</li>
           ))}
         </ul>
-        <p style={{ marginTop: 14, fontSize: "0.85rem", color: "var(--c-stone)" }}>
+        <p className="cause-item-sub" style={{ marginTop: 14, fontSize: "0.85rem" }}>
           {t("modules.finalReport.exportNote")}
         </p>
       </article>

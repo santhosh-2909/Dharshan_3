@@ -2,6 +2,9 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { api } from "../api/client.js";
 import Loader from "../components/Loader.jsx";
+import PageHeader from "../components/PageHeader.jsx";
+import Alert from "../components/Alert.jsx";
+import EmptyState from "../components/EmptyState.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
 
 export default function Donations() {
@@ -57,18 +60,18 @@ export default function Donations() {
 
   return (
     <>
-      <header style={{ marginBottom: 24 }}>
-        <p className="kicker">{t("donations.kicker")}</p>
-        <h1>{t("donations.title")}</h1>
-        <p style={{ marginTop: 8, maxWidth: "60ch" }}>{t("donations.lede")}</p>
-      </header>
+      <PageHeader
+        kicker={t("donations.kicker")}
+        title={t("donations.title")}
+        lede={t("donations.lede")}
+      />
 
       <div className="grid grid-2">
         <section className="card">
           <h2>{t("donations.make")}</h2>
-          {error && <div className="alert error" style={{ marginTop: 12 }}>{error}</div>}
-          {success && <div className="alert success" style={{ marginTop: 12 }}>{success}</div>}
-          <form className="form" onSubmit={submit} style={{ marginTop: 16 }}>
+          <Alert type="error">{error}</Alert>
+          <Alert type="success">{success}</Alert>
+          <form className="form" onSubmit={submit}>
             <div className="field">
               <label htmlFor="donor">{t("donations.name")}</label>
               <input
@@ -108,7 +111,7 @@ export default function Donations() {
                 onChange={(e) => setForm({ ...form, amount_inr: e.target.value })}
               />
             </div>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+            <div className="quick-amounts">
               {[101, 251, 501, 1001].map((v) => (
                 <button
                   key={v}
@@ -123,7 +126,7 @@ export default function Donations() {
             <button type="submit" className="btn btn-primary" disabled={busy}>
               {busy ? t("donations.submitting") : t("donations.submit")}
             </button>
-            <p style={{ fontSize: "0.85rem", color: "var(--c-stone)" }}>
+            <p className="cause-item-sub" style={{ fontSize: "0.85rem" }}>
               {t("donations.razorpayNote")}
             </p>
           </form>
@@ -131,11 +134,11 @@ export default function Donations() {
 
         <section className="card">
           <h2>{t("donations.where")}</h2>
-          <div style={{ marginTop: 16, display: "grid", gap: 12 }}>
+          <div className="form">
             {causes.map((c) => (
-              <div key={c.id} style={{ borderBottom: "1px solid var(--c-border)", paddingBottom: 12 }}>
+              <div key={c.id} className="cause-item">
                 <strong>{isTa ? c.name_ta : c.name_en}</strong>
-                <div className={isTa ? "" : "tamil"} style={{ color: "var(--c-stone)" }}>
+                <div className={`cause-item-sub ${isTa ? "" : "tamil"}`}>
                   {isTa ? c.name_en : c.name_ta}
                 </div>
                 <div className="card-meta">{t("donations.from", { min: c.min_inr })}</div>
@@ -151,28 +154,30 @@ export default function Donations() {
         </div>
         <div className="card">
           {recent.length === 0 ? (
-            <p>{t("donations.noneYet")}</p>
+            <EmptyState message={t("donations.noneYet")} />
           ) : (
-            <table className="table">
-              <thead>
-                <tr>
-                  <th>{t("donations.tableDonor")}</th>
-                  <th>{t("donations.tableCause")}</th>
-                  <th>{t("donations.tableAmount")}</th>
-                  <th>{t("donations.tableRef")}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {recent.map((d) => (
-                  <tr key={d.id}>
-                    <td>{d.donor_name}</td>
-                    <td>{d.purpose}</td>
-                    <td>₹{d.amount_inr.toLocaleString("en-IN")}</td>
-                    <td>{d.reference}</td>
+            <div className="table-wrap">
+              <table className="table">
+                <thead>
+                  <tr>
+                    <th>{t("donations.tableDonor")}</th>
+                    <th>{t("donations.tableCause")}</th>
+                    <th>{t("donations.tableAmount")}</th>
+                    <th>{t("donations.tableRef")}</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {recent.map((d) => (
+                    <tr key={d.id}>
+                      <td>{d.donor_name}</td>
+                      <td>{d.purpose}</td>
+                      <td>₹{d.amount_inr.toLocaleString("en-IN")}</td>
+                      <td>{d.reference}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
         </div>
       </section>

@@ -95,4 +95,26 @@ export const api = {
 
   // prediction
   predict: (target_date) => request("/predict", { method: "POST", body: { target_date } }),
+
+  // zones heatmap
+  zoneHeatmap: () => request("/zones/heatmap"),
+
+  // queue wait times
+  queueWaitTimes: () => request("/queue/wait-times"),
+
+  // staff recommendations
+  staffRecommendations: (date) => request(`/staff/recommendations?date=${date}`),
+
+  // alerts
+  alerts: () => request("/alerts"),
+  alertsCheck: () => request("/alerts/check"),
+
+  // revenue
+  revenueAnalytics: () => request("/revenue/analytics"),
+
+  // festival surges
+  festivalSurges: () => request("/events/surges"),
+
+  // optimal visit
+  optimalVisit: () => request("/crowd/optimal-visit"),
 };

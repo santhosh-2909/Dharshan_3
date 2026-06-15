@@ -3,6 +3,9 @@ import { useTranslation } from "react-i18next";
 import { api } from "../api/client.js";
 import Loader from "../components/Loader.jsx";
 import Stars from "../components/Stars.jsx";
+import PageHeader from "../components/PageHeader.jsx";
+import Alert from "../components/Alert.jsx";
+import EmptyState from "../components/EmptyState.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
 
 export default function Feedback() {
@@ -42,18 +45,18 @@ export default function Feedback() {
 
   return (
     <>
-      <header style={{ marginBottom: 24 }}>
-        <p className="kicker">{t("feedback.kicker")}</p>
-        <h1>{t("feedback.title")}</h1>
-        <p style={{ marginTop: 8, maxWidth: "60ch" }}>{t("feedback.lede")}</p>
-      </header>
+      <PageHeader
+        kicker={t("feedback.kicker")}
+        title={t("feedback.title")}
+        lede={t("feedback.lede")}
+      />
 
       <div className="grid grid-2">
         <section className="card">
           <h2>{t("feedback.share")}</h2>
-          {error && <div className="alert error" style={{ marginTop: 12 }}>{error}</div>}
-          {success && <div className="alert success" style={{ marginTop: 12 }}>{success}</div>}
-          <form className="form" onSubmit={submit} style={{ marginTop: 16 }}>
+          <Alert type="error">{error}</Alert>
+          <Alert type="success">{success}</Alert>
+          <form className="form" onSubmit={submit}>
             <div className="field">
               <label htmlFor="fb-name">{t("feedback.name")}</label>
               <input
@@ -96,19 +99,19 @@ export default function Feedback() {
 
         <section className="card">
           <h2>{t("feedback.recent")}</h2>
-          <div style={{ marginTop: 16, display: "grid", gap: 14 }}>
+          <div className="form">
             {!list ? (
               <Loader />
             ) : list.length === 0 ? (
-              <p>{t("feedback.noneYet")}</p>
+              <EmptyState message={t("feedback.noneYet")} />
             ) : (
               list.map((f) => (
-                <article key={f.id} style={{ borderBottom: "1px solid var(--c-border)", paddingBottom: 12 }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <article key={f.id} className="feedback-item">
+                  <div className="feedback-item-head">
                     <strong>{f.name}</strong>
                     <Stars value={f.rating} />
                   </div>
-                  <p style={{ marginTop: 6 }}>{f.message}</p>
+                  <p>{f.message}</p>
                 </article>
               ))
             )}

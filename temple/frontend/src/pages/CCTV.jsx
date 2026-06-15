@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { api } from "../api/client.js";
 import Loader from "../components/Loader.jsx";
 import OpsLayout from "../components/OpsLayout.jsx";
+import Alert from "../components/Alert.jsx";
 
 export default function CCTV() {
   const { t } = useTranslation();
@@ -22,7 +23,7 @@ export default function CCTV() {
     return () => clearInterval(id);
   }, [refresh]);
 
-  if (error && !stats) return <OpsLayout><div className="alert error">{error}</div></OpsLayout>;
+  if (error && !stats) return <OpsLayout><Alert type="error">{error}</Alert></OpsLayout>;
   if (!stats) return <OpsLayout><Loader /></OpsLayout>;
 
   const max = Math.max(...stats.hourly.map((h) => h.people_count), 1);
@@ -62,7 +63,7 @@ export default function CCTV() {
         <article className="dash-card" style={{ padding: 0, overflow: "hidden" }}>
           <div className="cctv-stage">
             <span className="live-dot">{t("common.live")}</span>
-            <span style={{ fontFamily: "var(--font-serif)", fontSize: "1.1rem", textAlign: "center", padding: "0 24px", maxWidth: "70%" }}>
+            <span className="cctv-placeholder">
               {t("modules.cctv.feedPlaceholder")}
             </span>
           </div>
@@ -72,8 +73,8 @@ export default function CCTV() {
           <header className="dash-card-head">
             <h3>{t("modules.cctv.ingestTitle")}</h3>
           </header>
-          {error && <div className="alert error" style={{ marginBottom: 12 }}>{error}</div>}
-          {success && <div className="alert success" style={{ marginBottom: 12 }}>{success}</div>}
+          <Alert type="error">{error}</Alert>
+          <Alert type="success">{success}</Alert>
           <form className="form" onSubmit={submit}>
             <div className="field">
               <label htmlFor="cnt">{t("modules.cctv.ingestPeople")}</label>
@@ -103,7 +104,7 @@ export default function CCTV() {
         </article>
       </div>
 
-      <section className="dash-stats" style={{ marginTop: 18 }}>
+      <section className="dash-stats">
         <div className="dash-stat">
           <div className="label">{t("modules.cctv.totalDetected")}</div>
           <div className="value">{stats.total_detected_today.toLocaleString("en-IN")}</div>
@@ -122,7 +123,7 @@ export default function CCTV() {
         </div>
       </section>
 
-      <article className="dash-card" style={{ marginTop: 18 }}>
+      <article className="dash-card">
         <header className="dash-card-head">
           <h3>{t("modules.cctv.hourlyTitle")}</h3>
           <span className="status-pill green">{t("common.live")}</span>

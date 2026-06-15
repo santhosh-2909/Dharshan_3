@@ -5,6 +5,13 @@ export default function SiteFooter() {
   const { t } = useTranslation();
   return (
     <footer className="l-footer">
+      <img
+        className="l-footer-decor"
+        src="/images/gajalakshmi-mural.jpeg"
+        alt=""
+        aria-hidden="true"
+        draggable={false}
+      />
       <div className="container">
         <div className="l-footer-grid">
           <div className="l-foot-brand">

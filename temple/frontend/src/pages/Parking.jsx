@@ -2,6 +2,8 @@ import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { api } from "../api/client.js";
 import Loader from "../components/Loader.jsx";
+import PageHeader from "../components/PageHeader.jsx";
+import Alert from "../components/Alert.jsx";
 
 const VEHICLE_TYPES = ["car", "bike", "bus", "auto"];
 
@@ -56,21 +58,19 @@ export default function Parking() {
       refresh();
     } catch (err) {
       setError(err.message);
-    }
-    finally {
+    } finally {
       setBusy(false);
     }
   }
 
   return (
     <>
-      <header style={{ marginBottom: 24 }}>
-        <p className="kicker">{t("parking.kicker")}</p>
-        <h1>{t("parking.title")}</h1>
-        <p style={{ marginTop: 8, maxWidth: "60ch" }}>{t("parking.lede")}</p>
-      </header>
+      <PageHeader
+        kicker={t("parking.kicker")}
+        title={t("parking.title")}
+        lede={t("parking.lede")}
+      />
 
-      {/* Two simple top-line numbers — entries + free slots. */}
       <section className="grid grid-2" style={{ marginBottom: 24 }}>
         <article className="stat">
           <div className="label">{t("modules.parkingOps.entered")}</div>
@@ -85,9 +85,9 @@ export default function Parking() {
 
       <section className="card">
         <h2>{t("parking.registerHeading")}</h2>
-        {error && <div className="alert error" style={{ marginTop: 12 }}>{error}</div>}
-        {success && <div className="alert success" style={{ marginTop: 12 }}>{success}</div>}
-        <form className="form" onSubmit={submit} style={{ marginTop: 16 }}>
+        <Alert type="error">{error}</Alert>
+        <Alert type="success">{success}</Alert>
+        <form className="form" onSubmit={submit}>
           <div className="field">
             <label htmlFor="lot">{t("parking.lotLabel")}</label>
             <select
@@ -122,12 +122,11 @@ export default function Parking() {
             <label htmlFor="vn">{t("parking.vehicleNumber")}</label>
             <input
               id="vn"
-              className="input"
+              className="input input-plate"
               placeholder={t("parking.vehicleNumberPh")}
               required
               value={form.vehicle_number}
               onChange={(e) => setForm({ ...form, vehicle_number: e.target.value.toUpperCase() })}
-              style={{ textTransform: "uppercase", letterSpacing: "0.05em", fontFamily: "var(--font-serif)" }}
             />
           </div>
           <div className="field">

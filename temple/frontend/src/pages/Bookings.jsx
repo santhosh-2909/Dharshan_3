@@ -2,6 +2,9 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { api } from "../api/client.js";
 import Loader from "../components/Loader.jsx";
+import PageHeader from "../components/PageHeader.jsx";
+import Alert from "../components/Alert.jsx";
+import EmptyState from "../components/EmptyState.jsx";
 
 const todayISO = () => new Date().toISOString().slice(0, 10);
 
@@ -69,18 +72,18 @@ export default function Bookings() {
 
   return (
     <>
-      <header style={{ marginBottom: 24 }}>
-        <p className="kicker">{t("bookings.kicker")}</p>
-        <h1>{t("bookings.title")}</h1>
-        <p style={{ marginTop: 8, maxWidth: "60ch" }}>{t("bookings.lede")}</p>
-      </header>
+      <PageHeader
+        kicker={t("bookings.kicker")}
+        title={t("bookings.title")}
+        lede={t("bookings.lede")}
+      />
 
       <div className="grid grid-2">
         <section className="card">
           <h2>{t("bookings.bookOne")}</h2>
-          {error && <div className="alert error" style={{ marginTop: 12 }}>{error}</div>}
-          {success && <div className="alert success" style={{ marginTop: 12 }}>{success}</div>}
-          <form className="form" onSubmit={submit} style={{ marginTop: 16 }}>
+          <Alert type="error">{error}</Alert>
+          <Alert type="success">{success}</Alert>
+          <form className="form" onSubmit={submit}>
             <div className="field">
               <label htmlFor="seva">{t("bookings.labelSeva")}</label>
               <select
@@ -120,7 +123,7 @@ export default function Bookings() {
               />
             </div>
             {availability && (
-              <p style={{ fontSize: "0.9rem", color: "var(--c-stone)" }}>
+              <p className="page-header-lede" style={{ maxWidth: "none" }}>
                 {t("bookings.available", {
                   available: availability.available,
                   capacity: availability.capacity,
@@ -136,30 +139,32 @@ export default function Bookings() {
         <section className="card">
           <h2>{t("bookings.yours")}</h2>
           {mine.length === 0 ? (
-            <p style={{ marginTop: 16 }}>{t("bookings.noneYet")}</p>
+            <EmptyState icon="lotus" message={t("bookings.noneYet")} />
           ) : (
-            <table className="table" style={{ marginTop: 16 }}>
-              <thead>
-                <tr>
-                  <th>{t("bookings.tableRef")}</th>
-                  <th>{t("bookings.tableDate")}</th>
-                  <th>{t("bookings.tableDevotees")}</th>
-                  <th>{t("bookings.tableAmount")}</th>
-                  <th>{t("bookings.tableStatus")}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {mine.map((b) => (
-                  <tr key={b.id}>
-                    <td>{b.reference}</td>
-                    <td>{b.booking_date}</td>
-                    <td>{b.devotees}</td>
-                    <td>₹{b.amount_inr}</td>
-                    <td><span className="card-tag">{b.status}</span></td>
+            <div className="table-wrap">
+              <table className="table">
+                <thead>
+                  <tr>
+                    <th>{t("bookings.tableRef")}</th>
+                    <th>{t("bookings.tableDate")}</th>
+                    <th>{t("bookings.tableDevotees")}</th>
+                    <th>{t("bookings.tableAmount")}</th>
+                    <th>{t("bookings.tableStatus")}</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {mine.map((b) => (
+                    <tr key={b.id}>
+                      <td>{b.reference}</td>
+                      <td>{b.booking_date}</td>
+                      <td>{b.devotees}</td>
+                      <td>₹{b.amount_inr}</td>
+                      <td><span className="card-tag">{b.status}</span></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
         </section>
       </div>
@@ -175,8 +180,10 @@ export default function Bookings() {
               <p className={isTa ? "" : "tamil"} style={{ color: "var(--c-stone)" }}>
                 {isTa ? s.name_en : s.name_ta}
               </p>
-              <p style={{ marginTop: 12 }}>{s.description}</p>
-              <div className="card-meta" style={{ marginTop: 12 }}>
+              <p className="page-header-lede" style={{ maxWidth: "none", marginTop: 12 }}>
+                {s.description}
+              </p>
+              <div className="card-meta">
                 <span>🕒 {s.starts_at.slice(0, 5)}</span>
                 <span>· {s.duration_min} min</span>
                 <span>· ₹{s.price_inr}</span>

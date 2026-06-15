@@ -15,7 +15,7 @@ export default function FAQTeaser({ items = [] }) {
           <h2>{t("landing.faqTeaser.title")}</h2>
         </div>
 
-        <div style={{ display: "grid", gap: 12, maxWidth: 820, margin: "0 auto" }}>
+        <div className="l-faq-list">
           {top.map((f, i) => (
             <details key={f.id} className={"faq reveal reveal-" + Math.min(4, (i % 4) + 1)}>
               <summary>{isTa ? f.question_ta : f.question_en}</summary>
@@ -25,7 +25,7 @@ export default function FAQTeaser({ items = [] }) {
             </details>
           ))}
         </div>
-        <div style={{ textAlign: "center", marginTop: 28 }}>
+        <div className="l-faq-cta">
           <Link to="/faq" className="btn btn-outline">{t("landing.faqTeaser.ctaAll")}</Link>
         </div>
       </div>
