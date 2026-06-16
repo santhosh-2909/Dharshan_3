@@ -12,6 +12,9 @@ export default function Sidebar() {
     { to: "/dashboard/bookings", icon: "lotus", label: t("nav.booking") },
     { to: "/cctv", icon: "shield", label: t("nav.cctv") },
     { to: "/prediction", icon: "crystal", label: t("nav.prediction") },
+    { to: "/surge", icon: "flame", label: t("nav.surge") },
+    { to: "/queue", icon: "gate", label: t("nav.queue") },
+    { to: "/staffing", icon: "users", label: t("nav.staffing") },
     { to: "/final-report", icon: "layers", label: t("nav.finalReport") },
   ];
 

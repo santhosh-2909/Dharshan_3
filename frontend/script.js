@@ -1,4 +1,30 @@
-const API_BASE = `${window.location.origin}/api/v1`;
+const API_BASE = `${globalThis.location.origin}/api/v1`;
+
+// Quick Actions Widget logic
+document.addEventListener('DOMContentLoaded', () => {
+    const widget = document.getElementById('quickActionsWidget');
+    const btn = document.getElementById('quickActionsBtn');
+    if (widget && btn) {
+        btn.addEventListener('click', () => {
+            widget.classList.toggle('open');
+        });
+        // Optional: Drag to move (mobile-friendly)
+        let isDragging = false, startX, startY;
+        btn.addEventListener('touchstart', e => {
+            isDragging = true;
+            startX = e.touches[0].clientX;
+            startY = e.touches[0].clientY;
+        });
+        btn.addEventListener('touchmove', e => {
+            if (!isDragging) return;
+            const dx = startX - e.touches[0].clientX;
+            const dy = startY - e.touches[0].clientY;
+            widget.style.right = `${32 + dx}px`;
+            widget.style.bottom = `${32 + dy}px`;
+        });
+        btn.addEventListener('touchend', () => { isDragging = false; });
+    }
+});
 const SETTINGS_KEY = "smartdarshan-settings";
 const FEEDBACK_KEY = "smartdarshan-feedback";
 const DEFAULT_PAGE = "dashboard";
@@ -112,14 +138,14 @@ const forecastCardTemplate = document.getElementById("forecast-card-template");
 const menuShortcuts = Array.from(document.querySelectorAll(".menu-shortcut"));
 
 initializeControls();
-initialize();
+await initialize();
 
 async function initialize() {
     restorePageFromHash();
     await fetchDashboard();
     applySettings();
     applyPage();
-    window.addEventListener("hashchange", () => {
+    globalThis.addEventListener("hashchange", () => {
         restorePageFromHash();
         applyPage();
     });
@@ -139,7 +165,7 @@ function initializeControls() {
     menuItems.forEach((item) => {
         item.addEventListener("click", () => {
             state.page = item.dataset.page;
-            window.location.hash = state.page;
+            globalThis.location.hash = state.page;
             applyPage();
         });
     });
@@ -147,7 +173,7 @@ function initializeControls() {
     menuShortcuts.forEach((item) => {
         item.addEventListener("click", () => {
             state.page = item.dataset.pageTarget;
-            window.location.hash = state.page;
+            globalThis.location.hash = state.page;
             applyPage();
             item.closest("details")?.removeAttribute("open");
         });
@@ -212,14 +238,14 @@ function initializeControls() {
         ].find(([, keywords]) => keywords.some((keyword) => keyword.includes(state.globalQuery) || state.globalQuery.includes(keyword)));
         if (match) {
             state.page = match[0];
-            window.location.hash = state.page;
+            globalThis.location.hash = state.page;
             applyPage();
         }
     });
 
     notificationButton.addEventListener("click", () => {
         state.page = "security";
-        window.location.hash = state.page;
+        globalThis.location.hash = state.page;
         surgeAlert.classList.remove("hidden");
         surgeAlert.textContent = "3 active operational alerts are available in the security and forecast views.";
         applyPage();
@@ -278,7 +304,7 @@ function initializeControls() {
             return;
         }
         feedbackStatus.textContent = "Submitting feedback...";
-        await new Promise((resolve) => window.setTimeout(resolve, 450));
+        await new Promise((resolve) => globalThis.setTimeout(resolve, 450));
         state.feedbackHistory.unshift({
             name: feedbackName.value.trim(),
             email: feedbackEmail.value.trim(),
@@ -296,13 +322,13 @@ function initializeControls() {
     logoutButton.addEventListener("click", () => {
         profileStatus.textContent = "Signed out from the local demo session.";
         state.page = "dashboard";
-        window.location.hash = state.page;
+        globalThis.location.hash = state.page;
         applyPage();
     });
 }
 
 function restorePageFromHash() {
-    const hash = window.location.hash.replace("#", "");
+    const hash = globalThis.location.hash.replace("#", "");
     const allowed = new Set(menuItems.map((item) => item.dataset.page));
     state.page = allowed.has(hash) ? hash : DEFAULT_PAGE;
 }
@@ -403,7 +429,7 @@ function renderDashboardHome(summary, liveMonitor, footfall, attendance, traffic
         `;
         item.addEventListener("click", () => {
             state.page = "live-monitoring";
-            window.location.hash = state.page;
+            globalThis.location.hash = state.page;
             liveImage.src = `${API_BASE}/images/${frame.id}`;
             liveScore.textContent = `${frame.crowd_score.toFixed(1)} score`;
             liveCaption.textContent = `${frame.filename} • people index ${frame.estimated_people_index}`;
@@ -413,10 +439,16 @@ function renderDashboardHome(summary, liveMonitor, footfall, attendance, traffic
     });
 
     dashboardHighlights.innerHTML = "";
+    const peakTrafficHour = traffic.peak_hour === null
+        ? "N/A"
+        : `${String(traffic.peak_hour).padStart(2, "0")}:00`;
+    const busiestEventText = attendance.busiest_event
+        ? `${attendance.busiest_event.event_name} (${formatNumber(attendance.busiest_event.attendees)})`
+        : "No event data";
     [
         `Dataset window: ${formatDate(summary.start_date)} to ${formatDate(summary.end_date)}`,
-        `Peak monitoring hour: ${String(summary.peak_hour).padStart(2, "0")}:00 • Peak traffic hour: ${traffic.peak_hour !== null ? `${String(traffic.peak_hour).padStart(2, "0")}:00` : "N/A"}`,
-        `Busiest event: ${attendance.busiest_event ? `${attendance.busiest_event.event_name} (${formatNumber(attendance.busiest_event.attendees)})` : "No event data"}`,
+        `Peak monitoring hour: ${String(summary.peak_hour).padStart(2, "0")}:00 • Peak traffic hour: ${peakTrafficHour}`,
+        `Busiest event: ${busiestEventText}`,
         `Current archive vs historical ratio: ${footfall.comparison.ratio_to_historical.toFixed(2)}x`,
     ].forEach((message) => {
         const item = document.createElement("article");
@@ -438,7 +470,7 @@ function renderDashboardHome(summary, liveMonitor, footfall, attendance, traffic
         item.innerHTML = `<div><strong>${label}</strong><p>${description}</p></div><span class="pill">open</span>`;
         item.addEventListener("click", () => {
             state.page = page;
-            window.location.hash = page;
+            globalThis.location.hash = page;
             applyPage();
         });
         dashboardLinks.appendChild(item);
@@ -698,7 +730,7 @@ function renderHourlyForecast(hourlyForecast) {
     hourlySummary.innerHTML = "";
     [
         ["Days shown", hourlyForecast.days_shown],
-        ["Tomorrow peak", hourlyForecast.peak_hour !== null ? `${String(hourlyForecast.peak_hour).padStart(2, "0")}:00` : "--"],
+        ["Tomorrow peak", hourlyForecast.peak_hour === null ? "--" : `${String(hourlyForecast.peak_hour).padStart(2, "0")}:00`],
         ["Peak count", formatNumber(hourlyForecast.peak_value)],
         ["Tomorrow total", formatNumber(hourlyForecast.tomorrow_total)],
     ].forEach(([label, value]) => {
@@ -797,7 +829,7 @@ function renderGallery(items) {
         `;
         card.addEventListener("click", () => {
             state.page = "live-monitoring";
-            window.location.hash = state.page;
+            globalThis.location.hash = state.page;
             liveImage.src = `${API_BASE}/images/${item.id}`;
             liveScore.textContent = `${item.crowd_score.toFixed(1)} score`;
             liveCaption.textContent = `${item.filename} • people index ${item.estimated_people_index}`;
@@ -819,7 +851,7 @@ function renderCCTV(topFrames) {
                 return;
             }
             state.page = "live-monitoring";
-            window.location.hash = state.page;
+            globalThis.location.hash = state.page;
             liveImage.src = `${API_BASE}/images/${frame.id}`;
             liveScore.textContent = `${frame.crowd_score.toFixed(1)} score`;
             liveCaption.textContent = `${name} linked frame • people index ${frame.estimated_people_index}`;
@@ -919,6 +951,9 @@ function renderParking(liveMonitor, footfall, traffic) {
     });
 
     shuttleStatus.innerHTML = "";
+    const peakTrafficLabel = traffic.peak_hour === null
+        ? "N/A"
+        : `${String(traffic.peak_hour).padStart(2, "0")}:00`;
     const parkingMessages = state.parkingDirectionsOpen
         ? [
             "Route guidance enabled for incoming vehicles.",
@@ -927,7 +962,7 @@ function renderParking(liveMonitor, footfall, traffic) {
         ]
         : [
             "Shuttle en route to Zone B",
-            `Peak traffic hour: ${traffic.peak_hour !== null ? `${String(traffic.peak_hour).padStart(2, "0")}:00` : "N/A"}`,
+            `Peak traffic hour: ${peakTrafficLabel}`,
             `Queue pressure synced with ${footfall.selected_temple.replaceAll("_", " ")}`,
         ];
 
@@ -955,7 +990,6 @@ function renderBookings(footfall, attendance) {
 
     slots.forEach((slot) => {
         const ratio = Math.round((slot.booked / slot.capacity) * 100);
-        const status = ratio > 90 ? "Almost Full" : "Confirmed";
         const item = document.createElement("article");
         item.className = "gate-card";
         item.innerHTML = `
@@ -1030,7 +1064,7 @@ function renderSecurity(topFrames) {
                 return;
             }
             state.page = "cctv-feeds";
-            window.location.hash = state.page;
+            globalThis.location.hash = state.page;
             applyPage();
             if (state.settings.showGallery) {
                 liveCaption.textContent = `${name} security checkpoint selected`;
@@ -1048,7 +1082,7 @@ function renderSecurity(topFrames) {
             surgeAlert.classList.remove("hidden");
             surgeAlert.textContent = `${name} selected. ${detail}.`;
             state.page = "ai-predictions";
-            window.location.hash = state.page;
+            globalThis.location.hash = state.page;
             applyPage();
         });
         securityModelList.appendChild(item);
@@ -1138,9 +1172,10 @@ function renderProfile(summary, footfall, attendance, traffic) {
 }
 
 function applySettings() {
-    const resolvedTheme = state.settings.theme === "system"
-        ? (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light")
-        : state.settings.theme;
+    let resolvedTheme = state.settings.theme;
+    if (resolvedTheme === "system") {
+        resolvedTheme = globalThis.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+    }
     document.body.classList.toggle("dark-theme", resolvedTheme === "dark");
     document.body.classList.toggle("high-contrast", state.settings.highContrast);
     document.body.classList.toggle("large-text", state.settings.largeText);
@@ -1197,7 +1232,9 @@ function persistSettings() {
     localStorage.setItem(SETTINGS_KEY, JSON.stringify(state.settings));
 }
 
-function formatDate(value, options = { year: "numeric", month: "short", day: "numeric" }) {
+const DEFAULT_DATE_OPTIONS = { year: "numeric", month: "short", day: "numeric" };
+
+function formatDate(value, options = DEFAULT_DATE_OPTIONS) {
     return new Intl.DateTimeFormat("en-IN", options).format(new Date(value));
 }
 

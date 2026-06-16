@@ -50,3 +50,6 @@ coverage/
 # Large datasets — fetch separately, see README
 data/*.zip
 data/*.csv
+
+# Pretrained model weights (auto-downloaded by Ultralytics on first run)
+*.pt

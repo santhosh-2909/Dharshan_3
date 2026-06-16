@@ -7,14 +7,16 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from .config import get_settings
 from .db import Base, SessionLocal, engine
-from .routers import auth, bookings, cctv, crowd, donations, events, faq, feedback, final_report, parking, prediction, stats, temple
+from .routers import auth, bookings, cctv, crowd, donations, events, faq, feedback, final_report, live_crowd, parking, prediction, queue_wait, staffing, stats, temple
 from .seed import seed
+from .utils.logging_config import configure_logging
 
 settings = get_settings()
 
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
+    configure_logging()
     Base.metadata.create_all(bind=engine)
     db = SessionLocal()
     try:
@@ -22,6 +24,11 @@ async def lifespan(_: FastAPI):
     finally:
         db.close()
     yield
+    # Release the webcam + inference threads if the live-crowd feature was used.
+    # No-op (and import is lazy) when the camera was never started.
+    from .services.crowd_service import get_crowd_service
+
+    get_crowd_service().shutdown()
 
 
 app = FastAPI(
@@ -45,9 +52,14 @@ def health() -> dict:
     return {"status": "ok", "app": settings.app_name}
 
 
-api_v1_routers = [auth, temple, events, bookings, donations, feedback, faq, crowd, stats, parking, cctv, final_report, prediction]
+api_v1_routers = [auth, temple, events, bookings, donations, feedback, faq, crowd, stats, parking, cctv, final_report, prediction, queue_wait, staffing]
 for router_module in api_v1_routers:
     app.include_router(router_module.router, prefix="/api/v1")
+
+# Real-time webcam crowd detection (YOLOv8). Mounted at /api/crowd/* per the
+# integration contract — distinct from the /api/v1/crowd analytics router.
+# Registered before the SPA catch-all below so its routes win.
+app.include_router(live_crowd.router, prefix="/api")
 
 
 frontend_dist_dir = Path(__file__).resolve().parents[2] / "frontend" / "dist"

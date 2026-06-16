@@ -1,0 +1,16 @@
+# Optional real-time vision stack for the live webcam crowd counter.
+#
+# Install ONLY on a local / edge machine that has a camera:
+#     pip install -r requirements-vision.txt
+#
+# These are intentionally kept OUT of requirements.txt so the cloud deployment
+# (Render free tier / Vercel serverless) stays lightweight and does not pull in
+# torch (~hundreds of MB) — the core temple API never imports them.
+#
+# fastapi, uvicorn, pydantic-settings and python-dotenv already ship in
+# requirements.txt, so they are not repeated here.
+
+ultralytics>=8.3.0      # YOLOv8 (pulls in torch + torchvision automatically)
+opencv-python>=4.9.0    # webcam capture, drawing, JPEG encoding
+numpy>=1.26.0           # frame array operations
+lap>=0.5.0              # linear assignment for the ByteTrack people tracker

@@ -328,7 +328,10 @@ def seed(db: Session) -> None:
             ]
         )
 
-    _seed_cctv(db)
+    # No generic/sample CCTV data — the CCTV feed shows only live detections
+    # (stored under camera_id "webcam-yolo"). Purge any previously-seeded rows.
+    db.query(CCTVCount).filter(CCTVCount.camera_id != "webcam-yolo").delete(synchronize_session=False)
+
     _seed_footfall_history(db)
 
     if db.query(User).filter(User.email == "demo@aalayam.in").first() is None:

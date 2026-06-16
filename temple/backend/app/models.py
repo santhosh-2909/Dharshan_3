@@ -162,6 +162,20 @@ class CCTVCount(Base):
     people_count: Mapped[int] = mapped_column(Integer)
 
 
+class PredictedCount(Base):
+    """A stored predicted/expected people count (forecast or model output)."""
+
+    __tablename__ = "predicted_counts"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    predicted_for: Mapped[datetime] = mapped_column(DateTime, index=True)
+    expected_people: Mapped[int] = mapped_column(Integer)
+    capacity: Mapped[int] = mapped_column(Integer, default=0)
+    occupancy_pct: Mapped[float] = mapped_column(Float, default=0.0)
+    source: Mapped[str] = mapped_column(String(40), default="forecast", index=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+
+
 class FAQ(Base):
     __tablename__ = "faq"
 

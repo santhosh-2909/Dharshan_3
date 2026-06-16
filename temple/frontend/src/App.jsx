@@ -13,6 +13,9 @@ import ParkingStats from "./pages/ParkingStats.jsx";
 import CCTV from "./pages/CCTV.jsx";
 import FinalReport from "./pages/FinalReport.jsx";
 import Prediction from "./pages/Prediction.jsx";
+import FestivalSurge from "./pages/FestivalSurge.jsx";
+import QueueWait from "./pages/QueueWait.jsx";
+import StaffDeployment from "./pages/StaffDeployment.jsx";
 import Feedback from "./pages/Feedback.jsx";
 import FAQ from "./pages/FAQ.jsx";
 import Settings from "./pages/Settings.jsx";
@@ -51,6 +54,9 @@ export default function App() {
               <Route path="/dashboard/bookings" element={<BookingStats />} />
               <Route path="/cctv" element={<CCTV />} />
               <Route path="/prediction" element={<Prediction />} />
+              <Route path="/surge" element={<FestivalSurge />} />
+              <Route path="/queue" element={<QueueWait />} />
+              <Route path="/staffing" element={<StaffDeployment />} />
               <Route path="/final-report" element={<FinalReport />} />
               <Route path="/feedback" element={<Feedback />} />
               <Route path="/faq" element={<FAQ />} />

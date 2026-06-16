@@ -7,13 +7,13 @@ export const tokenStore = {
   clear: () => localStorage.removeItem(TOKEN_KEY),
 };
 
-async function request(path, { method = "GET", body, auth = false } = {}) {
+async function request(path, { method = "GET", body, auth = false, base = BASE } = {}) {
   const headers = { "Content-Type": "application/json" };
   if (auth) {
     const token = tokenStore.get();
     if (token) headers.Authorization = `Bearer ${token}`;
   }
-  const res = await fetch(`${BASE}${path}`, {
+  const res = await fetch(`${base}${path}`, {
     method,
     headers,
     body: body ? JSON.stringify(body) : undefined,
@@ -41,6 +41,14 @@ export const api = {
     const qs = new URLSearchParams(params).toString();
     return request(`/events${qs ? "?" + qs : ""}`);
   },
+  festivalSurge: () => request("/events/surge"),
+
+  // queue wait-time estimator per entry gate
+  queueWait: (openIds) =>
+    request(`/queue${openIds && openIds.length ? `?open=${openIds.join(",")}` : ""}`),
+
+  // staff deployment recommender (next N hours)
+  staffing: (hours = 6) => request(`/staffing?hours=${hours}`),
 
   // bookings
   sevas: () => request("/bookings/sevas"),
@@ -95,4 +103,18 @@ export const api = {
 
   // prediction
   predict: (target_date) => request("/predict", { method: "POST", body: { target_date } }),
+
+  // XGBoost crowd-prediction service (Temple-API) — proxied at /xgb → :8001
+  predictXgb: (payload) => request("/predict", { method: "POST", body: payload, base: "/xgb" }),
+
+  // live crowd detection (webcam + YOLOv8) — mounted at /api/crowd (not /api/v1)
+  liveCrowd: () => request("/crowd/live", { base: "/api" }),
+  crowdHeatmap: () => request("/crowd/heatmap", { base: "/api" }),
+  crowdToday: () => request("/crowd/today", { base: "/api" }),
+  storePrediction: (payload) => request("/crowd/predictions", { method: "POST", body: payload, base: "/api" }),
+  listPredictions: (limit = 50) => request(`/crowd/predictions?limit=${limit}`, { base: "/api" }),
+  crowdLiveStatus: () => request("/crowd/status", { base: "/api" }),
+  startCamera: () => request("/crowd/camera/start", { method: "POST", base: "/api" }),
+  stopCamera: () => request("/crowd/camera/stop", { method: "POST", base: "/api" }),
+  crowdStreamUrl: "/api/crowd/stream",
 };

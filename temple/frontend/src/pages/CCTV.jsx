@@ -3,51 +3,71 @@ import { useTranslation } from "react-i18next";
 import { api } from "../api/client.js";
 import Loader from "../components/Loader.jsx";
 import OpsLayout from "../components/OpsLayout.jsx";
+import CrowdHeatmap from "../components/CrowdHeatmap.jsx";
+
+// Live density band → existing status-pill colour.
+const DENSITY_COLOR = { LOW: "green", MEDIUM: "yellow", HIGH: "red", VERY_HIGH: "red" };
 
 export default function CCTV() {
   const { t } = useTranslation();
-  const [stats, setStats] = useState(null);
-  const [error, setError] = useState(null);
-  const [form, setForm] = useState({ people_count: "", camera_id: "main" });
-  const [busy, setBusy] = useState(false);
-  const [success, setSuccess] = useState(null);
 
-  const refresh = useCallback(() => {
-    api.cctvStats().then(setStats).catch((e) => setError(e.message));
-  }, []);
+  const [streamOn, setStreamOn] = useState(false);
+  const [starting, setStarting] = useState(false);
+  const [live, setLive] = useState(null);       // { people_count, density }
+  const [liveError, setLiveError] = useState(null);
+  const [heatmap, setHeatmap] = useState(null);
 
+  // Live people count — polled while the camera stream is on.
   useEffect(() => {
-    refresh();
-    const id = setInterval(refresh, 15000);
+    if (!streamOn) return undefined;
+    let alive = true;
+    const poll = () =>
+      api
+        .liveCrowd()
+        .then((d) => alive && (setLive(d), setLiveError(null)))
+        .catch((e) => alive && setLiveError(e.message));
+    poll();
+    const id = setInterval(poll, 1500);
+    return () => {
+      alive = false;
+      clearInterval(id);
+    };
+  }, [streamOn]);
+
+  // Forecast heatmap — loaded now, then refreshed every 15 minutes.
+  const loadHeatmap = useCallback(() => {
+    api.crowdHeatmap().then(setHeatmap).catch(() => {});
+  }, []);
+  useEffect(() => {
+    loadHeatmap();
+    const id = setInterval(loadHeatmap, 15 * 60 * 1000);
     return () => clearInterval(id);
-  }, [refresh]);
+  }, [loadHeatmap]);
 
-  if (error && !stats) return <OpsLayout><div className="alert error">{error}</div></OpsLayout>;
-  if (!stats) return <OpsLayout><Loader /></OpsLayout>;
-
-  const max = Math.max(...stats.hourly.map((h) => h.people_count), 1);
-  const nowHour = new Date().getHours();
-
-  async function submit(e) {
-    e.preventDefault();
-    if (!form.people_count) return;
-    setBusy(true);
-    setSuccess(null);
-    setError(null);
+  async function startCamera() {
+    setStarting(true);
+    setLiveError(null);
     try {
-      const res = await api.cctvIngest({
-        people_count: Number(form.people_count),
-        camera_id: form.camera_id || "main",
-      });
-      setSuccess(t("modules.cctv.ingestSuccess", { at: new Date(res.recorded_at).toLocaleTimeString() }));
-      setForm({ ...form, people_count: "" });
-      refresh();
-    } catch (err) {
-      setError(err.message);
+      await api.startCamera();
+      setStreamOn(true);
+    } catch (e) {
+      setLiveError(e.message);
     } finally {
-      setBusy(false);
+      setStarting(false);
     }
   }
+
+  async function stopCamera() {
+    setStreamOn(false);
+    setLive(null);
+    try {
+      await api.stopCamera();
+    } catch {
+      /* best-effort */
+    }
+  }
+
+  const expected = heatmap ? heatmap.expected_total : null;
 
   return (
     <OpsLayout>
@@ -58,96 +78,86 @@ export default function CCTV() {
         </div>
       </header>
 
-      <div className="dash-grid">
-        <article className="dash-card" style={{ padding: 0, overflow: "hidden" }}>
-          <div className="cctv-stage">
-            <span className="live-dot">{t("common.live")}</span>
-            <span style={{ fontFamily: "var(--font-serif)", fontSize: "1.1rem", textAlign: "center", padding: "0 24px", maxWidth: "70%" }}>
-              {t("modules.cctv.feedPlaceholder")}
+      {/* 1 · Live camera view */}
+      <article className="dash-card" style={{ padding: 0, overflow: "hidden" }}>
+        <div className="cctv-stage" style={{ position: "relative", padding: 0 }}>
+          {streamOn ? (
+            <>
+              <img
+                src={api.crowdStreamUrl}
+                alt={t("modules.cctv.liveView")}
+                style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+              />
+              <span className="live-dot">{t("common.live")}</span>
+            </>
+          ) : (
+            <span
+              style={{
+                fontFamily: "var(--font-serif)",
+                fontSize: "1.05rem",
+                textAlign: "center",
+                padding: "0 24px",
+                maxWidth: "80%",
+                color: liveError ? "var(--c-stone)" : undefined,
+              }}
+            >
+              {liveError ? t("modules.cctv.offline") : t("modules.cctv.liveView")}
             </span>
-          </div>
-        </article>
-
-        <article className="dash-card">
-          <header className="dash-card-head">
-            <h3>{t("modules.cctv.ingestTitle")}</h3>
-          </header>
-          {error && <div className="alert error" style={{ marginBottom: 12 }}>{error}</div>}
-          {success && <div className="alert success" style={{ marginBottom: 12 }}>{success}</div>}
-          <form className="form" onSubmit={submit}>
-            <div className="field">
-              <label htmlFor="cnt">{t("modules.cctv.ingestPeople")}</label>
-              <input
-                id="cnt"
-                type="number"
-                min="0"
-                className="input"
-                value={form.people_count}
-                onChange={(e) => setForm({ ...form, people_count: e.target.value })}
-                required
-              />
-            </div>
-            <div className="field">
-              <label htmlFor="cam">{t("modules.cctv.ingestCamera")}</label>
-              <input
-                id="cam"
-                className="input"
-                value={form.camera_id}
-                onChange={(e) => setForm({ ...form, camera_id: e.target.value })}
-              />
-            </div>
-            <button type="submit" className="btn btn-primary" disabled={busy}>
-              {busy ? t("modules.cctv.ingestSubmitting") : t("modules.cctv.ingestSubmit")}
+          )}
+        </div>
+        <div style={{ padding: "12px 16px", display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+          {!streamOn ? (
+            <button type="button" className="btn btn-primary" onClick={startCamera} disabled={starting}>
+              {starting ? t("modules.cctv.starting") : t("modules.cctv.startCamera")}
             </button>
-          </form>
-        </article>
-      </div>
+          ) : (
+            <button type="button" className="btn" onClick={stopCamera}>
+              {t("modules.cctv.stopCamera")}
+            </button>
+          )}
+          {liveError && <span className="alert error" style={{ margin: 0, padding: "4px 10px" }}>{liveError}</span>}
+        </div>
+      </article>
 
+      {/* 2 · People count + Expected count */}
       <section className="dash-stats" style={{ marginTop: 18 }}>
         <div className="dash-stat">
-          <div className="label">{t("modules.cctv.totalDetected")}</div>
-          <div className="value">{stats.total_detected_today.toLocaleString("en-IN")}</div>
+          <div className="label">{t("modules.cctv.countedToday")}</div>
+          <div className="value">{live ? live.people_count.toLocaleString("en-IN") : "—"}</div>
+          {live ? (
+            <div className="delta">
+              <span className={"status-pill " + (DENSITY_COLOR[live.density] || "")}>
+                {t(`modules.cctv.bands.${live.density}`)}
+              </span>
+              <span style={{ marginLeft: 8 }}>{t("modules.cctv.inFrame", { n: live.in_frame })}</span>
+            </div>
+          ) : (
+            <div className="delta">{t("modules.cctv.awaitingCamera")}</div>
+          )}
         </div>
         <div className="dash-stat">
-          <div className="label">{t("modules.cctv.currentCount")}</div>
-          <div className="value">{stats.current_count}</div>
-        </div>
-        <div className="dash-stat">
-          <div className="label">{t("modules.cctv.lastHour")}</div>
-          <div className="value">{stats.last_hour.toLocaleString("en-IN")}</div>
-        </div>
-        <div className="dash-stat">
-          <div className="label">{t("modules.cctv.camerasOnline")}</div>
-          <div className="value">{stats.cameras_online}</div>
+          <div className="label">{t("modules.cctv.expectedCount")}</div>
+          <div className="value">{expected != null ? expected.toLocaleString("en-IN") : "—"}</div>
+          {heatmap && (
+            <div className="delta">{t("modules.cctv.ofCapacity", { cap: heatmap.capacity.toLocaleString("en-IN") })}</div>
+          )}
         </div>
       </section>
 
+      {/* 3 · Live crowd density heatmap (forecast-based, 15-min refresh) */}
       <article className="dash-card" style={{ marginTop: 18 }}>
         <header className="dash-card-head">
-          <h3>{t("modules.cctv.hourlyTitle")}</h3>
-          <span className="status-pill green">{t("common.live")}</span>
+          <div>
+            <h3>{t("modules.cctv.heatTitle")}</h3>
+            <small style={{ color: "var(--c-stone)" }}>{t("modules.cctv.heatSub")}</small>
+          </div>
+          {heatmap && (
+            <span className="card-tag">
+              {t("modules.cctv.heatUpdated", { time: new Date(heatmap.generated_at).toLocaleTimeString() })}
+            </span>
+          )}
         </header>
-        {stats.hourly.length === 0 ? (
-          <p>{t("modules.cctv.noData")}</p>
-        ) : (
-          <>
-            <div className="cctv-bars">
-              {stats.hourly.map((h) => (
-                <span
-                  key={h.hour}
-                  className={"b" + (h.hour === nowHour ? " is-now" : "")}
-                  style={{ height: `${(h.people_count / max) * 100}%` }}
-                  title={`${h.hour}:00 — ${h.people_count}`}
-                />
-              ))}
-            </div>
-            <div className="dash-chart-axis" style={{ gridTemplateColumns: `repeat(${stats.hourly.length}, 1fr)` }}>
-              {stats.hourly.map((h) => (
-                <span key={h.hour}>{String(h.hour).padStart(2, "0")}</span>
-              ))}
-            </div>
-          </>
-        )}
+        {heatmap ? <CrowdHeatmap data={heatmap} /> : <Loader />}
       </article>
     </OpsLayout>
   );

@@ -9,34 +9,51 @@ import Icon from "../components/Icon.jsx";
 const fmtINR = (n) => "₹" + Math.round(n).toLocaleString("en-IN");
 
 export default function Dashboard() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const ta = i18n.language === "ta";
 
   const [parking, setParking] = useState(null);
   const [booking, setBooking] = useState(null);
-  const [cctv, setCctv] = useState(null);
+  const [today, setToday] = useState(null);
+  const [live, setLive] = useState(null);
   const [report, setReport] = useState(null);
+  const [surge, setSurge] = useState(null);
+  const [queue, setQueue] = useState(null);
+  const [staff, setStaff] = useState(null);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    Promise.allSettled([
-      api.parkingStats(),
-      api.bookingStats(),
-      api.cctvStats(),
-      api.finalReport(),
-    ]).then(([p, b, c, r]) => {
-      if (p.status === "fulfilled") setParking(p.value);
-      if (b.status === "fulfilled") setBooking(b.value);
-      if (c.status === "fulfilled") setCctv(c.value);
-      if (r.status === "fulfilled") setReport(r.value);
-      const fail = [p, b, c, r].find((x) => x.status === "rejected");
-      if (fail) setError(fail.reason?.message);
-    });
+    const load = () =>
+      Promise.allSettled([
+        api.parkingStats(),
+        api.bookingStats(),
+        api.crowdToday(),
+        api.finalReport(),
+        api.liveCrowd(), // drives continuous counting + the rising live total
+        api.festivalSurge(),
+        api.queueWait(),
+        api.staffing(6),
+      ]).then(([p, b, c, r, l, s, q, st]) => {
+        if (p.status === "fulfilled") setParking(p.value);
+        if (b.status === "fulfilled") setBooking(b.value);
+        if (c.status === "fulfilled") setToday(c.value);
+        if (r.status === "fulfilled") setReport(r.value);
+        setLive(l.status === "fulfilled" ? l.value : null);
+        if (s.status === "fulfilled") setSurge(s.value);
+        if (q.status === "fulfilled") setQueue(q.value);
+        if (st.status === "fulfilled") setStaff(st.value);
+        const fail = [p, b, c, r].find((x) => x.status === "rejected");
+        if (fail) setError(fail.reason?.message);
+      });
+    load();
+    const id = setInterval(load, 5000); // refresh live data every 5s
+    return () => clearInterval(id);
   }, []);
 
-  if (error && !parking && !booking && !cctv) {
+  if (error && !parking && !booking && !today) {
     return <div className="alert error">{t("common.error", { message: error })}</div>;
   }
-  if (!parking || !booking || !cctv || !report) return <Loader />;
+  if (!parking || !booking || !today || !report) return <Loader />;
 
   return (
     <div className="dash-shell">
@@ -55,9 +72,30 @@ export default function Dashboard() {
 
         <section className="dash-stats">
           <div className="dash-stat">
-            <div className="label">{t("modules.dashboardHome.totalCrowd")}</div>
-            <div className="value">{report.overall_total_crowd.toLocaleString("en-IN")}</div>
-            <div className="delta">{t("modules.dashboardHome.totalCrowdSub")}</div>
+            <div className="label">{t("modules.dashboardHome.peopleDetected")}</div>
+            <div className="value">{(live ? live.people_count : today.current_count).toLocaleString("en-IN")}</div>
+            <div className="delta">
+              <span className="status-pill green">{t("common.live")}</span>
+              <span style={{ marginLeft: 8 }}>
+                {live
+                  ? t("modules.dashboardHome.inFrameNow", { n: live.in_frame })
+                  : t("modules.dashboardHome.peopleDetectedSub", { peak: today.peak_count })}
+              </span>
+            </div>
+          </div>
+          <div className="dash-stat">
+            <div className="label">{t("modules.dashboardHome.vehiclesParked")}</div>
+            <div className="value">{parking.currently_parked.toLocaleString("en-IN")}</div>
+            <div className="delta">
+              {t("modules.dashboardHome.vehiclesParkedSub", { entered: parking.vehicles_entered, available: parking.available_slots })}
+            </div>
+          </div>
+          <div className="dash-stat">
+            <div className="label">{t("modules.dashboardHome.totalBookings")}</div>
+            <div className="value">{booking.total_bookings}</div>
+            <div className="delta">
+              {t("modules.dashboardHome.totalBookingsSub", { devotees: booking.total_devotees })}
+            </div>
           </div>
           <div className="dash-stat">
             <div className="label">{t("modules.dashboardHome.parkingStatus")}</div>
@@ -69,20 +107,6 @@ export default function Dashboard() {
               <span style={{ marginLeft: 8 }}>
                 {t("modules.dashboardHome.parkingStatusSub", { available: parking.available_slots })}
               </span>
-            </div>
-          </div>
-          <div className="dash-stat">
-            <div className="label">{t("modules.dashboardHome.totalBookings")}</div>
-            <div className="value">{booking.total_bookings}</div>
-            <div className="delta">
-              {t("modules.dashboardHome.totalBookingsSub", { devotees: booking.total_devotees })}
-            </div>
-          </div>
-          <div className="dash-stat">
-            <div className="label">{t("modules.dashboardHome.cctvDetected")}</div>
-            <div className="value">{cctv.total_detected_today.toLocaleString("en-IN")}</div>
-            <div className="delta">
-              {t("modules.dashboardHome.cctvDetectedSub", { cameras: cctv.cameras_online })}
             </div>
           </div>
         </section>
@@ -116,8 +140,8 @@ export default function Dashboard() {
             <Link to="/cctv" className="module-card">
               <div className="ico"><Icon name="shield" /></div>
               <h3>{t("nav.cctv")}</h3>
-              <span className="num">{cctv.current_count}</span>
-              <span className="sub">{t("modules.cctv.currentCount")}</span>
+              <span className="num">{live ? live.people_count : today.current_count}</span>
+              <span className="sub">{t("modules.cctv.countedToday")}</span>
               <span style={{ marginTop: "auto", color: "var(--c-saffron-deep)", fontWeight: 600, fontSize: "0.85rem" }}>
                 {t("modules.dashboardHome.openModule")} →
               </span>
@@ -127,6 +151,45 @@ export default function Dashboard() {
               <h3>{t("nav.prediction")}</h3>
               <span className="num">5y</span>
               <span className="sub">{t("modules.prediction.kicker")}</span>
+              <span style={{ marginTop: "auto", color: "var(--c-saffron-deep)", fontWeight: 600, fontSize: "0.85rem" }}>
+                {t("modules.dashboardHome.openModule")} →
+              </span>
+            </Link>
+            <Link to="/surge" className="module-card">
+              <div className="ico"><Icon name="flame" /></div>
+              <h3>{t("nav.surge")}</h3>
+              <span className="num">
+                {surge?.next_high_risk ? `${surge.next_high_risk.surge_pct >= 0 ? "+" : ""}${surge.next_high_risk.surge_pct}%` : "—"}
+              </span>
+              <span className="sub">
+                {surge?.next_high_risk
+                  ? (ta ? surge.next_high_risk.title_ta : surge.next_high_risk.title_en)
+                  : t("modules.surge.kicker")}
+              </span>
+              <span style={{ marginTop: "auto", color: "var(--c-saffron-deep)", fontWeight: 600, fontSize: "0.85rem" }}>
+                {t("modules.dashboardHome.openModule")} →
+              </span>
+            </Link>
+            <Link to="/queue" className="module-card">
+              <div className="ico"><Icon name="gate" /></div>
+              <h3>{t("nav.queue")}</h3>
+              <span className="num">
+                {queue?.recommended_wait != null ? t("modules.queue.minWait", { n: queue.recommended_wait }) : "—"}
+              </span>
+              <span className="sub">
+                {queue?.recommended_gate_id
+                  ? (ta ? queue.recommended_gate_ta : queue.recommended_gate_en)
+                  : t("modules.queue.kicker")}
+              </span>
+              <span style={{ marginTop: "auto", color: "var(--c-saffron-deep)", fontWeight: 600, fontSize: "0.85rem" }}>
+                {t("modules.dashboardHome.openModule")} →
+              </span>
+            </Link>
+            <Link to="/staffing" className="module-card">
+              <div className="ico"><Icon name="users" /></div>
+              <h3>{t("nav.staffing")}</h3>
+              <span className="num">{staff ? staff.current_total_staff : "—"}</span>
+              <span className="sub">{t("modules.staff.deployNow")}</span>
               <span style={{ marginTop: "auto", color: "var(--c-saffron-deep)", fontWeight: 600, fontSize: "0.85rem" }}>
                 {t("modules.dashboardHome.openModule")} →
               </span>

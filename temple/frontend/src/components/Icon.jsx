@@ -90,6 +90,12 @@ const paths = {
       <path d="M6 9h12M12 3v18" />
     </>
   ),
+  gate: (
+    <>
+      <path d="M3 21V8l9-5 9 5v13" />
+      <path d="M3 21h18M9 21v-6a3 3 0 0 1 6 0v6" />
+    </>
+  ),
   settings: (
     <>
       <circle cx="12" cy="12" r="3" />

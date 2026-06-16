@@ -23,10 +23,11 @@ def final_report(db: Session = Depends(get_db)) -> FinalReport:
     )
     parking_people = int(round(sum(int(n) * PEOPLE_PER_VEHICLE.get(vt, 0.0) for vt, n in by_type_rows)))
 
-    today = datetime.utcnow().date()
+    today = datetime.now().date()
     today_start = datetime.combine(today, datetime.min.time())
     cctv_rows = db.query(CCTVCount).filter(CCTVCount.recorded_at >= today_start).all()
-    cctv_people = sum(r.people_count for r in cctv_rows) if cctv_rows else 0
+    # Peak concurrent detection — summing instantaneous snapshots is not a crowd.
+    cctv_people = max((r.people_count for r in cctv_rows), default=0)
 
     booking_devotees = (
         db.query(func.coalesce(func.sum(Booking.devotees), 0))

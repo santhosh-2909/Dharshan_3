@@ -441,6 +441,8 @@
 .status-pill.yellow::before { background: #c47a1b; }
 .status-pill.red    { background: rgba(168,56,43,.18);  color: var(--c-danger); }
 .status-pill.red::before    { background: #a8382b; }
+.status-pill.stone  { background: rgba(120,113,108,.16); color: #4f4a45; }
+.status-pill.stone::before  { background: #78716c; }
 
 /* ===== Module shortcut cards on dashboard home ===== */
 .modules-grid {
@@ -630,4 +632,76 @@
   font-family: var(--font-serif);
   font-size: 1.05rem;
   color: var(--c-ink);
+}
+
+/* ===== Staff deployment: shift schedule + role grouping ===== */
+.shift-role {
+  margin-bottom: 18px;
+}
+.shift-role-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.shift-role-head .ico {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  background: linear-gradient(135deg, rgba(200,169,74,.18), rgba(107,31,42,.10));
+  color: var(--c-saffron-deep);
+}
+.shift-role-head h4 {
+  font-family: var(--font-serif);
+  font-size: 1.02rem;
+  margin: 0;
+}
+.shift-block {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--c-border);
+  background: var(--c-bg-elev);
+  margin: 6px 0;
+}
+.shift-block .count {
+  font-family: var(--font-serif);
+  font-size: 1.5rem;
+  font-weight: 700;
+  min-width: 38px;
+  text-align: center;
+  color: var(--c-saffron-deep);
+}
+.shift-block .where { flex: 1; }
+.shift-block .where strong { display: block; }
+.shift-block .where small { color: var(--c-stone); }
+
+/* Shift schedule table (also used for the printable PDF view) */
+.shift-table { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
+.shift-table th, .shift-table td {
+  text-align: left;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--c-border);
+}
+.shift-table th { color: var(--c-stone); font-weight: 600; }
+
+/* Print isolation: only the schedule sheet is sent to the PDF. */
+@media print {
+  body * { visibility: hidden !important; }
+  .staff-print, .staff-print * { visibility: visible !important; }
+  .staff-print {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    padding: 0 8mm;
+    color: #000;
+  }
+  .no-print { display: none !important; }
+  .shift-table th, .shift-table td { border-bottom: 1px solid #999; }
+  @page { margin: 14mm; size: A4 portrait; }
 }

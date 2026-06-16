@@ -54,7 +54,15 @@
             </section>
         </aside>
 
-        <main class="main-shell">
+                <div class="quick-actions-widget" id="quickActionsWidget">
+                    <div class="quick-actions-list" id="quickActionsList">
+                        <button class="quick-action" onclick="alert('Add Alert feature coming soon!')">Add Alert</button>
+                        <button class="quick-action" onclick="document.body.classList.toggle('dark-theme')">Toggle Theme</button>
+                        <button class="quick-action" onclick="alert('Feedback form coming soon!')">Feedback</button>
+                    </div>
+                    <button class="quick-actions-btn" id="quickActionsBtn" title="Quick Actions">⚡</button>
+                </div>
+                <main class="main-shell">
             <header class="topbar">
                 <div>
                     <p class="section-kicker">SmartDarshan</p>
@@ -619,6 +627,6 @@
         </article>
     </template>
 
-    <script src="./script.js"></script>
+    <script type="module" src="./script.js"></script>
 </body>
 </html>
