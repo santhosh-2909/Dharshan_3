@@ -16,6 +16,8 @@ import Prediction from "./pages/Prediction.jsx";
 import FestivalSurge from "./pages/FestivalSurge.jsx";
 import QueueWait from "./pages/QueueWait.jsx";
 import StaffDeployment from "./pages/StaffDeployment.jsx";
+import AnomalyAlert from "./pages/AnomalyAlert.jsx";
+import History from "./pages/History.jsx";
 import Feedback from "./pages/Feedback.jsx";
 import FAQ from "./pages/FAQ.jsx";
 import Settings from "./pages/Settings.jsx";
@@ -57,6 +59,8 @@ export default function App() {
               <Route path="/surge" element={<FestivalSurge />} />
               <Route path="/queue" element={<QueueWait />} />
               <Route path="/staffing" element={<StaffDeployment />} />
+              <Route path="/anomaly" element={<AnomalyAlert />} />
+              <Route path="/history" element={<History />} />
               <Route path="/final-report" element={<FinalReport />} />
               <Route path="/feedback" element={<Feedback />} />
               <Route path="/faq" element={<FAQ />} />

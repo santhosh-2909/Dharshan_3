@@ -176,6 +176,30 @@ class PredictedCount(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
 
 
+class DailySummary(Base):
+    """One persisted row per day: people count + all other daily aggregates.
+
+    Rolled up from the live/operational tables (CCTV counts, parking entries,
+    bookings, donations, predictions) so the day's totals survive even after the
+    live counters reset.
+    """
+
+    __tablename__ = "daily_summaries"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    summary_date: Mapped[date] = mapped_column(Date, unique=True, index=True)
+    people_count: Mapped[int] = mapped_column(Integer, default=0)       # peak cumulative CCTV count
+    vehicles_entered: Mapped[int] = mapped_column(Integer, default=0)
+    bookings: Mapped[int] = mapped_column(Integer, default=0)
+    devotees: Mapped[int] = mapped_column(Integer, default=0)
+    donation_inr: Mapped[float] = mapped_column(Float, default=0.0)
+    predicted_peak: Mapped[int] = mapped_column(Integer, default=0)
+    is_festival: Mapped[bool] = mapped_column(Boolean, default=False)
+    festival_name: Mapped[str] = mapped_column(String(120), default="")
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+
+
 class FAQ(Base):
     __tablename__ = "faq"
 

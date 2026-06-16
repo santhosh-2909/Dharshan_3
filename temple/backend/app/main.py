@@ -7,7 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from .config import get_settings
 from .db import Base, SessionLocal, engine
-from .routers import auth, bookings, cctv, crowd, donations, events, faq, feedback, final_report, live_crowd, parking, prediction, queue_wait, staffing, stats, temple
+from .routers import anomaly, auth, bookings, cctv, crowd, donations, events, faq, feedback, final_report, history, live_crowd, parking, prediction, queue_wait, staffing, stats, temple
 from .seed import seed
 from .utils.logging_config import configure_logging
 
@@ -52,7 +52,7 @@ def health() -> dict:
     return {"status": "ok", "app": settings.app_name}
 
 
-api_v1_routers = [auth, temple, events, bookings, donations, feedback, faq, crowd, stats, parking, cctv, final_report, prediction, queue_wait, staffing]
+api_v1_routers = [auth, temple, events, bookings, donations, feedback, faq, crowd, stats, parking, cctv, final_report, prediction, queue_wait, staffing, anomaly, history]
 for router_module in api_v1_routers:
     app.include_router(router_module.router, prefix="/api/v1")
 

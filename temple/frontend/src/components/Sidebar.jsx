@@ -15,6 +15,8 @@ export default function Sidebar() {
     { to: "/surge", icon: "flame", label: t("nav.surge") },
     { to: "/queue", icon: "gate", label: t("nav.queue") },
     { to: "/staffing", icon: "users", label: t("nav.staffing") },
+    { to: "/anomaly", icon: "alert", label: t("nav.anomaly") },
+    { to: "/history", icon: "calendar", label: t("nav.history") },
     { to: "/final-report", icon: "layers", label: t("nav.finalReport") },
   ];
 

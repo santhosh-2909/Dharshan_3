@@ -20,6 +20,8 @@ export default function Dashboard() {
   const [surge, setSurge] = useState(null);
   const [queue, setQueue] = useState(null);
   const [staff, setStaff] = useState(null);
+  const [anomaly, setAnomaly] = useState(null);
+  const [history, setHistory] = useState(null);
   const [error, setError] = useState(null);
 
   useEffect(() => {
@@ -33,7 +35,9 @@ export default function Dashboard() {
         api.festivalSurge(),
         api.queueWait(),
         api.staffing(6),
-      ]).then(([p, b, c, r, l, s, q, st]) => {
+        api.anomalyStatus(),
+        api.history(30),
+      ]).then(([p, b, c, r, l, s, q, st, an, hi]) => {
         if (p.status === "fulfilled") setParking(p.value);
         if (b.status === "fulfilled") setBooking(b.value);
         if (c.status === "fulfilled") setToday(c.value);
@@ -42,6 +46,8 @@ export default function Dashboard() {
         if (s.status === "fulfilled") setSurge(s.value);
         if (q.status === "fulfilled") setQueue(q.value);
         if (st.status === "fulfilled") setStaff(st.value);
+        if (an.status === "fulfilled") setAnomaly(an.value);
+        if (hi.status === "fulfilled") setHistory(hi.value);
         const fail = [p, b, c, r].find((x) => x.status === "rejected");
         if (fail) setError(fail.reason?.message);
       });
@@ -190,6 +196,30 @@ export default function Dashboard() {
               <h3>{t("nav.staffing")}</h3>
               <span className="num">{staff ? staff.current_total_staff : "—"}</span>
               <span className="sub">{t("modules.staff.deployNow")}</span>
+              <span style={{ marginTop: "auto", color: "var(--c-saffron-deep)", fontWeight: 600, fontSize: "0.85rem" }}>
+                {t("modules.dashboardHome.openModule")} →
+              </span>
+            </Link>
+            <Link to="/anomaly" className="module-card">
+              <div className="ico"><Icon name="alert" /></div>
+              <h3>{t("nav.anomaly")}</h3>
+              <span className="num">
+                {anomaly?.has_check ? `${anomaly.deviation_pct >= 0 ? "+" : ""}${anomaly.deviation_pct}%` : "—"}
+              </span>
+              <span className="sub">
+                {anomaly?.has_check
+                  ? (anomaly.is_anomaly ? t("modules.anomaly.somethingOff") : t("modules.anomaly.nominal"))
+                  : t("modules.anomaly.monitoring")}
+              </span>
+              <span style={{ marginTop: "auto", color: "var(--c-saffron-deep)", fontWeight: 600, fontSize: "0.85rem" }}>
+                {t("modules.dashboardHome.openModule")} →
+              </span>
+            </Link>
+            <Link to="/history" className="module-card">
+              <div className="ico"><Icon name="calendar" /></div>
+              <h3>{t("nav.history")}</h3>
+              <span className="num">{history ? history.length : "—"}</span>
+              <span className="sub">{t("modules.history.daysRecorded")}</span>
               <span style={{ marginTop: "auto", color: "var(--c-saffron-deep)", fontWeight: 600, fontSize: "0.85rem" }}>
                 {t("modules.dashboardHome.openModule")} →
               </span>

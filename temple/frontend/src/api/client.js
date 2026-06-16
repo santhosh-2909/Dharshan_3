@@ -50,6 +50,15 @@ export const api = {
   // staff deployment recommender (next N hours)
   staffing: (hours = 6) => request(`/staffing?hours=${hours}`),
 
+  // footfall anomaly alert ("something's off today")
+  anomalyStatus: () => request("/anomaly"),
+  anomalyCheck: (actual_count, source = "manual") =>
+    request("/anomaly", { method: "POST", body: { actual_count, source } }),
+
+  // daily history (date-wise people count + all other totals)
+  history: (limit = 90) => request(`/history?limit=${limit}`),
+  historySnapshot: () => request("/history/snapshot", { method: "POST" }),
+
   // bookings
   sevas: () => request("/bookings/sevas"),
   availability: (sevaId, on) =>

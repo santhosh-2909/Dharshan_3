@@ -90,6 +90,12 @@ const paths = {
       <path d="M6 9h12M12 3v18" />
     </>
   ),
+  alert: (
+    <>
+      <path d="M12 3l9 16H3l9-16z" />
+      <path d="M12 10v4M12 17.5v.5" />
+    </>
+  ),
   gate: (
     <>
       <path d="M3 21V8l9-5 9 5v13" />
