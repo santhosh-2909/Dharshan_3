@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aalayam - Daily Report</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/shared.css">
+  <style>
+    .page-hero { background:var(--brown-900); color:var(--cream-100); padding:32px 36px 28px; position:relative; overflow:hidden; }
+    .page-hero::before { content:''; position:absolute; inset:0; background-image:url('images/Image 1.png'); background-size:cover; background-position:center; opacity:0.15; }
+    .page-hero * { position:relative; z-index:1; }
+    .page-hero h1 { font-family:var(--font-heading); font-size:32px; margin-bottom:4px; }
+    .page-hero p { font-size:14px; color:var(--cream-300); }
+    .big-total {
+      text-align:center; padding:48px 24px; background:var(--white); border-radius:16px;
+      border:2px solid var(--cream-300); margin-bottom:32px; position:relative; overflow:hidden;
+    }
+    .big-total::before {
+      content:''; position:absolute; top:-1px; left:0; right:0; height:4px;
+      background:linear-gradient(to right, var(--amber-500), var(--amber-300), var(--amber-500));
+    }
+    .big-total::after {
+      content:''; position:absolute; bottom:0; left:50%; transform:translateX(-50%);
+      width:200px; height:200px; border-radius:50%; opacity:0.03;
+      background:var(--amber-500);
+    }
+    .big-total .label { font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:1.5px; color:var(--text-muted); position:relative; z-index:1; }
+    .big-total .number { font-family:var(--font-main); font-size:72px; font-weight:700; color:var(--brown-900); line-height:1; margin:8px 0; position:relative; z-index:1; }
+    .source-cards { display:grid; grid-template-columns:repeat(3,1fr); gap:24px; margin-bottom:32px; }
+    .source-card { text-align:center; padding:28px 20px; }
+    .source-card .src-val { font-family:var(--font-main); font-size:32px; font-weight:700; color:var(--brown-800); }
+    .source-card .src-lbl { font-size:11px; text-transform:uppercase; letter-spacing:1px; color:var(--text-muted); margin-top:4px; }
+    /* CSS Donut */
+    .donut-wrap { display:flex; justify-content:center; margin-bottom:32px; }
+    .donut { width:180px; height:180px; border-radius:50%; position:relative; }
+    .donut-center { position:absolute; inset:30px; background:var(--white); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700; color:var(--brown-800); }
+    .summary-list { list-style:none; padding:0; }
+    .summary-list li { padding:10px 0; border-bottom:1px solid var(--cream-200); font-size:14px; color:var(--text-body); display:flex; align-items:flex-start; gap:10px; }
+    .summary-list li::before { content:'\2022'; color:var(--amber-500); font-size:18px; font-weight:700; line-height:1.4; }
+    @media (max-width:768px) { .source-cards { grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-inner">
+      <a href="index.html" class="logo">Aala<span>yam</span></a>
+      <nav class="nav">
+        <a href="index.html" data-i18n="nav.home">Home</a><a href="dashboard.html" data-i18n="nav.dashboard">Dashboard</a><a href="prediction.html" data-i18n="nav.prediction">Prediction</a>
+        <a href="events.html" data-i18n="nav.events">Events</a><a href="bookings.html" data-i18n="nav.bookings">Bookings</a><a href="cctv.html" data-i18n="nav.cctv">CCTV Monitor</a><a href="features.html" data-i18n="nav.features">Features</a>
+        <button class="lang-toggle-btn" onclick="Aalayam.i18n.toggleLang()"><span class="lang-en">EN</span><span class="lang-sep">|</span><span class="lang-ta">தமிழ்</span></button>
+        <a href="#" class="btn-get-started auth-login-btn" onclick="Aalayam.auth.showLoginModal();return false;" data-i18n="nav.signin">Sign In</a>
+        <span class="auth-user-menu" style="display:none"><a href="#" class="btn-get-started" onclick="Aalayam.auth.logout();return false;" style="font-size:10px!important"><span class="auth-user-name"></span> &middot; Logout</a></span>
+      </nav>
+    </div>
+  </header>
+
+  <div class="page-hero">
+    <p class="breadcrumb"><a href="index.html" style="color:var(--amber-400)" data-i18n="common.home">Home</a> &rsaquo; Daily Report</p>
+    <h1 data-i18n="report.title">Daily Report</h1>
+    <p data-i18n="report.subtitle">Comprehensive daily temple operations summary</p>
+  </div>
+
+  <div class="page-container">
+    <div id="loading" class="loader"><div class="spinner"></div> Generating report...</div>
+    <div id="error" class="error-box" style="display:none"></div>
+    <div id="content" style="display:none">
+
+      <div class="big-total">
+        <div class="label" data-i18n="report.total_crowd">Overall Total Crowd</div>
+        <div class="number" id="total-crowd">--</div>
+        <div style="margin-top:8px;font-size:13px;color:var(--text-muted);">Peak Hour: <strong id="peak-hour">--</strong> &middot; <span id="peak-total">--</span> people</div>
+      </div>
+
+      <div class="source-cards">
+        <div class="card source-card">
+          <div class="src-val" id="src-parking">--</div>
+          <div class="src-lbl" data-i18n="report.parking_est">Parking Estimation</div>
+          <div class="progress-bar" style="margin-top:12px;"><div class="progress-fill progress-amber" id="bar-parking" style="width:0%"></div></div>
+        </div>
+        <div class="card source-card">
+          <div class="src-val" id="src-cctv">--</div>
+          <div class="src-lbl" data-i18n="report.cctv_detect">CCTV Detection</div>
+          <div class="progress-bar" style="margin-top:12px;"><div class="progress-fill progress-green" id="bar-cctv" style="width:0%"></div></div>
+        </div>
+        <div class="card source-card">
+          <div class="src-val" id="src-booking">--</div>
+          <div class="src-lbl" data-i18n="report.booking_dev">Booking Devotees</div>
+          <div class="progress-bar" style="margin-top:12px;"><div class="progress-fill" id="bar-booking" style="width:0%;background:var(--blue-500);"></div></div>
+        </div>
+      </div>
+
+      <div class="donut-wrap">
+        <div class="donut" id="donut"><div class="donut-center" data-i18n="report.sources">Sources</div></div>
+      </div>
+
+      <div class="card-flat" style="padding:24px 28px;">
+        <h3 class="section-title" style="font-size:18px;" data-i18n="report.summary">Summary Insights</h3>
+        <ul class="summary-list" id="summary-list"></ul>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:36px;">
+        <div><a href="index.html" class="logo">Aala<span>yam</span></a><p style="font-size:13px;color:var(--cream-400);margin-top:12px;" data-i18n="footer.tagline">Preserving Heritage through Intelligence.</p></div>
+        <div class="footer-col"><h4 data-i18n="footer.platform">Platform</h4><a href="dashboard.html" data-i18n="nav.dashboard">Dashboard</a><a href="prediction.html" data-i18n="nav.prediction">Prediction</a><a href="events.html" data-i18n="nav.events">Events</a><a href="bookings.html" data-i18n="nav.bookings">Bookings</a><a href="parking.html" data-i18n="nav.parking">Parking</a><a href="cctv.html" data-i18n="nav.cctv">CCTV Monitor</a></div>
+        <div class="footer-col"><h4 data-i18n="footer.more">More</h4><a href="heatmap.html" data-i18n="nav.heatmap">Heatmap</a><a href="surge.html" data-i18n="nav.surge">Surge</a><a href="staffing.html" data-i18n="nav.staffing">Staffing</a><a href="anomaly.html" data-i18n="nav.anomaly">Anomaly</a><a href="faq.html" data-i18n="nav.faq">FAQ</a><a href="features.html" data-i18n="nav.features">Features</a></div>
+        <div class="footer-col"><h4 data-i18n="footer.contact">Contact</h4><a href="#">info@aalayam.in</a><a href="#">+91 12345 67890</a></div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/i18n.js"></script>
+  <script>
+    function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+    async function loadReport() {
+      try {
+        const d = await Aalayam.api.finalReport();
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('content').style.display = 'block';
+
+        const total = d.overall_total_crowd || 0;
+        document.getElementById('total-crowd').textContent = total.toLocaleString();
+        const ph = d.peak_hour != null ? d.peak_hour : 0;
+        document.getElementById('peak-hour').textContent = ph === 0 ? '12 AM' : ph === 12 ? '12 PM' : ph > 12 ? (ph - 12) + ' PM' : ph + ' AM';
+        document.getElementById('peak-total').textContent = (d.peak_hour_total || 0).toLocaleString();
+
+        document.getElementById('src-parking').textContent = (d.parking_people || 0).toLocaleString();
+        document.getElementById('src-cctv').textContent = (d.cctv_people || 0).toLocaleString();
+        document.getElementById('src-booking').textContent = (d.booking_devotees || 0).toLocaleString();
+
+        const max = Math.max(d.parking_people, d.cctv_people, d.booking_devotees, 1);
+        document.getElementById('bar-parking').style.width = (d.parking_people / max * 100) + '%';
+        document.getElementById('bar-cctv').style.width = (d.cctv_people / max * 100) + '%';
+        document.getElementById('bar-booking').style.width = (d.booking_devotees / max * 100) + '%';
+
+        // CSS conic gradient donut
+        const p = total ? d.parking_people / total * 100 : 33;
+        const c = total ? d.cctv_people / total * 100 : 33;
+        const donut = document.getElementById('donut');
+        donut.style.background = `conic-gradient(var(--amber-500) 0% ${p}%, var(--green-500) ${p}% ${p + c}%, var(--blue-500) ${p + c}% 100%)`;
+
+        document.getElementById('summary-list').innerHTML = (d.summary || []).map(s => `<li>${esc(s)}</li>`).join('') || '<li>No summary available</li>';
+      } catch(e) {
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('error').style.display = 'block';
+        document.getElementById('error').textContent = 'Failed: ' + e.message;
+      }
+    }
+    document.addEventListener('DOMContentLoaded', loadReport);
+  </script>
+</body>
+</html>

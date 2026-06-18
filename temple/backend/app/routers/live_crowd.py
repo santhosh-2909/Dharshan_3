@@ -104,10 +104,12 @@ class TodayCountOut(BaseModel):
 # Temple premises zones: (id, English, Tamil, share-of-crowd, zone capacity).
 # Shares model how the expected crowd distributes across the premises.
 HEATMAP_ZONES = [
-    ("sanctum", "Sanctum Sanctorum", "கருவறை", 0.30, 350),
-    ("queue", "Queue Corridors", "வரிசை வழித்தடங்கள்", 0.34, 500),
-    ("prasad", "Prasad Counters", "பிரசாத கவுண்டர்கள்", 0.16, 180),
-    ("parking", "Parking", "வாகன நிறுத்தம்", 0.20, 550),
+    ("sanctum", "Sanctum Sanctorum", "கருவறை", 0.22, 350),
+    ("queue_hall", "Queue Hall", "வரிசை மண்டபம்", 0.24, 500),
+    ("prasad", "Prasadam Counter", "பிரசாத கவுண்டர்", 0.12, 180),
+    ("north_entrance", "North Entrance", "வடக்கு நுழைவாயில்", 0.14, 300),
+    ("parking", "Parking", "வாகன நிறுத்தம்", 0.16, 550),
+    ("nandi_mandapam", "Nandi Mandapam", "நந்தி மண்டபம்", 0.12, 200),
 ]
 
 

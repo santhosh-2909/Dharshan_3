@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aalayam - Crowd Prediction</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/shared.css">
+  <style>
+    .page-hero {
+      background: var(--brown-900); color: var(--cream-100); padding: 32px 36px 28px;
+      position: relative; overflow: hidden;
+    }
+    .page-hero::before {
+      content: ''; position: absolute; inset: 0;
+      background-image: url('images/Image 11.png');
+      background-size: cover; background-position: center; opacity: 0.18;
+    }
+    .page-hero * { position: relative; z-index: 1; }
+    .page-hero h1 { font-family: var(--font-heading); font-size: 32px; margin-bottom: 4px; }
+    .page-hero p { font-size: 14px; color: var(--cream-300); }
+
+    .predict-form { display: flex; gap: 16px; align-items: flex-end; margin-bottom: 32px; }
+    .predict-form .form-group { margin-bottom: 0; }
+    .predict-form input[type="date"] { min-width: 200px; }
+
+    .result-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 32px; }
+    .big-stat {
+      text-align: center; padding: 36px 24px; background: var(--white);
+      border-radius: 16px; border: 2px solid var(--cream-300);
+      position: relative; overflow: hidden;
+    }
+    .big-stat::before {
+      content: ''; position: absolute; top: -1px; left: 0; right: 0; height: 4px;
+      background: linear-gradient(to right, var(--amber-500), var(--amber-300), var(--amber-500));
+      border-radius: 16px 16px 0 0;
+    }
+    .big-stat .big-number {
+      font-family: var(--font-main); font-size: 64px; font-weight: 700;
+      color: var(--brown-900); line-height: 1; margin-bottom: 8px;
+    }
+    .big-stat .big-label { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-muted); }
+
+    .suggestions-grid .stat-card {
+      border-top: 3px solid var(--amber-400);
+    }
+
+    .confidence-bar {
+      height: 12px; background: var(--cream-200); border-radius: 6px; position: relative; overflow: hidden; margin: 12px 0;
+    }
+    .confidence-fill {
+      height: 100%; border-radius: 6px;
+      background: linear-gradient(to right, var(--green-500), var(--amber-500), var(--red-500));
+    }
+    .confidence-labels { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-muted); }
+
+    .festival-alert {
+      background: #FFF3E0; border: 1px solid #FFE0B2; border-radius: 10px;
+      padding: 16px 20px; display: flex; align-items: center; gap: 12px; margin-bottom: 24px;
+    }
+    .festival-alert svg { width: 24px; height: 24px; color: var(--amber-500); flex-shrink: 0; }
+
+    .suggestions-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 32px; }
+    .suggest-card { text-align: center; }
+    .suggest-card .suggest-val { font-family: var(--font-main); font-size: 28px; font-weight: 700; color: var(--brown-800); }
+    .suggest-card .suggest-lbl { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; }
+
+    .notes-list { list-style: none; padding: 0; }
+    .notes-list li { padding: 8px 0; border-bottom: 1px solid var(--cream-200); font-size: 14px; color: var(--text-body); }
+    .notes-list li::before { content: '\2022'; color: var(--amber-500); font-weight: 700; margin-right: 10px; }
+
+    @media (max-width: 768px) {
+      .predict-form { flex-direction: column; }
+      .result-grid { grid-template-columns: 1fr; }
+      .suggestions-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-inner">
+      <a href="index.html" class="logo">Aala<span>yam</span></a>
+      <nav class="nav">
+        <a href="index.html" data-i18n="nav.home">Home</a>
+        <a href="dashboard.html" data-i18n="nav.dashboard">Dashboard</a>
+        <a href="prediction.html" class="active" data-i18n="nav.prediction">Prediction</a>
+        <a href="events.html" data-i18n="nav.events">Events</a>
+        <a href="bookings.html" data-i18n="nav.bookings">Bookings</a>
+        <a href="cctv.html" data-i18n="nav.cctv">CCTV Monitor</a>
+        <a href="features.html" data-i18n="nav.features">Features</a>
+        <button class="lang-toggle-btn" onclick="Aalayam.i18n.toggleLang()"><span class="lang-en">EN</span><span class="lang-sep">|</span><span class="lang-ta">தமிழ்</span></button>
+        <a href="#" class="btn-get-started auth-login-btn" onclick="Aalayam.auth.showLoginModal();return false;" data-i18n="nav.signin">Sign In</a>
+        <span class="auth-user-menu" style="display:none"><a href="#" class="btn-get-started" onclick="Aalayam.auth.logout();return false;" style="font-size:10px!important"><span class="auth-user-name"></span> &middot; Logout</a></span>
+      </nav>
+    </div>
+  </header>
+
+  <div class="page-hero">
+    <p class="breadcrumb"><a href="index.html" style="color:var(--amber-400)" data-i18n="common.home">Home</a> &rsaquo; Prediction</p>
+    <h1 data-i18n="predict.title">21-Day Crowd Predictor</h1>
+    <p data-i18n="predict.subtitle">AI-powered daily crowd forecast for temple planning</p>
+  </div>
+
+  <div class="page-container">
+    <div class="card-flat" style="margin-bottom:32px;padding:28px 32px;">
+      <form class="predict-form" id="predict-form">
+        <div class="form-group">
+          <label data-i18n="predict.target_date">Target Date</label>
+          <input type="date" id="target-date" required>
+        </div>
+        <button type="submit" class="btn-primary" id="predict-btn">Predict Crowd</button>
+      </form>
+    </div>
+
+    <div id="loading" class="loader" style="display:none"><div class="spinner"></div> Analyzing patterns...</div>
+    <div id="error" class="error-box" style="display:none"></div>
+    <div id="results" style="display:none">
+
+      <!-- Festival Alert -->
+      <div id="festival-alert" class="festival-alert" style="display:none">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+        <div><strong id="festival-name"></strong><br><span style="font-size:13px;color:var(--text-muted)">Festival multiplier applied from historical data</span></div>
+      </div>
+
+      <!-- Main Result -->
+      <div class="result-grid">
+        <div class="big-stat">
+          <div class="big-label">Predicted Footfall</div>
+          <div class="big-number" id="res-crowd">--</div>
+          <div style="margin-top:8px"><span class="badge" id="res-level-badge">--</span></div>
+          <div style="font-size:13px;color:var(--text-muted);margin-top:8px;" id="res-weekday"></div>
+        </div>
+        <div class="card-flat" style="display:flex;flex-direction:column;justify-content:center;">
+          <h3 class="section-title" style="font-size:16px;margin-bottom:12px;" data-i18n="predict.confidence">Confidence Range</h3>
+          <div class="confidence-labels"><span id="res-low">--</span><span id="res-high">--</span></div>
+          <div class="confidence-bar"><div class="confidence-fill" id="res-conf-fill"></div></div>
+          <div style="margin-top:16px;font-size:13px;color:var(--text-muted);">
+            <strong>Method:</strong> <span id="res-method">--</span>
+          </div>
+          <div style="margin-top:8px;font-size:13px;color:var(--text-muted);">
+            <strong>Seasonal Factor:</strong> <span id="res-seasonal">--</span> &middot;
+            <strong>Festival:</strong> <span id="res-festival-f">--</span> &middot;
+            <strong>Trend:</strong> <span id="res-trend">--</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Suggestions -->
+      <h3 class="section-title" data-i18n="predict.suggestions">Resource Suggestions</h3>
+      <div class="suggestions-grid">
+        <div class="stat-card suggest-card"><div class="suggest-val" id="sug-prasadam">--</div><div class="suggest-lbl">Prasadam Servings</div></div>
+        <div class="stat-card suggest-card"><div class="suggest-val" id="sug-kg">--</div><div class="suggest-lbl">Prasadam (kg)</div></div>
+        <div class="stat-card suggest-card"><div class="suggest-val" id="sug-parking">--</div><div class="suggest-lbl">Parking Slots</div></div>
+        <div class="stat-card suggest-card"><div class="suggest-val" id="sug-staff">--</div><div class="suggest-lbl">Staff Required</div></div>
+      </div>
+
+      <!-- Previous Years -->
+      <div id="prev-years-section" style="margin-bottom:32px;">
+        <h3 class="section-title" data-i18n="predict.prev_years">Previous Years Comparison</h3>
+        <div class="table-wrap card-flat">
+          <table>
+            <thead><tr><th>Year</th><th>Date</th><th>Footfall</th><th>Festival</th></tr></thead>
+            <tbody id="prev-years-body"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Notes -->
+      <div class="card-flat" style="margin-bottom:32px;">
+        <h3 class="section-title" style="font-size:16px;" data-i18n="predict.notes">Analysis Notes</h3>
+        <ul class="notes-list" id="notes-list"></ul>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:36px;">
+        <div><a href="index.html" class="logo">Aala<span>yam</span></a><p style="font-size:13px;color:var(--cream-400);margin-top:12px;" data-i18n="footer.tagline">Preserving Heritage through Intelligence.</p></div>
+        <div class="footer-col"><h4 data-i18n="footer.platform">Platform</h4><a href="dashboard.html" data-i18n="nav.dashboard">Dashboard</a><a href="prediction.html" data-i18n="nav.prediction">Prediction</a><a href="events.html" data-i18n="nav.events">Events</a><a href="bookings.html" data-i18n="nav.bookings">Bookings</a><a href="parking.html" data-i18n="nav.parking">Parking</a><a href="cctv.html" data-i18n="nav.cctv">CCTV Monitor</a></div>
+        <div class="footer-col"><h4 data-i18n="footer.more">More</h4><a href="heatmap.html" data-i18n="nav.heatmap">Heatmap</a><a href="surge.html" data-i18n="nav.surge">Surge</a><a href="staffing.html" data-i18n="nav.staffing">Staffing</a><a href="anomaly.html" data-i18n="nav.anomaly">Anomaly</a><a href="faq.html" data-i18n="nav.faq">FAQ</a><a href="features.html" data-i18n="nav.features">Features</a></div>
+        <div class="footer-col"><h4 data-i18n="footer.contact">Contact</h4><a href="#">info@aalayam.in</a><a href="#">+91 12345 67890</a></div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/i18n.js"></script>
+  <script>
+    function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+    // Set min date to today
+    const dateInput = document.getElementById('target-date');
+    const today = new Date().toISOString().split('T')[0];
+    dateInput.min = today;
+    dateInput.value = today;
+
+    function levelBadge(level) {
+      const l = (level || '').toLowerCase();
+      if (l === 'low') return 'badge-green';
+      if (l === 'medium') return 'badge-yellow';
+      return 'badge-red';
+    }
+
+    document.getElementById('predict-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('predict-btn');
+      const loading = document.getElementById('loading');
+      const error = document.getElementById('error');
+      const results = document.getElementById('results');
+
+      btn.disabled = true; btn.textContent = 'Predicting...';
+      loading.style.display = 'flex'; error.style.display = 'none'; results.style.display = 'none';
+
+      try {
+        const data = await Aalayam.api.predict(dateInput.value);
+
+        document.getElementById('res-crowd').textContent = (data.predicted_crowd || 0).toLocaleString();
+        const badge = document.getElementById('res-level-badge');
+        badge.textContent = data.level; badge.className = 'badge ' + levelBadge(data.level);
+        document.getElementById('res-weekday').textContent = data.weekday + ' \u2022 ' + data.target_date;
+
+        document.getElementById('res-low').textContent = (data.confidence_low || 0).toLocaleString();
+        document.getElementById('res-high').textContent = (data.confidence_high || 0).toLocaleString();
+        const range = (data.confidence_high - data.confidence_low) || 1;
+        const pct = Math.min(100, ((data.predicted_crowd - data.confidence_low) / range) * 100);
+        document.getElementById('res-conf-fill').style.width = pct + '%';
+
+        document.getElementById('res-method').textContent = data.method;
+        document.getElementById('res-seasonal').textContent = data.seasonal_factor;
+        document.getElementById('res-festival-f').textContent = data.festival_factor + 'x';
+        document.getElementById('res-trend').textContent = data.trend_factor;
+
+        // Festival
+        if (data.is_festival) {
+          document.getElementById('festival-alert').style.display = 'flex';
+          document.getElementById('festival-name').textContent = data.festival_name || 'Temple Festival Detected';
+        } else {
+          document.getElementById('festival-alert').style.display = 'none';
+        }
+
+        // Suggestions
+        const s = data.suggestions || {};
+        document.getElementById('sug-prasadam').textContent = (s.prasadam_servings || 0).toLocaleString();
+        document.getElementById('sug-kg').textContent = (s.prasadam_kg || 0) + ' kg';
+        document.getElementById('sug-parking').textContent = (s.parking_slots_needed || 0).toLocaleString();
+        document.getElementById('sug-staff').textContent = s.staff_required || '--';
+
+        // Previous years
+        const tbody = document.getElementById('prev-years-body');
+        const prev = data.prev_years || [];
+        tbody.innerHTML = prev.length ? prev.map(p =>
+          `<tr><td>${p.year}</td><td>${esc(p.date)}</td><td>${(p.footfall || 0).toLocaleString()}</td><td>${p.is_festival ? '<span class="badge badge-amber">Festival</span>' : '-'}</td></tr>`
+        ).join('') : '<tr><td colspan="4" style="text-align:center;color:var(--text-muted)">No historical data for this date</td></tr>';
+
+        // Notes
+        const notesList = document.getElementById('notes-list');
+        notesList.innerHTML = (data.notes || []).map(n => `<li>${esc(n)}</li>`).join('');
+
+        loading.style.display = 'none';
+        results.style.display = 'block';
+      } catch (err) {
+        loading.style.display = 'none';
+        error.style.display = 'block';
+        error.textContent = 'Prediction failed: ' + err.message;
+      }
+      btn.disabled = false; btn.textContent = 'Predict Crowd';
+    });
+  </script>
+</body>
+</html>

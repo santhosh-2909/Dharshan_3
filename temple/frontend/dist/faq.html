@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aalayam - FAQ</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/shared.css">
+  <style>
+    .page-hero { background:var(--brown-900); color:var(--cream-100); padding:32px 36px 28px; position:relative; overflow:hidden; }
+    .page-hero::before { content:''; position:absolute; inset:0; background-image:url('images/Image 5.png'); background-size:cover; background-position:center; opacity:0.12; }
+    .page-hero * { position:relative; z-index:1; }
+    .page-hero h1 { font-family:var(--font-heading); font-size:32px; margin-bottom:4px; }
+    .page-hero p { font-size:14px; color:var(--cream-300); }
+    .faq-list { max-width:800px; margin:0 auto; }
+    .faq-item { border-bottom:1px solid var(--cream-300); padding-left:16px; border-left:3px solid transparent; transition:border-color 0.2s; }
+    .faq-item.open { border-left-color:var(--amber-500); }
+    .faq-question {
+      display:flex; justify-content:space-between; align-items:center;
+      padding:20px 0; cursor:pointer; font-family:var(--font-main);
+      font-size:16px; font-weight:700; color:var(--brown-800);
+    }
+    .faq-question:hover { color:var(--amber-500); }
+    .faq-arrow { font-size:18px; transition:transform 0.3s; color:var(--text-muted); }
+    .faq-item.open .faq-arrow { transform:rotate(180deg); }
+    .faq-answer {
+      max-height:0; overflow:hidden; transition:max-height 0.3s ease;
+      padding:0 0 0 0;
+    }
+    .faq-item.open .faq-answer { max-height:500px; padding-bottom:20px; }
+    .faq-answer-inner { font-size:14px; color:var(--text-body); line-height:1.7; }
+    .faq-tamil { margin-top:12px; padding-top:12px; border-top:1px dashed var(--cream-300); }
+    .faq-tamil .q { font-weight:700; color:var(--brown-700); font-size:14px; margin-bottom:4px; }
+    .faq-tamil .a { font-size:13px; color:var(--text-muted); }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-inner">
+      <a href="index.html" class="logo">Aala<span>yam</span></a>
+      <nav class="nav">
+        <a href="index.html" data-i18n="nav.home">Home</a><a href="dashboard.html" data-i18n="nav.dashboard">Dashboard</a><a href="prediction.html" data-i18n="nav.prediction">Prediction</a>
+        <a href="events.html" data-i18n="nav.events">Events</a><a href="bookings.html" data-i18n="nav.bookings">Bookings</a><a href="cctv.html" data-i18n="nav.cctv">CCTV Monitor</a><a href="features.html" data-i18n="nav.features">Features</a>
+        <button class="lang-toggle-btn" onclick="Aalayam.i18n.toggleLang()"><span class="lang-en">EN</span><span class="lang-sep">|</span><span class="lang-ta">தமிழ்</span></button>
+        <a href="#" class="btn-get-started auth-login-btn" onclick="Aalayam.auth.showLoginModal();return false;" data-i18n="nav.signin">Sign In</a>
+        <span class="auth-user-menu" style="display:none"><a href="#" class="btn-get-started" onclick="Aalayam.auth.logout();return false;" style="font-size:10px!important"><span class="auth-user-name"></span> &middot; Logout</a></span>
+      </nav>
+    </div>
+  </header>
+
+  <div class="page-hero">
+    <p class="breadcrumb"><a href="index.html" style="color:var(--amber-400)" data-i18n="common.home">Home</a> &rsaquo; FAQ</p>
+    <h1 data-i18n="faq.title">Frequently Asked Questions</h1>
+    <p data-i18n="faq.subtitle">Common questions about Aalayam</p>
+  </div>
+
+  <div class="page-container">
+    <div id="loading" class="loader"><div class="spinner"></div> Loading FAQ...</div>
+    <div id="error" class="error-box" style="display:none"></div>
+    <div class="faq-list" id="faq-list"></div>
+  </div>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:36px;">
+        <div><a href="index.html" class="logo">Aala<span>yam</span></a><p style="font-size:13px;color:var(--cream-400);margin-top:12px;" data-i18n="footer.tagline">Preserving Heritage through Intelligence.</p></div>
+        <div class="footer-col"><h4 data-i18n="footer.platform">Platform</h4><a href="dashboard.html" data-i18n="nav.dashboard">Dashboard</a><a href="prediction.html" data-i18n="nav.prediction">Prediction</a><a href="events.html" data-i18n="nav.events">Events</a><a href="bookings.html" data-i18n="nav.bookings">Bookings</a><a href="parking.html" data-i18n="nav.parking">Parking</a><a href="cctv.html" data-i18n="nav.cctv">CCTV Monitor</a></div>
+        <div class="footer-col"><h4 data-i18n="footer.more">More</h4><a href="heatmap.html" data-i18n="nav.heatmap">Heatmap</a><a href="surge.html" data-i18n="nav.surge">Surge</a><a href="staffing.html" data-i18n="nav.staffing">Staffing</a><a href="anomaly.html" data-i18n="nav.anomaly">Anomaly</a><a href="faq.html" data-i18n="nav.faq">FAQ</a><a href="features.html" data-i18n="nav.features">Features</a></div>
+        <div class="footer-col"><h4 data-i18n="footer.contact">Contact</h4><a href="#">info@aalayam.in</a><a href="#">+91 12345 67890</a></div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/i18n.js"></script>
+  <script>
+    function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+    async function loadFAQ() {
+      try {
+        const items = await Aalayam.api.faq();
+        document.getElementById('loading').style.display = 'none';
+        const data = (Array.isArray(items) ? items : (items.items || [])).sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
+
+        document.getElementById('faq-list').innerHTML = data.map(f => `
+          <div class="faq-item" onclick="this.classList.toggle('open')">
+            <div class="faq-question">
+              <span>${esc(f.question_en)}</span>
+              <span class="faq-arrow">&#9662;</span>
+            </div>
+            <div class="faq-answer">
+              <div class="faq-answer-inner">
+                ${esc(f.answer_en)}
+                ${f.question_ta ? `<div class="faq-tamil"><div class="q">${esc(f.question_ta)}</div><div class="a">${esc(f.answer_ta || '')}</div></div>` : ''}
+              </div>
+            </div>
+          </div>
+        `).join('') || '<p style="text-align:center;color:var(--text-muted)">No FAQ available</p>';
+      } catch(e) {
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('error').style.display = 'block';
+        document.getElementById('error').textContent = 'Failed: ' + e.message;
+      }
+    }
+    document.addEventListener('DOMContentLoaded', loadFAQ);
+  </script>
+</body>
+</html>

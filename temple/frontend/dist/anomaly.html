@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aalayam - Anomaly Alert</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/shared.css">
+  <style>
+    .page-hero { background:var(--brown-900); color:var(--cream-100); padding:32px 36px 28px; position:relative; overflow:hidden; }
+    .page-hero::before { content:''; position:absolute; inset:0; background-image:url('images/Image 17.png'); background-size:cover; background-position:center; opacity:0.15; }
+    .page-hero * { position:relative; z-index:1; }
+    .page-hero h1 { font-family:var(--font-heading); font-size:32px; margin-bottom:4px; }
+    .page-hero p { font-size:14px; color:var(--cream-300); }
+
+    /* Status Dashboard Banner */
+    .status-banner {
+      border-radius:16px; padding:28px 36px; display:flex; align-items:center; gap:24px;
+      margin-bottom:28px; position:relative; overflow:hidden; transition:all 0.4s;
+    }
+    .status-banner::before {
+      content:''; position:absolute; top:-1px; left:0; right:0; height:4px;
+    }
+    .status-banner.status-normal { background:linear-gradient(135deg, #E8F5E9, #C8E6C9); border:2px solid #A5D6A7; }
+    .status-banner.status-normal::before { background:linear-gradient(to right, var(--green-500), #81C784, var(--green-500)); }
+    .status-banner.status-watch { background:linear-gradient(135deg, #FFF8E1, #FFECB3); border:2px solid #FFE082; }
+    .status-banner.status-watch::before { background:linear-gradient(to right, var(--amber-500), #FFB74D, var(--amber-500)); }
+    .status-banner.status-alert { background:linear-gradient(135deg, #FFEBEE, #FFCDD2); border:2px solid #EF9A9A; }
+    .status-banner.status-alert::before { background:linear-gradient(to right, var(--red-500), #E57373, var(--red-500)); }
+    @keyframes pulse-alert { 0%,100%{box-shadow:0 0 0 0 rgba(192,57,43,0.3)} 50%{box-shadow:0 0 20px 4px rgba(192,57,43,0.15)} }
+    .status-banner.status-alert { animation:pulse-alert 2s infinite; }
+
+    .status-icon { font-size:56px; line-height:1; flex-shrink:0; }
+    .status-info { flex:1; }
+    .status-title { font-family:var(--font-heading); font-size:22px; font-weight:700; margin-bottom:4px; }
+    .status-subtitle { font-size:14px; color:var(--text-body); opacity:0.8; }
+    .status-time { font-size:12px; color:var(--text-muted); margin-top:6px; }
+    .status-badge {
+      font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:1.5px;
+      padding:8px 20px; border-radius:20px; flex-shrink:0;
+    }
+    .status-badge.sb-normal { background:var(--green-500); color:var(--white); }
+    .status-badge.sb-watch { background:#F57F17; color:var(--white); }
+    .status-badge.sb-alert { background:var(--red-500); color:var(--white); }
+
+    .anomaly-layout { display:grid; grid-template-columns:360px 1fr; gap:32px; }
+
+    /* Gauge */
+    .gauge-wrap { display:flex; justify-content:center; gap:48px; margin:28px 0; flex-wrap:wrap; }
+    .gauge-item { text-align:center; }
+    .gauge-val { font-family:var(--font-main); font-size:48px; font-weight:700; line-height:1; }
+    .gauge-lbl { font-size:12px; text-transform:uppercase; letter-spacing:1px; color:var(--text-muted); margin-top:4px; }
+    .gauge-val.expected { color:var(--brown-800); }
+    .gauge-val.actual { color:var(--amber-500); }
+    .gauge-val.deviation { color:var(--red-500); }
+    .gauge-vs { font-size:32px; color:var(--cream-300); align-self:center; padding-top:8px; }
+
+    /* Deviation bar */
+    .deviation-bar-wrap { max-width:500px; margin:0 auto 24px; }
+    .deviation-bar { height:14px; background:var(--cream-200); border-radius:7px; position:relative; overflow:visible; }
+    .deviation-marker {
+      position:absolute; top:-4px; width:4px; height:22px; background:var(--brown-900);
+      border-radius:2px; transform:translateX(-50%);
+    }
+    .deviation-labels { display:flex; justify-content:space-between; font-size:11px; color:var(--text-muted); margin-top:4px; }
+    .deviation-bar-fill {
+      position:absolute; top:0; height:100%; border-radius:7px; transition:width 0.5s, left 0.5s;
+    }
+
+    /* Reason Card */
+    .reason-card {
+      padding:24px 28px; border-left:4px solid var(--amber-500); margin-bottom:24px;
+    }
+    .reason-card h4 { font-size:16px; margin-bottom:8px; }
+    .reason-card p { font-size:14px; color:var(--text-body); line-height:1.6; }
+
+    /* Input form */
+    .check-form { padding:28px; position:relative; overflow:hidden; }
+    .check-form::before { content:''; position:absolute; top:-1px; left:0; right:0; height:4px; background:linear-gradient(to right, var(--amber-500), var(--amber-300), var(--amber-500)); }
+
+    /* CCTV Auto-fill */
+    .cctv-autofill {
+      display:flex; align-items:center; gap:10px; padding:12px 16px;
+      background:var(--cream-100); border:1px dashed var(--cream-300); border-radius:8px;
+      margin-bottom:16px; cursor:pointer; transition:all 0.2s;
+    }
+    .cctv-autofill:hover { border-color:var(--amber-500); background:#FFF8E1; }
+    .cctv-autofill svg { width:18px; height:18px; color:var(--amber-500); flex-shrink:0; }
+    .cctv-autofill span { font-size:13px; color:var(--brown-700); font-weight:600; }
+    .cctv-autofill .cctv-status { font-size:11px; color:var(--text-muted); font-weight:400; }
+
+    .section-divider { text-align:center; margin:36px 0; position:relative; }
+    .section-divider::before { content:''; position:absolute; top:50%; left:0; right:0; height:1px; background:linear-gradient(to right, transparent, var(--cream-300), transparent); }
+    .section-divider span { position:relative; background:var(--cream-100); padding:0 16px; color:var(--amber-500); font-size:18px; }
+
+    .festival-note {
+      display:flex; align-items:center; gap:12px; padding:14px 18px;
+      background:#FFF3E0; border:1px solid #FFE0B2; border-radius:10px; margin-bottom:20px;
+    }
+    .festival-note svg { width:20px; height:20px; color:var(--amber-500); flex-shrink:0; }
+
+    /* History Log */
+    .history-log { margin-top:32px; }
+    .history-log h3 { font-size:16px; margin-bottom:12px; }
+    .log-entry {
+      display:flex; align-items:center; gap:12px; padding:12px 16px;
+      border-bottom:1px solid var(--cream-200); font-size:13px;
+    }
+    .log-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+    .log-dot.normal { background:var(--green-500); }
+    .log-dot.watch { background:#F57F17; }
+    .log-dot.alert { background:var(--red-500); }
+    .log-time { color:var(--text-muted); min-width:140px; }
+    .log-detail { flex:1; color:var(--text-body); }
+    .log-pct { font-weight:700; min-width:60px; text-align:right; }
+
+    /* Toast */
+    .anomaly-toast {
+      position:fixed; top:72px; right:24px; z-index:200;
+      padding:16px 24px; border-radius:12px; display:none; align-items:center; gap:12px;
+      box-shadow:0 8px 32px rgba(0,0,0,0.2); animation:slideIn 0.4s ease;
+      max-width:400px;
+    }
+    .anomaly-toast.toast-alert { background:var(--red-500); color:var(--white); }
+    .anomaly-toast.toast-watch { background:#F57F17; color:var(--white); }
+    .anomaly-toast .toast-icon { font-size:24px; }
+    .anomaly-toast .toast-text { font-size:14px; font-weight:600; }
+    .anomaly-toast .toast-close { cursor:pointer; font-size:18px; margin-left:auto; opacity:0.8; }
+    @keyframes slideIn { from{transform:translateX(100%);opacity:0} to{transform:translateX(0);opacity:1} }
+
+    @media (max-width:900px) { .anomaly-layout { grid-template-columns:1fr; } .status-banner { flex-direction:column; text-align:center; } }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-inner">
+      <a href="index.html" class="logo">Aala<span>yam</span></a>
+      <nav class="nav">
+        <a href="index.html" data-i18n="nav.home">Home</a><a href="dashboard.html" data-i18n="nav.dashboard">Dashboard</a><a href="prediction.html" data-i18n="nav.prediction">Prediction</a>
+        <a href="events.html" data-i18n="nav.events">Events</a><a href="bookings.html" data-i18n="nav.bookings">Bookings</a><a href="cctv.html" data-i18n="nav.cctv">CCTV Monitor</a><a href="features.html" data-i18n="nav.features">Features</a>
+        <button class="lang-toggle-btn" onclick="Aalayam.i18n.toggleLang()"><span class="lang-en">EN</span><span class="lang-sep">|</span><span class="lang-ta">தமிழ்</span></button>
+        <a href="#" class="btn-get-started auth-login-btn" onclick="Aalayam.auth.showLoginModal();return false;" data-i18n="nav.signin">Sign In</a>
+        <span class="auth-user-menu" style="display:none"><a href="#" class="btn-get-started" onclick="Aalayam.auth.logout();return false;" style="font-size:10px!important"><span class="auth-user-name"></span> &middot; Logout</a></span>
+      </nav>
+    </div>
+  </header>
+
+  <div class="page-hero">
+    <p class="breadcrumb"><a href="index.html" style="color:var(--amber-400)" data-i18n="common.home">Home</a> &rsaquo; Anomaly Alert</p>
+    <h1 data-i18n="anomaly.title">Anomaly Alert</h1>
+    <p data-i18n="anomaly.subtitle">"Something's Off Today" &mdash; Real-time deviation monitoring</p>
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="anomaly-toast" id="anomaly-toast">
+    <span class="toast-icon" id="toast-icon"></span>
+    <span class="toast-text" id="toast-text"></span>
+    <span class="toast-close" onclick="document.getElementById('anomaly-toast').style.display='none'">&times;</span>
+  </div>
+
+  <div class="page-container">
+    <div id="loading" class="loader"><div class="spinner"></div> Checking anomaly status...</div>
+    <div id="error" class="error-box" style="display:none"></div>
+    <div id="content" style="display:none">
+
+      <!-- Status Dashboard Banner -->
+      <div class="status-banner status-normal" id="status-banner">
+        <div class="status-icon" id="status-icon">&#9745;</div>
+        <div class="status-info">
+          <div class="status-title" id="status-title">Awaiting Check</div>
+          <div class="status-subtitle" id="status-subtitle">Enter a gate count to compare against the forecast</div>
+          <div class="status-time" id="status-time"></div>
+        </div>
+        <div class="status-badge sb-normal" id="status-badge">Normal</div>
+      </div>
+
+      <!-- Festival Note -->
+      <div class="festival-note" id="festival-note" style="display:none">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+        <div><strong id="festival-name-text">Festival Today</strong><br><span style="font-size:13px;color:var(--text-muted)">Festival day &mdash; higher footfall may be expected</span></div>
+      </div>
+
+      <div class="anomaly-layout">
+        <!-- Input Form -->
+        <div>
+          <div class="card check-form">
+            <h3 class="section-title" style="font-size:18px;" data-i18n="anomaly.manual">Manual Gate Count</h3>
+            <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px;" data-i18n="anomaly.enter_count">Enter the observed people count from manual gate counting or sensors</p>
+
+            <!-- CCTV Auto-fill -->
+            <div class="cctv-autofill" id="cctv-autofill" onclick="autoFillFromCCTV()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+              <div>
+                <span>Auto-fill from CCTV</span><br>
+                <span class="cctv-status" id="cctv-status">Checking camera status...</span>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label data-i18n="anomaly.actual">Actual People Count</label>
+              <input type="number" id="actual-count" placeholder="e.g. 850" min="0" required>
+            </div>
+            <div class="form-group">
+              <label data-i18n="anomaly.source">Source</label>
+              <select id="check-source">
+                <option value="manual" data-i18n="anomaly.src_manual">Manual Gate Count</option>
+                <option value="sensor" data-i18n="anomaly.src_sensor">Gate Sensor</option>
+                <option value="cctv" data-i18n="anomaly.src_cctv">CCTV Estimate</option>
+              </select>
+            </div>
+            <div id="check-error" class="error-box" style="display:none;margin-bottom:12px;font-size:13px;"></div>
+            <button class="btn-primary" style="width:100%" onclick="submitCheck()" data-i18n="anomaly.check">Check for Anomaly</button>
+          </div>
+
+          <div style="margin-top:20px;">
+            <div class="card-flat" style="padding:20px 24px;">
+              <h4 style="font-size:14px;margin-bottom:8px;" data-i18n="anomaly.how_it_works">How it works</h4>
+              <ul style="list-style:none;padding:0;margin:0;">
+                <li style="padding:6px 0;font-size:13px;color:var(--text-body);border-bottom:1px solid var(--cream-200);">
+                  <strong style="color:var(--green-500);">Normal</strong> &mdash; within &plusmn;25% of forecast
+                </li>
+                <li style="padding:6px 0;font-size:13px;color:var(--text-body);border-bottom:1px solid var(--cream-200);">
+                  <strong style="color:var(--amber-500);">Watch</strong> &mdash; 25-40% deviation detected
+                </li>
+                <li style="padding:6px 0;font-size:13px;color:var(--text-body);">
+                  <strong style="color:var(--red-500);">Alert</strong> &mdash; &gt;40% deviation, action needed
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Results -->
+        <div>
+          <!-- Gauge -->
+          <div class="gauge-wrap" id="gauge-wrap">
+            <div class="gauge-item"><div class="gauge-val expected" id="g-expected">--</div><div class="gauge-lbl" data-i18n="anomaly.expected">Expected</div></div>
+            <div class="gauge-vs">vs</div>
+            <div class="gauge-item"><div class="gauge-val actual" id="g-actual">--</div><div class="gauge-lbl" data-i18n="anomaly.actual_label">Actual</div></div>
+            <div class="gauge-item"><div class="gauge-val deviation" id="g-deviation">--</div><div class="gauge-lbl" data-i18n="anomaly.deviation">Deviation</div></div>
+          </div>
+
+          <!-- Deviation Bar -->
+          <div class="deviation-bar-wrap" id="dev-bar-wrap" style="display:none">
+            <div class="deviation-bar">
+              <div class="deviation-bar-fill" id="dev-fill" style="width:0%;left:0%;background:var(--green-500);"></div>
+              <div class="deviation-marker" id="dev-marker" style="left:50%;"></div>
+            </div>
+            <div class="deviation-labels"><span>-50%</span><span>-25%</span><span>0%</span><span>+25%</span><span>+50%</span></div>
+          </div>
+
+          <!-- Reason -->
+          <div class="card-flat reason-card" id="reason-card" style="display:none">
+            <h4 id="reason-title">--</h4>
+            <p id="reason-text">--</p>
+          </div>
+
+          <!-- History Log -->
+          <div class="history-log card-flat" style="padding:20px 24px;" id="history-section">
+            <h3 style="font-size:15px;font-weight:700;margin-bottom:12px;" data-i18n="anomaly.history">Recent Checks</h3>
+            <div id="history-log"></div>
+            <div id="no-history" style="font-size:13px;color:var(--text-muted);text-align:center;padding:16px;">No checks performed yet today</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:36px;">
+        <div><a href="index.html" class="logo">Aala<span>yam</span></a><p style="font-size:13px;color:var(--cream-400);margin-top:12px;" data-i18n="footer.tagline">Preserving Heritage through Intelligence.</p></div>
+        <div class="footer-col"><h4 data-i18n="footer.platform">Platform</h4><a href="dashboard.html" data-i18n="nav.dashboard">Dashboard</a><a href="prediction.html" data-i18n="nav.prediction">Prediction</a><a href="events.html" data-i18n="nav.events">Events</a><a href="bookings.html" data-i18n="nav.bookings">Bookings</a><a href="parking.html" data-i18n="nav.parking">Parking</a><a href="cctv.html" data-i18n="nav.cctv">CCTV Monitor</a></div>
+        <div class="footer-col"><h4 data-i18n="footer.more">More</h4><a href="heatmap.html" data-i18n="nav.heatmap">Heatmap</a><a href="surge.html" data-i18n="nav.surge">Surge</a><a href="staffing.html" data-i18n="nav.staffing">Staffing</a><a href="anomaly.html" data-i18n="nav.anomaly">Anomaly</a><a href="faq.html" data-i18n="nav.faq">FAQ</a><a href="features.html" data-i18n="nav.features">Features</a></div>
+        <div class="footer-col"><h4 data-i18n="footer.contact">Contact</h4><a href="#">info@aalayam.in</a><a href="#">+91 12345 67890</a></div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/i18n.js"></script>
+  <script>
+    function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+    const REASONS = {
+      awaiting: { title: 'Awaiting Check', text: 'Enter a manual gate count or sensor reading to compare against the current forecast.' },
+      normal: { title: 'All Clear \u2014 Normal Range', text: 'Footfall is within the expected range. No action needed.' },
+      surge_building: { title: 'Surge Building', text: 'Footfall is trending above forecast. Monitor closely and consider pre-positioning additional queue marshals.' },
+      surge_unannounced: { title: 'Unexpected Surge Detected', text: 'Footfall is significantly above forecast with no scheduled festival. Possible unannounced religious event or VIP visit. Consider opening emergency queues and deploying extra security.' },
+      surge_festival: { title: 'Festival Surge (Expected)', text: 'Footfall is above forecast but a festival is active today. The surge is likely festival-driven. Ensure festival-day staffing is in place.' },
+      below_light: { title: 'Below Forecast', text: 'Footfall is below expected levels. Possible causes: weather, transport disruption, or competing event elsewhere. Monitor for next hour before scaling down staff.' },
+      below_major: { title: 'Significantly Below Forecast', text: 'Footfall is well below forecast. Consider investigating: severe weather warning, road closure, or public holiday effect. Review staffing for cost savings.' },
+    };
+
+    // History of checks (in-memory for this session)
+    const checkHistory = [];
+
+    function showToast(severity, message) {
+      const toast = document.getElementById('anomaly-toast');
+      toast.className = 'anomaly-toast toast-' + severity;
+      document.getElementById('toast-icon').textContent = severity === 'alert' ? '\uD83D\uDEA8' : '\u26A0\uFE0F';
+      document.getElementById('toast-text').textContent = message;
+      toast.style.display = 'flex';
+      setTimeout(() => { toast.style.display = 'none'; }, 8000);
+    }
+
+    function renderStatus(d) {
+      // Status banner
+      const banner = document.getElementById('status-banner');
+      const sev = d.severity || 'normal';
+      banner.className = 'status-banner status-' + sev;
+
+      const icons = { none: '\u2705', watch: '\u26A0\uFE0F', alert: '\uD83D\uDEA8' };
+      document.getElementById('status-icon').textContent = icons[sev] || '\u2705';
+
+      const reason = REASONS[d.reason_key] || REASONS.awaiting;
+      document.getElementById('status-title').textContent = reason.title;
+      document.getElementById('status-subtitle').textContent = d.is_anomaly
+        ? (d.direction === 'above' ? 'Above forecast' : 'Below forecast') + ' by ' + d.abs_pct + '%'
+        : d.has_check ? 'Within normal range' : 'No check performed yet';
+
+      // Badge
+      const badge = document.getElementById('status-badge');
+      badge.className = 'status-badge sb-' + (sev === 'none' ? 'normal' : sev);
+      badge.textContent = sev === 'alert' ? 'ALERT' : sev === 'watch' ? 'WATCH' : 'NORMAL';
+
+      // Timestamp
+      if (d.checked_at) {
+        document.getElementById('status-time').textContent = 'Last checked: ' + new Date(d.checked_at).toLocaleString() + ' (source: ' + (d.source || 'manual') + ')';
+      }
+
+      // Gauge
+      document.getElementById('g-expected').textContent = d.expected.toLocaleString();
+      document.getElementById('g-actual').textContent = d.actual !== null ? d.actual.toLocaleString() : '--';
+      document.getElementById('g-deviation').textContent = d.deviation_pct !== null ? (d.deviation_pct >= 0 ? '+' : '') + d.deviation_pct + '%' : '--';
+
+      // Deviation bar
+      if (d.has_check && d.deviation_pct !== null) {
+        document.getElementById('dev-bar-wrap').style.display = 'block';
+        const pct = Math.max(-50, Math.min(50, d.deviation_pct));
+        const markerPos = 50 + pct;
+        document.getElementById('dev-marker').style.left = markerPos + '%';
+
+        const fill = document.getElementById('dev-fill');
+        const sevColor = sev === 'alert' ? 'var(--red-500)' : sev === 'watch' ? 'var(--amber-500)' : 'var(--green-500)';
+        if (pct >= 0) {
+          fill.style.left = '50%';
+          fill.style.width = pct + '%';
+        } else {
+          fill.style.left = (50 + pct) + '%';
+          fill.style.width = Math.abs(pct) + '%';
+        }
+        fill.style.background = sevColor;
+      }
+
+      // Reason card
+      if (d.has_check) {
+        document.getElementById('reason-card').style.display = 'block';
+        const rc = document.getElementById('reason-card');
+        rc.style.borderLeftColor = sev === 'alert' ? 'var(--red-500)' : sev === 'watch' ? 'var(--amber-500)' : 'var(--green-500)';
+        document.getElementById('reason-title').textContent = reason.title;
+        document.getElementById('reason-text').textContent = reason.text;
+      }
+
+      // Festival
+      if (d.is_festival_today) {
+        document.getElementById('festival-note').style.display = 'flex';
+        document.getElementById('festival-name-text').textContent = (d.festival_en || 'Festival') + ' is active today';
+      }
+
+      // Add to history log
+      if (d.has_check) {
+        checkHistory.unshift({
+          time: d.checked_at ? new Date(d.checked_at) : new Date(),
+          severity: sev,
+          expected: d.expected,
+          actual: d.actual,
+          deviation_pct: d.deviation_pct,
+          reason: reason.title,
+          source: d.source || 'manual'
+        });
+        renderHistory();
+      }
+
+      // Show toast for anomalies
+      if (d.has_check && d.is_anomaly) {
+        showToast(sev, reason.title + ' \u2014 ' + Math.abs(d.deviation_pct) + '% deviation detected');
+      }
+    }
+
+    function renderHistory() {
+      const container = document.getElementById('history-log');
+      const noHistory = document.getElementById('no-history');
+      if (checkHistory.length === 0) {
+        noHistory.style.display = 'block';
+        container.innerHTML = '';
+        return;
+      }
+      noHistory.style.display = 'none';
+      container.innerHTML = checkHistory.slice(0, 10).map(h => `
+        <div class="log-entry">
+          <div class="log-dot ${h.severity}"></div>
+          <div class="log-time">${h.time.toLocaleTimeString()}</div>
+          <div class="log-detail">${esc(h.reason)} (${esc(h.source)})</div>
+          <div class="log-pct" style="color:${h.severity === 'alert' ? 'var(--red-500)' : h.severity === 'watch' ? '#F57F17' : 'var(--green-500)'}">
+            ${h.deviation_pct !== null ? (h.deviation_pct >= 0 ? '+' : '') + h.deviation_pct + '%' : '--'}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // CCTV auto-fill
+    async function checkCCTVStatus() {
+      try {
+        const d = await Aalayam.api.crowdStatus();
+        const el = document.getElementById('cctv-status');
+        if (d.running) {
+          el.textContent = 'Camera active \u2022 ' + (d.current_count || 0) + ' people detected';
+          el.style.color = 'var(--green-500)';
+        } else {
+          el.textContent = 'Camera not active \u2022 Click to try anyway';
+          el.style.color = 'var(--text-muted)';
+        }
+      } catch (e) {
+        document.getElementById('cctv-status').textContent = 'CCTV service unavailable';
+      }
+    }
+
+    async function autoFillFromCCTV() {
+      try {
+        const d = await Aalayam.api.crowdStatus();
+        if (d.current_count !== undefined && d.current_count !== null) {
+          document.getElementById('actual-count').value = d.current_count;
+          document.getElementById('check-source').value = 'cctv';
+          document.getElementById('cctv-status').textContent = 'Filled: ' + d.current_count + ' people';
+          document.getElementById('cctv-status').style.color = 'var(--green-500)';
+        } else {
+          document.getElementById('cctv-status').textContent = 'No count available \u2014 camera may be offline';
+          document.getElementById('cctv-status').style.color = 'var(--red-500)';
+        }
+      } catch (e) {
+        document.getElementById('cctv-status').textContent = 'Failed: ' + e.message;
+        document.getElementById('cctv-status').style.color = 'var(--red-500)';
+      }
+    }
+
+    async function loadStatus() {
+      try {
+        const d = await Aalayam.api.anomalyStatus();
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('content').style.display = 'block';
+        renderStatus(d);
+        checkCCTVStatus();
+      } catch (e) {
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('error').style.display = 'block';
+        document.getElementById('error').textContent = 'Failed: ' + e.message;
+      }
+    }
+
+    async function submitCheck() {
+      const count = parseInt(document.getElementById('actual-count').value);
+      const source = document.getElementById('check-source').value;
+      const errEl = document.getElementById('check-error');
+      errEl.style.display = 'none';
+
+      if (isNaN(count) || count < 0) {
+        errEl.textContent = 'Please enter a valid count';
+        errEl.style.display = 'block';
+        return;
+      }
+
+      try {
+        const d = await Aalayam.api.anomalyCheck(count, source);
+        renderStatus(d);
+      } catch (e) {
+        errEl.textContent = e.message;
+        errEl.style.display = 'block';
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', loadStatus);
+  </script>
+</body>
+</html>

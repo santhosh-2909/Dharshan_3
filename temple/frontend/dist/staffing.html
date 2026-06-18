@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aalayam - Staff Deployment</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/shared.css">
+  <style>
+    .page-hero { background:var(--brown-900); color:var(--cream-100); padding:32px 36px 28px; position:relative; overflow:hidden; }
+    .page-hero::before { content:''; position:absolute; inset:0; background-image:url('images/Image 4.png'); background-size:cover; background-position:center; opacity:0.15; }
+    .page-hero * { position:relative; z-index:1; }
+    .page-hero h1 { font-family:var(--font-heading); font-size:32px; margin-bottom:4px; }
+    .page-hero p { font-size:14px; color:var(--cream-300); }
+
+    .staff-toolbar { display:flex; gap:16px; align-items:flex-end; justify-content:space-between; margin-bottom:28px; flex-wrap:wrap; }
+    .staff-toolbar .left { display:flex; gap:16px; align-items:flex-end; }
+    .staff-toolbar .form-group { margin-bottom:0; }
+
+    .staff-stats { display:grid; grid-template-columns:repeat(4, 1fr); gap:20px; margin-bottom:32px; }
+
+    .section-divider { text-align:center; margin:36px 0; position:relative; }
+    .section-divider::before { content:''; position:absolute; top:50%; left:0; right:0; height:1px; background:linear-gradient(to right, transparent, var(--cream-300), transparent); }
+    .section-divider span { position:relative; background:var(--cream-100); padding:0 16px; color:var(--amber-500); font-size:18px; }
+
+    .hourly-grid { display:flex; gap:6px; align-items:flex-end; height:180px; margin-bottom:32px; padding:0 4px; border-bottom:2px solid var(--cream-300); }
+    .hourly-col { flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; }
+    .hourly-bar {
+      width:100%; border-radius:4px 4px 0 0; min-height:4px;
+      transition:height 0.5s; position:relative; cursor:pointer;
+    }
+    .hourly-bar.band-calm { background:linear-gradient(to top, #2d8a4e, #4e9d6c); }
+    .hourly-bar.band-moderate { background:linear-gradient(to top, #b8860b, #d6b23d); }
+    .hourly-bar.band-high { background:linear-gradient(to top, #c06020, #e0823c); }
+    .hourly-bar.band-veryhigh { background:linear-gradient(to top, #a02020, #d64545); }
+    .hourly-bar:hover { opacity:0.85; }
+    .hourly-tip {
+      display:none; position:absolute; bottom:100%; left:50%; transform:translateX(-50%);
+      background:var(--brown-900); color:var(--white); font-size:11px; padding:4px 8px;
+      border-radius:4px; white-space:nowrap; margin-bottom:4px;
+    }
+    .hourly-bar:hover .hourly-tip { display:block; }
+    .hourly-lbl { font-size:10px; color:var(--text-muted); margin-top:6px; }
+
+    .shift-table { width:100%; }
+    .shift-table th { text-align:left; }
+    .shift-role-group { background:var(--cream-100); font-weight:700; }
+    .shift-count {
+      display:inline-flex; align-items:center; justify-content:center;
+      width:32px; height:32px; border-radius:50%; font-weight:700;
+      font-family:var(--font-main); font-size:16px;
+    }
+    .shift-count.calm { background:#E8F5E9; color:#2E7D32; }
+    .shift-count.moderate { background:#FFF3E0; color:#E65100; }
+    .shift-count.high { background:#FFEBEE; color:#C62828; }
+
+    .btn-export {
+      background:var(--white); border:1px solid var(--cream-300); border-radius:8px;
+      padding:10px 20px; cursor:pointer; font-size:13px; font-weight:700; color:var(--brown-800);
+      transition:all 0.2s; display:flex; align-items:center; gap:6px;
+    }
+    .btn-export:hover { background:var(--amber-500); color:var(--white); border-color:var(--amber-500); }
+
+    /* Print CSS for PDF Export */
+    @media print {
+      body { background:#fff !important; }
+      .header, .page-hero, .footer, .staff-toolbar, .btn-export, .section-divider { display:none !important; }
+      .page-container { padding:0 !important; }
+      #content { display:block !important; }
+
+      .print-header {
+        display:block !important; text-align:center; margin-bottom:24px; padding-bottom:16px;
+        border-bottom:3px solid #3A2618;
+      }
+      .print-header h1 { font-size:24px; color:#3A2618; margin-bottom:4px; }
+      .print-header p { font-size:13px; color:#666; }
+
+      .staff-stats { gap:12px; }
+      .stat-card { border:1px solid #ddd; box-shadow:none; }
+      .hourly-bar { print-color-adjust:exact; -webkit-print-color-adjust:exact; }
+      .hourly-tip { display:none !important; }
+      .shift-count { print-color-adjust:exact; -webkit-print-color-adjust:exact; }
+      .badge { print-color-adjust:exact; -webkit-print-color-adjust:exact; }
+      .shift-role-group { print-color-adjust:exact; -webkit-print-color-adjust:exact; }
+
+      .table-wrap { page-break-inside:avoid; }
+      .card-flat { box-shadow:none; border:1px solid #ddd; }
+    }
+
+    .print-header { display:none; }
+
+    @media (max-width:768px) { .staff-stats { grid-template-columns:repeat(2,1fr); } .staff-toolbar { flex-direction:column; } }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-inner">
+      <a href="index.html" class="logo">Aala<span>yam</span></a>
+      <nav class="nav">
+        <a href="index.html" data-i18n="nav.home">Home</a><a href="dashboard.html" data-i18n="nav.dashboard">Dashboard</a><a href="prediction.html" data-i18n="nav.prediction">Prediction</a>
+        <a href="events.html" data-i18n="nav.events">Events</a><a href="bookings.html" data-i18n="nav.bookings">Bookings</a><a href="cctv.html" data-i18n="nav.cctv">CCTV Monitor</a><a href="features.html" data-i18n="nav.features">Features</a>
+        <button class="lang-toggle-btn" onclick="Aalayam.i18n.toggleLang()"><span class="lang-en">EN</span><span class="lang-sep">|</span><span class="lang-ta">தமிழ்</span></button>
+        <a href="#" class="btn-get-started auth-login-btn" onclick="Aalayam.auth.showLoginModal();return false;" data-i18n="nav.signin">Sign In</a>
+        <span class="auth-user-menu" style="display:none"><a href="#" class="btn-get-started" onclick="Aalayam.auth.logout();return false;" style="font-size:10px!important"><span class="auth-user-name"></span> &middot; Logout</a></span>
+      </nav>
+    </div>
+  </header>
+
+  <div class="page-hero">
+    <p class="breadcrumb"><a href="index.html" style="color:var(--amber-400)" data-i18n="common.home">Home</a> &rsaquo; Staff Deployment</p>
+    <h1 data-i18n="staff.title">Staff Deployment Recommender</h1>
+    <p data-i18n="staff.subtitle">AI-recommended staffing based on predicted footfall</p>
+  </div>
+
+  <div class="page-container">
+    <!-- Print-only header -->
+    <div class="print-header">
+      <h1>Aalayam &mdash; Staff Deployment Plan</h1>
+      <p id="print-date"></p>
+    </div>
+
+    <div class="card-flat staff-toolbar" style="padding:24px 28px;">
+      <div class="left">
+        <div class="form-group">
+          <label data-i18n="staff.horizon">Forecast Horizon</label>
+          <select id="hours-select">
+            <option value="3" data-i18n="staff.next3">Next 3 Hours</option>
+            <option value="6" selected data-i18n="staff.next6">Next 6 Hours</option>
+            <option value="9" data-i18n="staff.next9">Next 9 Hours</option>
+            <option value="12" data-i18n="staff.next12">Next 12 Hours</option>
+          </select>
+        </div>
+        <button class="btn-primary" id="load-btn" onclick="loadStaffing()" data-i18n="staff.update">Update</button>
+      </div>
+      <button class="btn-export" onclick="exportPDF()">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/><path d="M12 3v12"/><rect x="4" y="17" width="16" height="4" rx="1"/></svg>
+        Export PDF
+      </button>
+    </div>
+
+    <div id="loading" class="loader"><div class="spinner"></div> Calculating staffing...</div>
+    <div id="error" class="error-box" style="display:none"></div>
+    <div id="content" style="display:none">
+
+      <!-- Stats -->
+      <div class="staff-stats">
+        <div class="stat-card"><div class="stat-value" id="s-current">--</div><div class="stat-label" data-i18n="staff.current_needed">Current Staff Needed</div></div>
+        <div class="stat-card"><div class="stat-value" id="s-peak">--</div><div class="stat-label" data-i18n="staff.peak_needed">Peak Staff Needed</div></div>
+        <div class="stat-card"><div class="stat-value" id="s-peak-hour">--</div><div class="stat-label" data-i18n="staff.peak_hour">Peak Hour</div></div>
+        <div class="stat-card"><div class="stat-value" id="s-roles">--</div><div class="stat-label" data-i18n="staff.total_roles">Total Roles</div></div>
+      </div>
+
+      <div class="section-divider"><span>&#10038;</span></div>
+
+      <!-- Hourly Staff Chart -->
+      <h3 class="section-title" data-i18n="staff.hourly">Hourly Staff Requirement</h3>
+      <div class="card-flat" style="padding:24px;margin-bottom:32px;">
+        <div class="hourly-grid" id="hourly-chart"></div>
+      </div>
+
+      <div class="section-divider"><span>&#10038;</span></div>
+
+      <!-- Shift Schedule -->
+      <h3 class="section-title" data-i18n="staff.shift">Shift Schedule</h3>
+      <div class="table-wrap card-flat" style="margin-bottom:32px;">
+        <table class="shift-table">
+          <thead><tr><th data-i18n="staff.th_role">Role</th><th data-i18n="staff.th_location">Location</th><th data-i18n="staff.th_shift">Shift</th><th data-i18n="staff.th_staff">Staff</th><th data-i18n="staff.th_crowd_band">Crowd Band</th></tr></thead>
+          <tbody id="shift-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:36px;">
+        <div><a href="index.html" class="logo">Aala<span>yam</span></a><p style="font-size:13px;color:var(--cream-400);margin-top:12px;" data-i18n="footer.tagline">Preserving Heritage through Intelligence.</p></div>
+        <div class="footer-col"><h4 data-i18n="footer.platform">Platform</h4><a href="dashboard.html" data-i18n="nav.dashboard">Dashboard</a><a href="prediction.html" data-i18n="nav.prediction">Prediction</a><a href="events.html" data-i18n="nav.events">Events</a><a href="bookings.html" data-i18n="nav.bookings">Bookings</a><a href="parking.html" data-i18n="nav.parking">Parking</a><a href="cctv.html" data-i18n="nav.cctv">CCTV Monitor</a></div>
+        <div class="footer-col"><h4 data-i18n="footer.more">More</h4><a href="heatmap.html" data-i18n="nav.heatmap">Heatmap</a><a href="surge.html" data-i18n="nav.surge">Surge</a><a href="staffing.html" data-i18n="nav.staffing">Staffing</a><a href="anomaly.html" data-i18n="nav.anomaly">Anomaly</a><a href="faq.html" data-i18n="nav.faq">FAQ</a><a href="features.html" data-i18n="nav.features">Features</a></div>
+        <div class="footer-col"><h4 data-i18n="footer.contact">Contact</h4><a href="#">info@aalayam.in</a><a href="#">+91 12345 67890</a></div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/i18n.js"></script>
+  <script>
+    function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+    function bandClass(band) {
+      const b = (band || '').toLowerCase();
+      if (b === 'calm' || b === 'closed') return 'calm';
+      if (b === 'moderate') return 'moderate';
+      return 'high';
+    }
+
+    function bandBarClass(band) {
+      const b = (band || '').toLowerCase().replace(/\s+/g, '');
+      if (b === 'veryhigh') return 'band-veryhigh';
+      if (b === 'high') return 'band-high';
+      if (b === 'moderate') return 'band-moderate';
+      return 'band-calm';
+    }
+
+    function bandBadge(band) {
+      const b = (band || '').toLowerCase();
+      if (b === 'calm') return 'badge-green';
+      if (b === 'moderate') return 'badge-yellow';
+      if (b === 'high') return 'badge-amber';
+      if (b === 'very high') return 'badge-red';
+      return 'badge-blue';
+    }
+
+    function exportPDF() {
+      document.getElementById('print-date').textContent = 'Generated: ' + new Date().toLocaleString() + ' | Horizon: ' + document.getElementById('hours-select').value + ' hours';
+      window.print();
+    }
+
+    async function loadStaffing() {
+      const hours = parseInt(document.getElementById('hours-select').value);
+      const loading = document.getElementById('loading');
+      const error = document.getElementById('error');
+      const content = document.getElementById('content');
+      loading.style.display = 'flex'; error.style.display = 'none'; content.style.display = 'none';
+
+      try {
+        const d = await Aalayam.api.staffing(hours);
+        loading.style.display = 'none';
+        content.style.display = 'block';
+
+        document.getElementById('s-current').textContent = d.current_total_staff;
+        document.getElementById('s-peak').textContent = d.peak_total_staff;
+        document.getElementById('s-peak-hour').textContent = d.peak_hour_label;
+
+        // Count unique roles
+        const roles = new Set(d.blocks.map(b => b.role_en));
+        document.getElementById('s-roles').textContent = roles.size;
+
+        // Hourly chart with color-coded bands
+        const maxStaff = Math.max(...d.hourly.map(h => h.total_staff), 1);
+        document.getElementById('hourly-chart').innerHTML = d.hourly.map(h => {
+          const pct = (h.total_staff / maxStaff * 100);
+          return `<div class="hourly-col">
+            <div class="hourly-bar ${bandBarClass(h.band)}" style="height:${pct}%">
+              <div class="hourly-tip">${h.label}: ${h.total_staff} staff (${h.expected} visitors, ${h.band})</div>
+            </div>
+            <span class="hourly-lbl">${h.label}</span>
+          </div>`;
+        }).join('');
+
+        // Shift blocks table
+        const tbody = document.getElementById('shift-body');
+        let lastRole = '';
+        tbody.innerHTML = d.blocks.map(b => {
+          const isNewRole = b.role_en !== lastRole;
+          lastRole = b.role_en;
+          return `${isNewRole ? `<tr class="shift-role-group"><td colspan="5" style="padding:10px 16px;font-size:13px;color:var(--brown-700);">${esc(b.role_en)} &middot; <span style="font-weight:400;font-style:italic;">${esc(b.role_ta)}</span></td></tr>` : ''}
+            <tr>
+              <td>${esc(b.role_en)}</td>
+              <td>${esc(b.location_en)}</td>
+              <td><strong>${b.start_label}</strong> &mdash; <strong>${b.end_label}</strong></td>
+              <td><span class="shift-count ${bandClass(b.band)}">${b.count}</span></td>
+              <td><span class="badge ${bandBadge(b.band)}">${b.band}</span></td>
+            </tr>`;
+        }).join('');
+      } catch (e) {
+        loading.style.display = 'none';
+        error.style.display = 'block';
+        error.textContent = 'Failed: ' + e.message;
+      }
+    }
+    document.addEventListener('DOMContentLoaded', loadStaffing);
+  </script>
+</body>
+</html>

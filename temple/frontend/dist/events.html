@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aalayam - Temple Events</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/shared.css">
+  <style>
+    .page-hero {
+      background: var(--brown-900); color: var(--cream-100); padding: 32px 36px 28px;
+      position: relative; overflow: hidden;
+    }
+    .page-hero::before {
+      content: ''; position: absolute; inset: 0;
+      background-image: url('images/Image 8.png');
+      background-size: cover; background-position: center; opacity: 0.18;
+    }
+    .page-hero * { position: relative; z-index: 1; }
+    .page-hero h1 { font-family: var(--font-heading); font-size: 32px; margin-bottom: 4px; }
+    .page-hero p { font-size: 14px; color: var(--cream-300); }
+
+    .filter-tabs { display: flex; gap: 8px; margin-bottom: 28px; }
+    .filter-tab {
+      padding: 8px 20px; border-radius: 20px; font-family: var(--font-ui);
+      font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+      border: 1px solid var(--cream-300); background: var(--white); color: var(--text-body);
+      cursor: pointer; transition: all 0.2s;
+    }
+    .filter-tab:hover { border-color: var(--amber-500); color: var(--amber-500); }
+    .filter-tab.active { background: var(--brown-800); color: var(--white); border-color: var(--brown-800); }
+
+    .events-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+    .event-card {
+      transition: transform 0.2s, box-shadow 0.2s; position: relative; overflow: hidden;
+      border-left: 3px solid var(--amber-400);
+    }
+    .event-card:hover { transform: translateY(-3px); box-shadow: 0 8px 28px rgba(58,38,24,0.12); }
+    .event-card h3 { font-family: var(--font-heading); font-size: 17px; margin-bottom: 4px; }
+    .event-card .event-tamil { font-size: 13px; color: var(--text-muted); font-style: italic; margin-bottom: 10px; }
+    .event-card .event-dates { font-size: 13px; color: var(--brown-600); margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+    .event-card .event-dates svg { width: 14px; height: 14px; }
+    .event-card .event-desc { font-size: 13px; color: var(--text-body); line-height: 1.6; }
+    .event-badges { display: flex; gap: 6px; margin-bottom: 12px; }
+
+    @media (max-width: 768px) { .events-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-inner">
+      <a href="index.html" class="logo">Aala<span>yam</span></a>
+      <nav class="nav">
+        <a href="index.html" data-i18n="nav.home">Home</a><a href="dashboard.html" data-i18n="nav.dashboard">Dashboard</a><a href="prediction.html" data-i18n="nav.prediction">Prediction</a>
+        <a href="events.html" class="active" data-i18n="nav.events">Events</a><a href="bookings.html" data-i18n="nav.bookings">Bookings</a><a href="cctv.html" data-i18n="nav.cctv">CCTV Monitor</a><a href="features.html" data-i18n="nav.features">Features</a>
+        <button class="lang-toggle-btn" onclick="Aalayam.i18n.toggleLang()"><span class="lang-en">EN</span><span class="lang-sep">|</span><span class="lang-ta">தமிழ்</span></button>
+        <a href="#" class="btn-get-started auth-login-btn" onclick="Aalayam.auth.showLoginModal();return false;" data-i18n="nav.signin">Sign In</a>
+        <span class="auth-user-menu" style="display:none"><a href="#" class="btn-get-started" onclick="Aalayam.auth.logout();return false;" style="font-size:10px!important"><span class="auth-user-name"></span> &middot; Logout</a></span>
+      </nav>
+    </div>
+  </header>
+
+  <div class="page-hero">
+    <p class="breadcrumb"><a href="index.html" style="color:var(--amber-400)" data-i18n="common.home">Home</a> &rsaquo; Events</p>
+    <h1 data-i18n="events.title">Temple Events & Festivals</h1>
+    <p data-i18n="events.subtitle">Upcoming religious events, festivals and special poojas</p>
+  </div>
+
+  <div class="page-container">
+    <div class="filter-tabs">
+      <button class="filter-tab active" data-filter="all" data-i18n="events.all">All Events</button>
+      <button class="filter-tab" data-filter="festival" data-i18n="events.festivals">Festivals</button>
+      <button class="filter-tab" data-filter="upcoming" data-i18n="events.upcoming">Upcoming</button>
+    </div>
+
+    <div id="loading" class="loader"><div class="spinner"></div> Loading events...</div>
+    <div id="error" class="error-box" style="display:none"></div>
+    <div id="empty" class="empty-state" style="display:none"><p>No events found</p></div>
+    <div class="events-grid" id="events-grid"></div>
+  </div>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:36px;">
+        <div><a href="index.html" class="logo">Aala<span>yam</span></a><p style="font-size:13px;color:var(--cream-400);margin-top:12px;" data-i18n="footer.tagline">Preserving Heritage through Intelligence.</p></div>
+        <div class="footer-col"><h4 data-i18n="footer.platform">Platform</h4><a href="dashboard.html" data-i18n="nav.dashboard">Dashboard</a><a href="prediction.html" data-i18n="nav.prediction">Prediction</a><a href="events.html" data-i18n="nav.events">Events</a><a href="bookings.html" data-i18n="nav.bookings">Bookings</a><a href="parking.html" data-i18n="nav.parking">Parking</a><a href="cctv.html" data-i18n="nav.cctv">CCTV Monitor</a></div>
+        <div class="footer-col"><h4 data-i18n="footer.more">More</h4><a href="heatmap.html" data-i18n="nav.heatmap">Heatmap</a><a href="surge.html" data-i18n="nav.surge">Surge</a><a href="staffing.html" data-i18n="nav.staffing">Staffing</a><a href="anomaly.html" data-i18n="nav.anomaly">Anomaly</a><a href="faq.html" data-i18n="nav.faq">FAQ</a><a href="features.html" data-i18n="nav.features">Features</a></div>
+        <div class="footer-col"><h4 data-i18n="footer.contact">Contact</h4><a href="#">info@aalayam.in</a><a href="#">+91 12345 67890</a></div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/i18n.js"></script>
+  <script>
+    let allEvents = [];
+    const today = new Date().toISOString().split('T')[0];
+
+    function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+    function renderEvents(events) {
+      const grid = document.getElementById('events-grid');
+      const empty = document.getElementById('empty');
+      if (!events.length) { grid.innerHTML = ''; empty.style.display = 'block'; return; }
+      empty.style.display = 'none';
+      grid.innerHTML = events.map(ev => `
+        <div class="card event-card">
+          <div class="event-badges">
+            <span class="badge badge-blue">${esc(ev.category || 'Event')}</span>
+            ${ev.is_festival ? '<span class="badge badge-amber">Festival</span>' : ''}
+          </div>
+          <h3>${esc(ev.title_en)}</h3>
+          <div class="event-tamil">${esc(ev.title_ta || '')}</div>
+          <div class="event-dates">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+            ${esc(ev.starts_on)}${ev.ends_on && ev.ends_on !== ev.starts_on ? ' &mdash; ' + esc(ev.ends_on) : ''}
+          </div>
+          <div class="event-desc">${esc((ev.description || '').substring(0, 120))}${(ev.description || '').length > 120 ? '...' : ''}</div>
+        </div>
+      `).join('');
+    }
+
+    function filterEvents(type) {
+      if (type === 'festival') return allEvents.filter(e => e.is_festival);
+      if (type === 'upcoming') return allEvents.filter(e => e.starts_on >= today);
+      return allEvents;
+    }
+
+    document.querySelectorAll('.filter-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        renderEvents(filterEvents(tab.dataset.filter));
+      });
+    });
+
+    async function loadEvents() {
+      try {
+        allEvents = await Aalayam.api.events();
+        document.getElementById('loading').style.display = 'none';
+        renderEvents(allEvents);
+      } catch (e) {
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('error').style.display = 'block';
+        document.getElementById('error').textContent = 'Failed to load events: ' + e.message;
+      }
+    }
+    document.addEventListener('DOMContentLoaded', loadEvents);
+  </script>
+</body>
+</html>

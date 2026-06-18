@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aalayam - Festival Surge Predictor</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/shared.css">
+  <style>
+    .page-hero { background:var(--brown-900); color:var(--cream-100); padding:32px 36px 28px; position:relative; overflow:hidden; }
+    .page-hero::before { content:''; position:absolute; inset:0; background-image:url('images/Image 8.png'); background-size:cover; background-position:center; opacity:0.18; }
+    .page-hero * { position:relative; z-index:1; }
+    .page-hero h1 { font-family:var(--font-heading); font-size:32px; margin-bottom:4px; }
+    .page-hero p { font-size:14px; color:var(--cream-300); }
+
+    /* Countdown Banner */
+    .countdown-banner {
+      background:var(--white); border-radius:16px; border:2px solid var(--cream-300);
+      padding:32px 36px; margin-bottom:32px; display:flex; align-items:center;
+      justify-content:space-between; gap:24px; position:relative; overflow:hidden;
+    }
+    .countdown-banner::before {
+      content:''; position:absolute; top:-1px; left:0; right:0; height:4px;
+      background:linear-gradient(to right, var(--red-500), var(--amber-500), var(--red-500));
+    }
+    .countdown-left h3 { font-family:var(--font-main); font-size:22px; color:var(--brown-900); margin-bottom:4px; }
+    .countdown-left .surge-pct { font-size:14px; font-weight:700; margin-top:6px; }
+    .countdown-left .surge-pct.high { color:var(--red-500); }
+    .countdown-left .surge-pct.moderate { color:var(--amber-500); }
+    .countdown-left .surge-pct.low { color:var(--green-500); }
+    .countdown-timer { display:flex; gap:12px; text-align:center; }
+    .countdown-unit {
+      background:var(--brown-900); color:var(--white); border-radius:10px;
+      padding:14px 18px; min-width:64px;
+    }
+    .countdown-unit .num { font-family:var(--font-main); font-size:32px; font-weight:700; line-height:1; }
+    .countdown-unit .lbl { font-size:10px; text-transform:uppercase; letter-spacing:1px; color:var(--cream-300); margin-top:4px; }
+
+    .section-divider { text-align:center; margin:36px 0; position:relative; }
+    .section-divider::before { content:''; position:absolute; top:50%; left:0; right:0; height:1px; background:linear-gradient(to right, transparent, var(--cream-300), transparent); }
+    .section-divider span { position:relative; background:var(--cream-100); padding:0 16px; color:var(--amber-500); font-size:18px; }
+
+    /* Calendar */
+    .cal-nav { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; }
+    .cal-nav h3 { font-family:var(--font-main); font-size:22px; color:var(--brown-900); }
+    .cal-nav button {
+      background:var(--white); border:1px solid var(--cream-300); border-radius:8px;
+      padding:8px 16px; cursor:pointer; font-size:14px; font-weight:700; color:var(--brown-800);
+      transition:all 0.2s;
+    }
+    .cal-nav button:hover { background:var(--amber-500); color:var(--white); border-color:var(--amber-500); }
+
+    .cal-grid {
+      display:grid; grid-template-columns:repeat(7, 1fr); gap:4px; margin-bottom:32px;
+    }
+    .cal-header { text-align:center; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:var(--text-muted); padding:8px 0; }
+    .cal-cell {
+      min-height:80px; border-radius:10px; padding:8px; position:relative;
+      background:var(--white); border:1px solid var(--cream-200); cursor:default;
+      transition:box-shadow 0.2s;
+    }
+    .cal-cell:hover { box-shadow:0 4px 16px rgba(0,0,0,0.08); }
+    .cal-cell.empty { background:transparent; border-color:transparent; cursor:default; }
+    .cal-cell.today { border:2px solid var(--amber-500); }
+    .cal-cell .cal-day { font-size:13px; font-weight:700; color:var(--brown-800); }
+    .cal-cell.today .cal-day { color:var(--amber-500); }
+
+    /* Festival markers on calendar */
+    .cal-cell.festival { cursor:pointer; }
+    .cal-cell.risk-low { border-left:4px solid var(--green-500); }
+    .cal-cell.risk-moderate { border-left:4px solid var(--amber-500); }
+    .cal-cell.risk-high { border-left:4px solid var(--red-500); }
+    .cal-fest-name { font-size:10px; font-weight:700; color:var(--brown-700); margin-top:4px; line-height:1.2; }
+    .cal-fest-surge { font-size:10px; font-weight:700; margin-top:2px; }
+    .cal-fest-surge.high { color:var(--red-500); }
+    .cal-fest-surge.moderate { color:var(--amber-500); }
+    .cal-fest-surge.low { color:var(--green-500); }
+    .cal-fest-dot { display:inline-block; width:6px; height:6px; border-radius:50%; margin-right:3px; vertical-align:middle; }
+    .cal-fest-dot.high { background:var(--red-500); }
+    .cal-fest-dot.moderate { background:var(--amber-500); }
+    .cal-fest-dot.low { background:var(--green-500); }
+
+    /* Detail panel */
+    .fest-detail {
+      background:var(--white); border:2px solid var(--cream-300); border-radius:16px;
+      padding:28px 32px; margin-bottom:32px; position:relative; overflow:hidden; display:none;
+    }
+    .fest-detail::before { content:''; position:absolute; top:-1px; left:0; right:0; height:4px; background:linear-gradient(to right, var(--amber-500), var(--amber-300), var(--amber-500)); }
+    .fest-detail .fd-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:16px; }
+    .fest-detail h3 { font-size:20px; margin-bottom:2px; }
+    .fest-detail .fd-tamil { font-size:13px; color:var(--text-muted); font-style:italic; }
+    .fest-detail .fd-close { cursor:pointer; background:none; border:none; font-size:20px; color:var(--text-muted); padding:4px 8px; }
+    .fest-detail .fd-stats { display:grid; grid-template-columns:repeat(4, 1fr); gap:16px; margin-top:16px; }
+    .fest-detail .fd-stat-val { font-family:var(--font-main); font-size:24px; font-weight:700; color:var(--brown-800); }
+    .fest-detail .fd-stat-lbl { font-size:10px; text-transform:uppercase; letter-spacing:0.5px; color:var(--text-muted); }
+
+    /* Festival Cards (below calendar) */
+    .festival-grid { display:grid; grid-template-columns:repeat(2, 1fr); gap:20px; }
+    .festival-card {
+      padding:24px; position:relative; overflow:hidden;
+      transition:transform 0.2s, box-shadow 0.2s;
+    }
+    .festival-card:hover { transform:translateY(-3px); box-shadow:0 8px 28px rgba(58,38,24,0.12); }
+    .festival-card .fc-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px; }
+    .festival-card h3 { font-size:17px; margin-bottom:2px; }
+    .festival-card .fc-tamil { font-size:12px; color:var(--text-muted); font-style:italic; }
+    .festival-card .fc-date { font-size:13px; color:var(--brown-600); margin-bottom:8px; display:flex; align-items:center; gap:6px; }
+    .festival-card .fc-days-away {
+      font-family:var(--font-main); font-size:14px; font-weight:700;
+      color:var(--white); padding:4px 12px; border-radius:20px; white-space:nowrap;
+    }
+    .festival-card .fc-stats { display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; margin-top:14px; padding-top:14px; border-top:1px solid var(--cream-200); }
+    .festival-card .fc-stat-val { font-family:var(--font-main); font-size:18px; font-weight:700; color:var(--brown-800); }
+    .festival-card .fc-stat-lbl { font-size:10px; text-transform:uppercase; letter-spacing:0.5px; color:var(--text-muted); }
+
+    .surge-bar { height:8px; background:var(--cream-200); border-radius:4px; margin-top:12px; position:relative; overflow:hidden; }
+    .surge-bar-fill { height:100%; border-radius:4px; transition:width 0.5s; }
+    .surge-bar-fill.low { background:var(--green-500); }
+    .surge-bar-fill.moderate { background:var(--amber-500); }
+    .surge-bar-fill.high, .surge-bar-fill.veryhigh { background:var(--red-500); }
+
+    .festival-card.risk-low { border-left:4px solid var(--green-500); }
+    .festival-card.risk-moderate { border-left:4px solid var(--amber-500); }
+    .festival-card.risk-high, .festival-card.risk-veryhigh { border-left:4px solid var(--red-500); }
+
+    .days-bg-low { background:var(--green-500); }
+    .days-bg-moderate { background:var(--amber-500); }
+    .days-bg-high, .days-bg-veryhigh { background:var(--red-500); }
+
+    @media (max-width:768px) {
+      .countdown-banner { flex-direction:column; text-align:center; }
+      .festival-grid { grid-template-columns:1fr; }
+      .cal-cell { min-height:60px; padding:4px; }
+      .cal-fest-name { font-size:9px; }
+      .fest-detail .fd-stats { grid-template-columns:repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-inner">
+      <a href="index.html" class="logo">Aala<span>yam</span></a>
+      <nav class="nav">
+        <a href="index.html" data-i18n="nav.home">Home</a><a href="dashboard.html" data-i18n="nav.dashboard">Dashboard</a><a href="prediction.html" data-i18n="nav.prediction">Prediction</a>
+        <a href="events.html" data-i18n="nav.events">Events</a><a href="bookings.html" data-i18n="nav.bookings">Bookings</a><a href="cctv.html" data-i18n="nav.cctv">CCTV Monitor</a><a href="features.html" data-i18n="nav.features">Features</a>
+        <button class="lang-toggle-btn" onclick="Aalayam.i18n.toggleLang()"><span class="lang-en">EN</span><span class="lang-sep">|</span><span class="lang-ta">தமிழ்</span></button>
+        <a href="#" class="btn-get-started auth-login-btn" onclick="Aalayam.auth.showLoginModal();return false;" data-i18n="nav.signin">Sign In</a>
+        <span class="auth-user-menu" style="display:none"><a href="#" class="btn-get-started" onclick="Aalayam.auth.logout();return false;" style="font-size:10px!important"><span class="auth-user-name"></span> &middot; Logout</a></span>
+      </nav>
+    </div>
+  </header>
+
+  <div class="page-hero">
+    <p class="breadcrumb"><a href="index.html" style="color:var(--amber-400)" data-i18n="common.home">Home</a> &rsaquo; Festival Surge</p>
+    <h1 data-i18n="surge.title">Festival Surge Predictor</h1>
+    <p data-i18n="surge.subtitle">Predicted footfall surge for upcoming festivals with countdown</p>
+  </div>
+
+  <div class="page-container">
+    <div id="loading" class="loader"><div class="spinner"></div> Calculating surge predictions...</div>
+    <div id="error" class="error-box" style="display:none"></div>
+    <div id="content" style="display:none">
+
+      <!-- Countdown to Next High-Risk -->
+      <div class="countdown-banner" id="countdown-banner" style="display:none">
+        <div class="countdown-left">
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--red-500);margin-bottom:6px;">Next High-Risk Day</div>
+          <h3 id="cd-title">--</h3>
+          <div class="surge-pct high" id="cd-surge">--</div>
+        </div>
+        <div class="countdown-timer" id="cd-timer"></div>
+      </div>
+
+      <div class="section-divider"><span>&#10038;</span></div>
+
+      <!-- Monthly Calendar -->
+      <div class="cal-nav">
+        <button onclick="changeMonth(-1)">&larr; Prev</button>
+        <h3 id="cal-month-title"></h3>
+        <button onclick="changeMonth(1)">Next &rarr;</button>
+      </div>
+      <div class="cal-grid" id="cal-grid">
+        <div class="cal-header" data-i18n="surge.cal_sun">Sun</div><div class="cal-header" data-i18n="surge.cal_mon">Mon</div><div class="cal-header" data-i18n="surge.cal_tue">Tue</div>
+        <div class="cal-header" data-i18n="surge.cal_wed">Wed</div><div class="cal-header" data-i18n="surge.cal_thu">Thu</div><div class="cal-header" data-i18n="surge.cal_fri">Fri</div><div class="cal-header" data-i18n="surge.cal_sat">Sat</div>
+      </div>
+
+      <!-- Festival Detail Panel -->
+      <div class="fest-detail" id="fest-detail">
+        <div class="fd-header">
+          <div>
+            <h3 id="fd-title"></h3>
+            <div class="fd-tamil" id="fd-tamil"></div>
+          </div>
+          <button class="fd-close" onclick="closeFestDetail()">&times;</button>
+        </div>
+        <div style="margin-bottom:12px;">
+          <span class="badge" id="fd-badge"></span>
+          <span style="font-size:13px;color:var(--brown-600);margin-left:8px;" id="fd-date"></span>
+        </div>
+        <div class="fd-stats">
+          <div><div class="fd-stat-val" id="fd-surge"></div><div class="fd-stat-lbl">Surge %</div></div>
+          <div><div class="fd-stat-val" id="fd-predicted"></div><div class="fd-stat-lbl">Predicted</div></div>
+          <div><div class="fd-stat-val" id="fd-normal"></div><div class="fd-stat-lbl">Normal Day</div></div>
+          <div><div class="fd-stat-val" id="fd-days"></div><div class="fd-stat-lbl">Days Away</div></div>
+        </div>
+      </div>
+
+      <div class="section-divider"><span>&#10038;</span></div>
+
+      <h3 class="section-title" data-i18n="surge.all_upcoming">All Upcoming Festivals & Events</h3>
+      <div class="festival-grid" id="festival-grid"></div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:36px;">
+        <div><a href="index.html" class="logo">Aala<span>yam</span></a><p style="font-size:13px;color:var(--cream-400);margin-top:12px;" data-i18n="footer.tagline">Preserving Heritage through Intelligence.</p></div>
+        <div class="footer-col"><h4 data-i18n="footer.platform">Platform</h4><a href="dashboard.html" data-i18n="nav.dashboard">Dashboard</a><a href="prediction.html" data-i18n="nav.prediction">Prediction</a><a href="events.html" data-i18n="nav.events">Events</a><a href="bookings.html" data-i18n="nav.bookings">Bookings</a><a href="parking.html" data-i18n="nav.parking">Parking</a><a href="cctv.html" data-i18n="nav.cctv">CCTV Monitor</a></div>
+        <div class="footer-col"><h4 data-i18n="footer.more">More</h4><a href="heatmap.html" data-i18n="nav.heatmap">Heatmap</a><a href="surge.html" data-i18n="nav.surge">Surge</a><a href="staffing.html" data-i18n="nav.staffing">Staffing</a><a href="anomaly.html" data-i18n="nav.anomaly">Anomaly</a><a href="faq.html" data-i18n="nav.faq">FAQ</a><a href="features.html" data-i18n="nav.features">Features</a></div>
+        <div class="footer-col"><h4 data-i18n="footer.contact">Contact</h4><a href="#">info@aalayam.in</a><a href="#">+91 12345 67890</a></div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/i18n.js"></script>
+  <script>
+    let festivals = [];
+    let currentMonth = new Date().getMonth();
+    let currentYear = new Date().getFullYear();
+    const todayStr = new Date().toISOString().split('T')[0];
+    const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+    function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+    function levelClass(level) {
+      const l = (level || '').toLowerCase().replace(/\s+/g, '');
+      if (l === 'veryhigh' || l === 'high') return 'high';
+      if (l === 'moderate') return 'moderate';
+      return 'low';
+    }
+
+    function startCountdown(targetDate) {
+      const timer = document.getElementById('cd-timer');
+      function update() {
+        const now = new Date();
+        const target = new Date(targetDate + 'T06:00:00');
+        const diff = Math.max(0, target - now);
+        const days = Math.floor(diff / 86400000);
+        const hours = Math.floor((diff % 86400000) / 3600000);
+        const mins = Math.floor((diff % 3600000) / 60000);
+        const secs = Math.floor((diff % 60000) / 1000);
+        timer.innerHTML = `
+          <div class="countdown-unit"><div class="num">${days}</div><div class="lbl">Days</div></div>
+          <div class="countdown-unit"><div class="num">${hours}</div><div class="lbl">Hours</div></div>
+          <div class="countdown-unit"><div class="num">${mins}</div><div class="lbl">Mins</div></div>
+          <div class="countdown-unit"><div class="num">${secs}</div><div class="lbl">Secs</div></div>
+        `;
+      }
+      update();
+      setInterval(update, 1000);
+    }
+
+    function renderCalendar() {
+      const title = document.getElementById('cal-month-title');
+      title.textContent = MONTHS[currentMonth] + ' ' + currentYear;
+
+      const grid = document.getElementById('cal-grid');
+      // Keep headers
+      const headers = Array.from(grid.querySelectorAll('.cal-header'));
+      grid.innerHTML = '';
+      headers.forEach(h => grid.appendChild(h));
+
+      const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+      const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+
+      // Build festival lookup for this month
+      const festByDay = {};
+      festivals.forEach(f => {
+        const d = new Date(f.date);
+        if (d.getMonth() === currentMonth && d.getFullYear() === currentYear) {
+          festByDay[d.getDate()] = f;
+        }
+      });
+
+      // Empty cells for padding
+      for (let i = 0; i < firstDay; i++) {
+        const cell = document.createElement('div');
+        cell.className = 'cal-cell empty';
+        grid.appendChild(cell);
+      }
+
+      // Day cells
+      for (let day = 1; day <= daysInMonth; day++) {
+        const cell = document.createElement('div');
+        const dateStr = `${currentYear}-${String(currentMonth+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+        const isToday = dateStr === todayStr;
+        const fest = festByDay[day];
+        const cls = levelClass(fest ? fest.level : '');
+
+        cell.className = 'cal-cell' + (isToday ? ' today' : '') + (fest ? ' festival risk-' + cls : '');
+        cell.innerHTML = `<div class="cal-day">${day}</div>`;
+
+        if (fest) {
+          cell.innerHTML += `
+            <div class="cal-fest-name"><span class="cal-fest-dot ${cls}"></span>${esc(fest.title_en)}</div>
+            <div class="cal-fest-surge ${cls}">${fest.surge_pct >= 0 ? '+' : ''}${fest.surge_pct}%</div>
+          `;
+          cell.onclick = () => showFestDetail(fest);
+        }
+
+        grid.appendChild(cell);
+      }
+    }
+
+    function changeMonth(delta) {
+      currentMonth += delta;
+      if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+      if (currentMonth < 0) { currentMonth = 11; currentYear--; }
+      renderCalendar();
+    }
+
+    function showFestDetail(f) {
+      const panel = document.getElementById('fest-detail');
+      const cls = levelClass(f.level);
+      panel.style.display = 'block';
+      document.getElementById('fd-title').textContent = f.title_en;
+      document.getElementById('fd-tamil').textContent = f.title_ta || '';
+      document.getElementById('fd-date').textContent = f.date;
+      document.getElementById('fd-badge').textContent = f.level + ' Risk';
+      document.getElementById('fd-badge').className = 'badge ' + (cls === 'high' ? 'badge-red' : cls === 'moderate' ? 'badge-yellow' : 'badge-green');
+      document.getElementById('fd-surge').textContent = (f.surge_pct >= 0 ? '+' : '') + f.surge_pct + '%';
+      document.getElementById('fd-predicted').textContent = f.predicted_footfall.toLocaleString();
+      document.getElementById('fd-normal').textContent = f.normal_footfall.toLocaleString();
+      document.getElementById('fd-days').textContent = f.days_away === 0 ? 'Today' : f.days_away + ' days';
+      panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    function closeFestDetail() { document.getElementById('fest-detail').style.display = 'none'; }
+
+    async function loadSurge() {
+      try {
+        const d = await Aalayam.api.festivalSurge();
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('content').style.display = 'block';
+
+        festivals = d.festivals || [];
+
+        // Countdown banner
+        const hr = d.next_high_risk;
+        if (hr) {
+          document.getElementById('countdown-banner').style.display = 'flex';
+          document.getElementById('cd-title').textContent = hr.title_en;
+          const cls = levelClass(hr.level);
+          const surgeEl = document.getElementById('cd-surge');
+          surgeEl.textContent = (hr.surge_pct >= 0 ? '+' : '') + hr.surge_pct + '% predicted surge \u2022 ' + hr.days_away + ' days away';
+          surgeEl.className = 'surge-pct ' + cls;
+          startCountdown(hr.date);
+        }
+
+        // Render calendar
+        renderCalendar();
+
+        // Festival cards
+        const grid = document.getElementById('festival-grid');
+        grid.innerHTML = festivals.map(f => {
+          const cls = levelClass(f.level);
+          const surgePct = Math.min(100, Math.abs(f.surge_pct));
+          return `<div class="card festival-card risk-${cls}">
+            <div class="fc-header">
+              <div>
+                <h3>${esc(f.title_en)}</h3>
+                <div class="fc-tamil">${esc(f.title_ta || '')}</div>
+              </div>
+              <div class="fc-days-away days-bg-${cls}">
+                ${f.days_away === 0 ? 'Today' : f.days_away === 1 ? 'Tomorrow' : f.days_away + ' days'}
+              </div>
+            </div>
+            <div class="fc-date">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+              ${f.date}
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span class="badge ${f.level === 'Low' ? 'badge-green' : f.level === 'Moderate' ? 'badge-yellow' : 'badge-red'}">${f.level} Risk</span>
+              ${f.is_festival ? '<span class="badge badge-amber">Festival</span>' : ''}
+            </div>
+            <div class="surge-bar"><div class="surge-bar-fill ${cls}" style="width:${surgePct}%"></div></div>
+            <div class="fc-stats">
+              <div><div class="fc-stat-val">${f.surge_pct >= 0 ? '+' : ''}${f.surge_pct}%</div><div class="fc-stat-lbl">Surge</div></div>
+              <div><div class="fc-stat-val">${f.predicted_footfall.toLocaleString()}</div><div class="fc-stat-lbl">Predicted</div></div>
+              <div><div class="fc-stat-val">${f.normal_footfall.toLocaleString()}</div><div class="fc-stat-lbl">Normal Day</div></div>
+            </div>
+          </div>`;
+        }).join('') || '<p style="text-align:center;color:var(--text-muted)">No upcoming events</p>';
+      } catch (e) {
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('error').style.display = 'block';
+        document.getElementById('error').textContent = 'Failed: ' + e.message;
+      }
+    }
+    document.addEventListener('DOMContentLoaded', loadSurge);
+  </script>
+</body>
+</html>

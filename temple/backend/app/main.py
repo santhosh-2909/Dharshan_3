@@ -4,6 +4,7 @@ from pathlib import Path
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 from .config import get_settings
 from .db import Base, SessionLocal, engine
@@ -65,6 +66,12 @@ app.include_router(live_crowd.router, prefix="/api")
 frontend_dist_dir = Path(__file__).resolve().parents[2] / "frontend" / "dist"
 frontend_index_file = frontend_dist_dir / "index.html"
 
+# Mount static asset directories with proper MIME types
+for subdir in ("css", "js", "images", "fonts"):
+    asset_path = frontend_dist_dir / subdir
+    if asset_path.exists():
+        app.mount(f"/{subdir}", StaticFiles(directory=str(asset_path)), name=f"static-{subdir}")
+
 
 @app.get("/", include_in_schema=False)
 def serve_frontend_root():
@@ -81,8 +88,8 @@ def serve_frontend(full_path: str):
     if not frontend_index_file.exists():
         return {"message": "Frontend build not found. Build temple/frontend to serve the SPA."}
 
-    requested_path = frontend_dist_dir / full_path
-    if full_path and requested_path.exists() and requested_path.is_file():
+    requested_path = (frontend_dist_dir / full_path).resolve()
+    if full_path and requested_path.is_relative_to(frontend_dist_dir) and requested_path.exists() and requested_path.is_file():
         return FileResponse(requested_path)
 
     return FileResponse(frontend_index_file)

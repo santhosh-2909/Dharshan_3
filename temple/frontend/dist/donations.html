@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aalayam - Donations</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/shared.css">
+  <style>
+    .page-hero { background:var(--brown-900); color:var(--cream-100); padding:32px 36px 28px; position:relative; overflow:hidden; }
+    .page-hero::before { content:''; position:absolute; inset:0; background-image:url('images/Image 13.png'); background-size:cover; background-position:center; opacity:0.18; }
+    .page-hero * { position:relative; z-index:1; }
+    .page-hero h1 { font-family:var(--font-heading); font-size:32px; margin-bottom:4px; }
+    .page-hero p { font-size:14px; color:var(--cream-300); }
+    .donate-layout { display:grid; grid-template-columns:1fr 1fr; gap:32px; }
+    .preset-amounts { display:flex; gap:10px; margin-bottom:16px; flex-wrap:wrap; }
+    .preset-btn {
+      padding:10px 20px; border-radius:8px; border:1px solid var(--cream-300);
+      background:var(--white); font-family:var(--font-ui); font-size:15px; font-weight:700;
+      color:var(--brown-800); cursor:pointer; transition:all 0.2s;
+    }
+    .preset-btn:hover, .preset-btn.active { background:var(--amber-500); color:var(--white); border-color:var(--amber-500); }
+    .donate-layout > .card { position:relative; overflow:hidden; }
+    .donate-layout > .card::before { content:''; position:absolute; top:-1px; left:0; right:0; height:4px; background:linear-gradient(to right, var(--amber-500), var(--amber-300), var(--amber-500)); }
+    .donate-success { background:#E8F5E9; border:1px solid #C8E6C9; border-radius:10px; padding:24px; text-align:center; }
+    .donate-success .ref { font-size:20px; font-weight:700; color:var(--brown-900); letter-spacing:2px; }
+    @media (max-width:768px) { .donate-layout { grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-inner">
+      <a href="index.html" class="logo">Aala<span>yam</span></a>
+      <nav class="nav">
+        <a href="index.html" data-i18n="nav.home">Home</a><a href="dashboard.html" data-i18n="nav.dashboard">Dashboard</a><a href="prediction.html" data-i18n="nav.prediction">Prediction</a>
+        <a href="events.html" data-i18n="nav.events">Events</a><a href="bookings.html" data-i18n="nav.bookings">Bookings</a><a href="cctv.html" data-i18n="nav.cctv">CCTV Monitor</a><a href="features.html" data-i18n="nav.features">Features</a>
+        <button class="lang-toggle-btn" onclick="Aalayam.i18n.toggleLang()"><span class="lang-en">EN</span><span class="lang-sep">|</span><span class="lang-ta">தமிழ்</span></button>
+        <a href="#" class="btn-get-started auth-login-btn" onclick="Aalayam.auth.showLoginModal();return false;" data-i18n="nav.signin">Sign In</a>
+        <span class="auth-user-menu" style="display:none"><a href="#" class="btn-get-started" onclick="Aalayam.auth.logout();return false;" style="font-size:10px!important"><span class="auth-user-name"></span> &middot; Logout</a></span>
+      </nav>
+    </div>
+  </header>
+
+  <div class="page-hero">
+    <p class="breadcrumb"><a href="index.html" style="color:var(--amber-400)" data-i18n="common.home">Home</a> &rsaquo; Donations</p>
+    <h1 data-i18n="donate.title">Make a Donation</h1>
+    <p data-i18n="donate.subtitle">Support the temple's spiritual and charitable activities</p>
+  </div>
+
+  <div class="page-container">
+    <div class="donate-layout">
+      <div class="card" style="padding:32px;">
+        <h3 class="section-title" data-i18n="donate.details">Donation Details</h3>
+        <div id="donate-form">
+          <div class="form-group">
+            <label data-i18n="donate.name">Donor Name</label>
+            <input type="text" id="donor-name" placeholder="Your full name" required>
+          </div>
+          <div class="form-group">
+            <label data-i18n="donate.cause">Purpose / Cause</label>
+            <select id="donate-purpose"><option value="">Loading causes...</option></select>
+          </div>
+          <div class="form-group">
+            <label data-i18n="donate.amount">Amount (₹)</label>
+            <div class="preset-amounts">
+              <button class="preset-btn" onclick="setAmount(101,this)">101</button>
+              <button class="preset-btn" onclick="setAmount(501,this)">501</button>
+              <button class="preset-btn" onclick="setAmount(1001,this)">1,001</button>
+              <button class="preset-btn" onclick="setAmount(5001,this)">5,001</button>
+            </div>
+            <input type="number" id="donate-amount" placeholder="Enter amount" min="1" required>
+          </div>
+          <div id="donate-error" class="error-box" style="display:none;margin-bottom:12px;font-size:13px;"></div>
+          <button class="btn-primary" style="width:100%" id="donate-btn" onclick="submitDonation()" data-i18n="donate.now">Donate Now</button>
+        </div>
+        <div id="donate-result" style="display:none"></div>
+      </div>
+
+      <div>
+        <h3 class="section-title" data-i18n="donate.recent">Recent Donations</h3>
+        <div id="recent-loading" class="loader"><div class="spinner"></div></div>
+        <div id="recent-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:36px;">
+        <div><a href="index.html" class="logo">Aala<span>yam</span></a><p style="font-size:13px;color:var(--cream-400);margin-top:12px;" data-i18n="footer.tagline">Preserving Heritage through Intelligence.</p></div>
+        <div class="footer-col"><h4 data-i18n="footer.platform">Platform</h4><a href="dashboard.html" data-i18n="nav.dashboard">Dashboard</a><a href="prediction.html" data-i18n="nav.prediction">Prediction</a><a href="events.html" data-i18n="nav.events">Events</a><a href="bookings.html" data-i18n="nav.bookings">Bookings</a><a href="parking.html" data-i18n="nav.parking">Parking</a><a href="cctv.html" data-i18n="nav.cctv">CCTV Monitor</a></div>
+        <div class="footer-col"><h4 data-i18n="footer.more">More</h4><a href="heatmap.html" data-i18n="nav.heatmap">Heatmap</a><a href="surge.html" data-i18n="nav.surge">Surge</a><a href="staffing.html" data-i18n="nav.staffing">Staffing</a><a href="anomaly.html" data-i18n="nav.anomaly">Anomaly</a><a href="faq.html" data-i18n="nav.faq">FAQ</a><a href="features.html" data-i18n="nav.features">Features</a></div>
+        <div class="footer-col"><h4 data-i18n="footer.contact">Contact</h4><a href="#">info@aalayam.in</a><a href="#">+91 12345 67890</a></div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/i18n.js"></script>
+  <script>
+    function setAmount(val, el) {
+      document.getElementById('donate-amount').value = val;
+      document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+      if (el) el.classList.add('active');
+    }
+
+    function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+    async function loadCauses() {
+      try {
+        const causes = await Aalayam.api.causes();
+        const sel = document.getElementById('donate-purpose');
+        sel.innerHTML = causes.map(c => {
+          const val = typeof c === 'string' ? c : (c.id || c.name_en);
+          const label = typeof c === 'string' ? c : c.name_en;
+          return `<option value="${esc(String(val))}">${esc(String(label))}</option>`;
+        }).join('');
+      } catch(e) {
+        document.getElementById('donate-purpose').innerHTML = '<option>General Donation</option><option>Temple Maintenance</option><option>Annadhanam</option><option>Festival Fund</option>';
+      }
+    }
+
+    async function loadRecent() {
+      try {
+        const list = await Aalayam.api.recentDonations();
+        document.getElementById('recent-loading').style.display = 'none';
+        document.getElementById('recent-list').innerHTML = list.map(d => `
+          <div class="card" style="margin-bottom:12px;padding:16px 20px;border-left:3px solid var(--amber-400);">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <div>
+                <strong>${esc(d.donor_name)}</strong>
+                <div style="font-size:12px;color:var(--text-muted);">${esc(d.purpose)}</div>
+              </div>
+              <div style="font-family:var(--font-main);font-size:18px;font-weight:700;color:var(--amber-500);">\u20B9${d.amount_inr}</div>
+            </div>
+          </div>
+        `).join('') || '<p style="color:var(--text-muted);text-align:center;">No recent donations</p>';
+      } catch(e) {
+        document.getElementById('recent-loading').style.display = 'none';
+      }
+    }
+
+    async function submitDonation() {
+      const btn = document.getElementById('donate-btn');
+      const errEl = document.getElementById('donate-error');
+      const name = document.getElementById('donor-name').value.trim();
+      const purpose = document.getElementById('donate-purpose').value;
+      const amount = parseFloat(document.getElementById('donate-amount').value);
+
+      if (!name || !amount) { errEl.textContent = 'Please fill all fields'; errEl.style.display = 'block'; return; }
+      btn.disabled = true; btn.textContent = 'Processing...'; errEl.style.display = 'none';
+
+      try {
+        const result = await Aalayam.api.donate({ donor_name: name, purpose, amount_inr: amount });
+        document.getElementById('donate-form').style.display = 'none';
+        document.getElementById('donate-result').style.display = 'block';
+        document.getElementById('donate-result').innerHTML = `
+          <div class="donate-success">
+            <div style="font-size:14px;color:var(--green-500);font-weight:700;margin-bottom:8px;">Thank You!</div>
+            <div class="ref">${esc(result.reference)}</div>
+            <div style="margin-top:8px;font-size:14px;color:var(--text-muted);">\u20B9${result.amount_inr} &middot; ${esc(result.status)}</div>
+            <button class="btn-outline" style="margin-top:16px;" onclick="location.reload()">Make Another Donation</button>
+          </div>`;
+        loadRecent();
+      } catch(e) {
+        errEl.textContent = e.message; errEl.style.display = 'block';
+      }
+      btn.disabled = false; btn.textContent = 'Donate Now';
+    }
+
+    document.addEventListener('DOMContentLoaded', () => { loadCauses(); loadRecent(); });
+  </script>
+</body>
+</html>

@@ -1,13 +1,20 @@
 services:
   - type: web
-    name: dharshan-aalayam
+    name: aalayam
     runtime: docker
     plan: free
+    region: singapore
     dockerfilePath: ./Dockerfile
     autoDeployTrigger: commit
     healthCheckPath: /health
     envVars:
       - key: SECRET_KEY
         generateValue: true
+      - key: DATABASE_URL
+        value: "sqlite:///./aalayam.db"
+      - key: CORS_ORIGINS
+        value: "https://aalayam.onrender.com,http://localhost:8000"
       - key: ACCESS_TOKEN_EXPIRE_MINUTES
         value: "1440"
+      - key: PYTHON_VERSION
+        value: "3.12.0"

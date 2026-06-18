@@ -1,13 +1,5 @@
-FROM node:24-alpine AS frontend-builder
-
-WORKDIR /app/temple/frontend
-
-COPY temple/frontend/package.json temple/frontend/package-lock.json ./
-RUN npm ci
-
-COPY temple/frontend/ ./
-RUN npm run build
-
+# Aalayam — Single-stage Docker build
+# Frontend is pre-built static HTML/CSS/JS in dist/, no Node.js needed.
 
 FROM python:3.12-slim
 
@@ -17,14 +9,13 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
+# Install dependencies
 COPY temple/backend/requirements.txt /tmp/requirements.txt
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends build-essential \
-    && rm -rf /var/lib/apt/lists/* \
-    && pip install --no-cache-dir -r /tmp/requirements.txt
+RUN pip install --no-cache-dir -r /tmp/requirements.txt
 
+# Copy backend + frontend
 COPY temple/backend /app/temple/backend
-COPY --from=frontend-builder /app/temple/frontend/dist /app/temple/frontend/dist
+COPY temple/frontend/dist /app/temple/frontend/dist
 
 EXPOSE 10000
 

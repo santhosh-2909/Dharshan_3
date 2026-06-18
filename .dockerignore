@@ -2,8 +2,6 @@
 .gitignore
 .DS_Store
 node_modules
-dist
-build
 .venv
 venv
 env
@@ -12,11 +10,30 @@ __pycache__
 *.pyo
 *.pyd
 *.log
-data
-backend/__pycache__
-frontend/node_modules
-frontend/dist
+*.db
+
+# Old code directories (not used)
+api/
+backend/
+frontend/
+
+# React source (not needed — we use pre-built dist/)
+temple/frontend/src
 temple/frontend/node_modules
-temple/frontend/dist
+temple/frontend/package.json
+temple/frontend/package-lock.json
+temple/frontend/vite.config.js
+temple/frontend/public
+temple/frontend/index.html
+
+# Backend dev files
 temple/backend/.env
 temple/backend/aalayam.db
+temple/backend/__pycache__
+temple/backend/app/__pycache__
+temple/backend/yolov8n.pt
+
+# Deploy config (not needed inside container)
+render.yaml
+vercel.json
+*.md

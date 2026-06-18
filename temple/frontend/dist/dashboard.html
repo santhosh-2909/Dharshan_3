@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aalayam - Live Crowd Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/shared.css">
+  <style>
+    .page-hero {
+      background: var(--brown-900); color: var(--cream-100); padding: 32px 36px 28px;
+      position: relative; overflow: hidden;
+    }
+    .page-hero::before {
+      content: ''; position: absolute; inset: 0;
+      background-image: url('images/Image 6.png');
+      background-size: cover; background-position: center; opacity: 0.2;
+    }
+    .page-hero * { position: relative; z-index: 1; }
+    .page-hero h1 { font-family: var(--font-heading); font-size: 32px; margin-bottom: 4px; }
+    .page-hero p { font-size: 14px; color: var(--cream-300); }
+
+    .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 32px; }
+
+    /* Bar Chart */
+    .chart-container { margin-bottom: 32px; }
+    .chart-bars {
+      display: flex; align-items: flex-end; gap: 6px; height: 220px;
+      padding: 0 4px; border-bottom: 2px solid var(--cream-300);
+    }
+    .chart-bar-wrap {
+      flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px;
+    }
+    .chart-bar {
+      width: 100%; border-radius: 4px 4px 0 0; min-height: 4px;
+      transition: height 0.5s ease; position: relative; cursor: pointer;
+    }
+    .chart-bar:hover { opacity: 0.85; }
+    .chart-bar-tooltip {
+      display: none; position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%);
+      background: var(--brown-900); color: var(--white); font-size: 11px; padding: 4px 8px;
+      border-radius: 4px; white-space: nowrap; margin-bottom: 4px;
+    }
+    .chart-bar:hover .chart-bar-tooltip { display: block; }
+    .chart-label { font-size: 10px; color: var(--text-muted); margin-top: 6px; }
+    .bar-calm { background: linear-gradient(to top, #1B9E4B, var(--green-500)); }
+    .bar-moderate { background: linear-gradient(to top, #C49428, var(--amber-400)); }
+    .bar-high { background: linear-gradient(to top, #B07A22, var(--amber-500)); }
+    .bar-veryhigh { background: linear-gradient(to top, #A03020, var(--red-500)); }
+    .chart-bar { box-shadow: 0 -2px 6px rgba(0,0,0,0.08); }
+
+    /* Heritage ornament between sections */
+    .section-divider {
+      text-align: center; margin: 36px 0; position: relative;
+    }
+    .section-divider::before {
+      content: ''; position: absolute; top: 50%; left: 0; right: 0; height: 1px;
+      background: linear-gradient(to right, transparent, var(--cream-300), transparent);
+    }
+    .section-divider span {
+      position: relative; background: var(--cream-100); padding: 0 16px;
+      color: var(--amber-500); font-size: 18px;
+    }
+
+    /* Forecast Grid */
+    .forecast-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 16px; }
+    .day-card {
+      background: var(--white); border-radius: 10px; padding: 18px 14px;
+      border: 1px solid var(--cream-300); text-align: center;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .day-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(58,38,24,0.1); }
+    .day-card .day-name { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 4px; }
+    .day-card .day-date { font-size: 12px; color: var(--brown-700); margin-bottom: 10px; }
+    .day-card .day-count { font-family: var(--font-main); font-size: 24px; font-weight: 700; color: var(--brown-900); margin-bottom: 6px; }
+    .day-card .day-peak { font-size: 11px; color: var(--text-muted); margin-top: 6px; }
+    .day-card::after {
+      content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 3px;
+      border-radius: 0 0 10px 10px;
+    }
+    .day-card { position: relative; overflow: hidden; }
+    .day-card.band-calm::after { background: var(--green-500); }
+    .day-card.band-moderate::after { background: var(--amber-400); }
+    .day-card.band-high::after { background: var(--amber-500); }
+    .day-card.band-veryhigh::after { background: var(--red-500); }
+
+    @media (max-width: 768px) {
+      .stats-row { grid-template-columns: repeat(2, 1fr); }
+      .forecast-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-inner">
+      <a href="index.html" class="logo">Aala<span>yam</span></a>
+      <nav class="nav">
+        <a href="index.html" data-i18n="nav.home">Home</a>
+        <a href="dashboard.html" class="active" data-i18n="nav.dashboard">Dashboard</a>
+        <a href="prediction.html" data-i18n="nav.prediction">Prediction</a>
+        <a href="events.html" data-i18n="nav.events">Events</a>
+        <a href="bookings.html" data-i18n="nav.bookings">Bookings</a>
+        <a href="cctv.html" data-i18n="nav.cctv">CCTV Monitor</a>
+        <a href="features.html" data-i18n="nav.features">Features</a>
+        <button class="lang-toggle-btn" onclick="Aalayam.i18n.toggleLang()"><span class="lang-en">EN</span><span class="lang-sep">|</span><span class="lang-ta">தமிழ்</span></button>
+        <a href="#" class="btn-get-started auth-login-btn" onclick="Aalayam.auth.showLoginModal();return false;" data-i18n="nav.signin">Sign In</a>
+        <span class="auth-user-menu" style="display:none">
+          <a href="#" class="btn-get-started" onclick="Aalayam.auth.logout();return false;" style="font-size:10px!important"><span class="auth-user-name"></span> &middot; Logout</a>
+        </span>
+      </nav>
+    </div>
+  </header>
+
+  <div class="page-hero">
+    <p class="breadcrumb"><a href="index.html" style="color:var(--amber-400)" data-i18n="common.home">Home</a> &rsaquo; Dashboard</p>
+    <h1 data-i18n="dash.title">Live Crowd Dashboard</h1>
+    <p data-i18n="dash.subtitle">Real-time crowd monitoring and 7-day forecast</p>
+  </div>
+
+  <div class="page-container">
+    <div id="loading" class="loader"><div class="spinner"></div> Loading dashboard data...</div>
+    <div id="error" class="error-box" style="display:none"></div>
+    <div id="content" style="display:none">
+
+      <!-- Stats Row -->
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+          <div class="stat-value" id="stat-visitors">--</div>
+          <div class="stat-label" data-i18n="dash.current_visitors">Current Visitors</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 3v18"/></svg></div>
+          <div class="stat-value" id="stat-capacity">--</div>
+          <div class="stat-label" data-i18n="dash.capacity">Capacity</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
+          <div class="stat-value" id="stat-occupancy">--%</div>
+          <div class="stat-label" data-i18n="dash.occupancy">Occupancy</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div>
+          <div class="stat-value" id="stat-band">--</div>
+          <div class="stat-label" data-i18n="dash.crowd_band">Crowd Band</div>
+        </div>
+      </div>
+
+      <!-- Divider -->
+      <div class="section-divider"><span>&#10038;</span></div>
+
+      <!-- Hourly Chart -->
+      <div class="chart-container card-flat">
+        <h3 class="section-title" data-i18n="dash.hourly">Today's Hourly Curve</h3>
+        <div class="chart-bars" id="hourly-chart"></div>
+      </div>
+
+      <!-- Divider -->
+      <div class="section-divider"><span>&#10038;</span></div>
+
+      <!-- 7-Day Forecast -->
+      <h3 class="section-title" data-i18n="dash.7day">7-Day Forecast</h3>
+      <div class="forecast-grid" id="forecast-grid"></div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:36px;">
+        <div>
+          <a href="index.html" class="logo">Aala<span>yam</span></a>
+          <p style="font-size:13px;color:var(--cream-400);margin-top:12px;" data-i18n="footer.tagline">Preserving Heritage through Intelligence.</p>
+        </div>
+        <div class="footer-col"><h4 data-i18n="footer.platform">Platform</h4><a href="dashboard.html" data-i18n="nav.dashboard">Dashboard</a><a href="prediction.html" data-i18n="nav.prediction">Prediction</a><a href="events.html" data-i18n="nav.events">Events</a><a href="bookings.html" data-i18n="nav.bookings">Bookings</a><a href="parking.html" data-i18n="nav.parking">Parking</a><a href="cctv.html" data-i18n="nav.cctv">CCTV Monitor</a></div>
+        <div class="footer-col"><h4 data-i18n="footer.more">More</h4><a href="heatmap.html" data-i18n="nav.heatmap">Heatmap</a><a href="surge.html" data-i18n="nav.surge">Surge</a><a href="staffing.html" data-i18n="nav.staffing">Staffing</a><a href="anomaly.html" data-i18n="nav.anomaly">Anomaly</a><a href="faq.html" data-i18n="nav.faq">FAQ</a><a href="features.html" data-i18n="nav.features">Features</a></div>
+        <div class="footer-col"><h4 data-i18n="footer.contact">Contact</h4><a href="#">info@aalayam.in</a><a href="#">+91 12345 67890</a></div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/i18n.js"></script>
+  <script>
+    function bandColor(band) {
+      const b = (band || '').toLowerCase();
+      if (b === 'calm') return { css: 'bar-calm', badge: 'badge-green' };
+      if (b === 'moderate') return { css: 'bar-moderate', badge: 'badge-yellow' };
+      if (b === 'high') return { css: 'bar-high', badge: 'badge-amber' };
+      return { css: 'bar-veryhigh', badge: 'badge-red' };
+    }
+
+    function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+    async function loadDashboard() {
+      const loading = document.getElementById('loading');
+      const error = document.getElementById('error');
+      const content = document.getElementById('content');
+      try {
+        const data = await Aalayam.api.crowd();
+
+        document.getElementById('stat-visitors').textContent = (data.current_visitors || 0).toLocaleString();
+        document.getElementById('stat-capacity').textContent = (data.capacity || 0).toLocaleString();
+        document.getElementById('stat-occupancy').textContent = (data.occupancy_pct || 0) + '%';
+        document.getElementById('stat-band').textContent = data.band || '--';
+
+        // Hourly chart
+        const chart = document.getElementById('hourly-chart');
+        const hourly = data.today_hourly || [];
+        const maxVal = Math.max(...hourly.map(h => h.expected), 1);
+        chart.innerHTML = hourly.map(h => {
+          const pct = (h.expected / maxVal * 100);
+          const bc = bandColor(h.band);
+          const ampm = h.hour < 12 ? (h.hour || 12) + 'a' : (h.hour === 12 ? 12 : h.hour - 12) + 'p';
+          return `<div class="chart-bar-wrap">
+            <div class="chart-bar ${bc.css}" style="height:${pct}%">
+              <div class="chart-bar-tooltip">${h.expected} visitors (${esc(h.band)})</div>
+            </div>
+            <span class="chart-label">${ampm}</span>
+          </div>`;
+        }).join('');
+
+        // 7-day forecast
+        const grid = document.getElementById('forecast-grid');
+        const days = data.next_seven_days || [];
+        grid.innerHTML = days.map(d => {
+          const bc = bandColor(d.band);
+          const bandCls = 'band-' + (d.band || '').toLowerCase().replace(/[^a-z]/g, '');
+          return `<div class="day-card ${bandCls}">
+            <div class="day-name">${esc(d.weekday)}</div>
+            <div class="day-date">${esc(d.date)}</div>
+            <div class="day-count">${(d.expected_visitors || 0).toLocaleString()}</div>
+            <span class="badge ${bc.badge}">${esc(d.band)}</span>
+            <div class="day-peak">Peak: ${d.peak_hour === 0 ? '12 AM' : d.peak_hour === 12 ? '12 PM' : d.peak_hour > 12 ? (d.peak_hour - 12) + ' PM' : d.peak_hour + ' AM'}</div>
+          </div>`;
+        }).join('');
+
+        loading.style.display = 'none';
+        content.style.display = 'block';
+      } catch (e) {
+        loading.style.display = 'none';
+        error.style.display = 'block';
+        error.innerHTML = 'Failed to load dashboard: ' + esc(e.message) + ' <a href="#" onclick="location.reload()">Retry</a>';
+      }
+    }
+    document.addEventListener('DOMContentLoaded', loadDashboard);
+  </script>
+</body>
+</html>

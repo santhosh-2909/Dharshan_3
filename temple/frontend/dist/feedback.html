@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aalayam - Feedback</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/shared.css">
+  <style>
+    .page-hero { background:var(--brown-900); color:var(--cream-100); padding:32px 36px 28px; position:relative; overflow:hidden; }
+    .page-hero::before { content:''; position:absolute; inset:0; background-image:url('images/Image 2.png'); background-size:cover; background-position:center; opacity:0.15; }
+    .page-hero * { position:relative; z-index:1; }
+    .page-hero h1 { font-family:var(--font-heading); font-size:32px; margin-bottom:4px; }
+    .page-hero p { font-size:14px; color:var(--cream-300); }
+    .feedback-layout { display:grid; grid-template-columns:400px 1fr; gap:32px; }
+    .star-rating { display:flex; gap:4px; margin-bottom:4px; }
+    .star-rating input { display:none; }
+    .star-rating label {
+      font-size:28px; color:var(--cream-300); cursor:pointer; transition:color 0.15s;
+    }
+    .star-rating label:hover, .star-rating label:hover ~ label,
+    .star-rating input:checked ~ label { color:var(--amber-500); }
+    /* Reverse order trick for CSS-only stars */
+    .star-rating { direction:rtl; }
+    .feedback-card { margin-bottom:16px; padding:20px 24px; border-left:3px solid var(--amber-400); }
+    .feedback-card .fb-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+    .feedback-card .fb-name { font-weight:700; color:var(--brown-800); }
+    .feedback-card .fb-date { font-size:12px; color:var(--text-muted); }
+    .feedback-card .fb-stars { color:var(--amber-500); font-size:16px; margin-bottom:6px; }
+    .feedback-card .fb-msg { font-size:14px; color:var(--text-body); line-height:1.6; }
+    @media (max-width:768px) { .feedback-layout { grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-inner">
+      <a href="index.html" class="logo">Aala<span>yam</span></a>
+      <nav class="nav">
+        <a href="index.html" data-i18n="nav.home">Home</a><a href="dashboard.html" data-i18n="nav.dashboard">Dashboard</a><a href="prediction.html" data-i18n="nav.prediction">Prediction</a>
+        <a href="events.html" data-i18n="nav.events">Events</a><a href="bookings.html" data-i18n="nav.bookings">Bookings</a><a href="cctv.html" data-i18n="nav.cctv">CCTV Monitor</a><a href="features.html" data-i18n="nav.features">Features</a>
+        <button class="lang-toggle-btn" onclick="Aalayam.i18n.toggleLang()"><span class="lang-en">EN</span><span class="lang-sep">|</span><span class="lang-ta">தமிழ்</span></button>
+        <a href="#" class="btn-get-started auth-login-btn" onclick="Aalayam.auth.showLoginModal();return false;" data-i18n="nav.signin">Sign In</a>
+        <span class="auth-user-menu" style="display:none"><a href="#" class="btn-get-started" onclick="Aalayam.auth.logout();return false;" style="font-size:10px!important"><span class="auth-user-name"></span> &middot; Logout</a></span>
+      </nav>
+    </div>
+  </header>
+
+  <div class="page-hero">
+    <p class="breadcrumb"><a href="index.html" style="color:var(--amber-400)" data-i18n="common.home">Home</a> &rsaquo; Feedback</p>
+    <h1 data-i18n="feedback.title">Share Your Experience</h1>
+    <p data-i18n="feedback.subtitle">Help us improve your darshan experience</p>
+  </div>
+
+  <div class="page-container">
+    <div class="feedback-layout">
+      <div>
+        <div class="card" style="padding:28px;position:relative;overflow:hidden;">
+          <div style="position:absolute;top:-1px;left:0;right:0;height:4px;background:linear-gradient(to right, var(--amber-500), var(--amber-300), var(--amber-500));"></div>
+          <h3 class="section-title" style="font-size:18px;" data-i18n="feedback.form_title">Submit Feedback</h3>
+          <div class="form-group"><label data-i18n="feedback.name">Your Name</label><input type="text" id="fb-name" placeholder="Full name"></div>
+          <div class="form-group">
+            <label data-i18n="feedback.rating">Rating</label>
+            <div class="star-rating">
+              <input type="radio" name="rating" id="s5" value="5"><label for="s5">&#9733;</label>
+              <input type="radio" name="rating" id="s4" value="4"><label for="s4">&#9733;</label>
+              <input type="radio" name="rating" id="s3" value="3" checked><label for="s3">&#9733;</label>
+              <input type="radio" name="rating" id="s2" value="2"><label for="s2">&#9733;</label>
+              <input type="radio" name="rating" id="s1" value="1"><label for="s1">&#9733;</label>
+            </div>
+          </div>
+          <div class="form-group"><label data-i18n="feedback.message">Message</label><textarea id="fb-message" placeholder="Tell us about your experience..."></textarea></div>
+          <div id="fb-error" class="error-box" style="display:none;margin-bottom:12px;font-size:13px;"></div>
+          <div id="fb-success" style="display:none;margin-bottom:12px;padding:12px;background:#E8F5E9;border-radius:8px;color:#2E7D32;font-size:14px;"></div>
+          <button class="btn-primary" style="width:100%" onclick="submitFeedback()" data-i18n="feedback.submit">Submit Feedback</button>
+        </div>
+      </div>
+      <div>
+        <h3 class="section-title" data-i18n="feedback.recent">Recent Reviews</h3>
+        <div id="fb-loading" class="loader"><div class="spinner"></div></div>
+        <div id="fb-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:36px;">
+        <div><a href="index.html" class="logo">Aala<span>yam</span></a><p style="font-size:13px;color:var(--cream-400);margin-top:12px;" data-i18n="footer.tagline">Preserving Heritage through Intelligence.</p></div>
+        <div class="footer-col"><h4 data-i18n="footer.platform">Platform</h4><a href="dashboard.html" data-i18n="nav.dashboard">Dashboard</a><a href="prediction.html" data-i18n="nav.prediction">Prediction</a><a href="events.html" data-i18n="nav.events">Events</a><a href="bookings.html" data-i18n="nav.bookings">Bookings</a><a href="parking.html" data-i18n="nav.parking">Parking</a><a href="cctv.html" data-i18n="nav.cctv">CCTV Monitor</a></div>
+        <div class="footer-col"><h4 data-i18n="footer.more">More</h4><a href="heatmap.html" data-i18n="nav.heatmap">Heatmap</a><a href="surge.html" data-i18n="nav.surge">Surge</a><a href="staffing.html" data-i18n="nav.staffing">Staffing</a><a href="anomaly.html" data-i18n="nav.anomaly">Anomaly</a><a href="faq.html" data-i18n="nav.faq">FAQ</a><a href="features.html" data-i18n="nav.features">Features</a></div>
+        <div class="footer-col"><h4 data-i18n="footer.contact">Contact</h4><a href="#">info@aalayam.in</a><a href="#">+91 12345 67890</a></div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/i18n.js"></script>
+  <script>
+    function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+    function stars(n) { return '\u2605'.repeat(n) + '\u2606'.repeat(5 - n); }
+
+    async function loadFeedback() {
+      try {
+        const list = await Aalayam.api.feedbackList();
+        document.getElementById('fb-loading').style.display = 'none';
+        const items = Array.isArray(list) ? list : (list.items || []);
+        document.getElementById('fb-list').innerHTML = items.map(f => `
+          <div class="card feedback-card">
+            <div class="fb-header">
+              <span class="fb-name">${esc(f.name)}</span>
+              <span class="fb-date">${f.created_at ? new Date(f.created_at).toLocaleDateString() : ''}</span>
+            </div>
+            <div class="fb-stars">${stars(f.rating)}</div>
+            <div class="fb-msg">${esc(f.message)}</div>
+          </div>
+        `).join('') || '<p style="color:var(--text-muted);text-align:center;">No feedback yet. Be the first!</p>';
+      } catch(e) { document.getElementById('fb-loading').style.display = 'none'; }
+    }
+
+    async function submitFeedback() {
+      const name = document.getElementById('fb-name').value.trim();
+      const message = document.getElementById('fb-message').value.trim();
+      const rating = parseInt(document.querySelector('input[name="rating"]:checked')?.value || 3);
+      const errEl = document.getElementById('fb-error');
+      const sucEl = document.getElementById('fb-success');
+      errEl.style.display = 'none'; sucEl.style.display = 'none';
+
+      if (!name || !message) { errEl.textContent = 'Please fill all fields'; errEl.style.display = 'block'; return; }
+      try {
+        await Aalayam.api.submitFeedback({ name, rating, message });
+        sucEl.textContent = 'Thank you for your feedback!'; sucEl.style.display = 'block';
+        document.getElementById('fb-name').value = '';
+        document.getElementById('fb-message').value = '';
+        loadFeedback();
+      } catch(e) { errEl.textContent = e.message; errEl.style.display = 'block'; }
+    }
+
+    document.addEventListener('DOMContentLoaded', loadFeedback);
+  </script>
+</body>
+</html>

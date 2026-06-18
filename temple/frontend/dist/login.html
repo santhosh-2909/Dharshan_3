@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aalayam - Sign In</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/shared.css">
+  <style>
+    .login-page {
+      min-height: calc(100vh - 56px); display: flex; align-items: center; justify-content: center;
+      background: var(--cream-100); position: relative; overflow: hidden;
+    }
+    .login-page::before {
+      content: ''; position: absolute; inset: 0;
+      background-image: url('images/Image 15.png');
+      background-size: cover; background-position: center; opacity: 0.06;
+    }
+    .login-box {
+      position: relative; z-index: 1; background: var(--white); border-radius: 16px;
+      padding: 48px 40px; width: 100%; max-width: 420px;
+      box-shadow: 0 16px 48px rgba(58,38,24,0.15); border: 1px solid var(--cream-300);
+      overflow: hidden;
+    }
+    .login-box::before {
+      content:''; position:absolute; top:-1px; left:0; right:0; height:4px;
+      background:linear-gradient(to right, var(--amber-500), var(--amber-300), var(--amber-500));
+    }
+    .login-box h1 {
+      font-family: var(--font-heading); font-size: 28px; font-weight: 700;
+      color: var(--brown-900); margin-bottom: 6px; text-align: center;
+    }
+    .login-box .subtitle { text-align: center; font-size: 14px; color: var(--text-muted); margin-bottom: 28px; }
+    .login-box .form-group { margin-bottom: 18px; }
+    .toggle-link { text-align: center; margin-top: 20px; font-size: 13px; color: var(--text-muted); }
+    .toggle-link a { color: var(--amber-500); font-weight: 700; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-inner">
+      <a href="index.html" class="logo">Aala<span>yam</span></a>
+      <nav class="nav">
+        <a href="index.html" data-i18n="nav.home">Home</a><a href="dashboard.html" data-i18n="nav.dashboard">Dashboard</a><a href="prediction.html" data-i18n="nav.prediction">Prediction</a>
+        <a href="events.html" data-i18n="nav.events">Events</a><a href="bookings.html" data-i18n="nav.bookings">Bookings</a><a href="cctv.html" data-i18n="nav.cctv">CCTV Monitor</a><a href="features.html" data-i18n="nav.features">Features</a>
+        <button class="lang-toggle-btn" onclick="Aalayam.i18n.toggleLang()"><span class="lang-en">EN</span><span class="lang-sep">|</span><span class="lang-ta">தமிழ்</span></button>
+      </nav>
+    </div>
+  </header>
+
+  <div class="login-page">
+    <div class="login-box">
+      <a href="index.html" class="logo" style="display:block;text-align:center;margin-bottom:20px;font-size:22px;">Aala<span>yam</span></a>
+      <h1 id="form-title" data-i18n="login.title">Sign In</h1>
+      <p class="subtitle" id="form-subtitle" data-i18n="login.subtitle">Access your bookings and more</p>
+
+      <form id="auth-form">
+        <div class="form-group" id="name-group" style="display:none">
+          <label data-i18n="login.fullname">Full Name</label>
+          <input type="text" id="input-name" placeholder="Your name" autocomplete="name">
+        </div>
+        <div class="form-group">
+          <label data-i18n="login.email">Email</label>
+          <input type="email" id="input-email" placeholder="you@example.com" required autocomplete="email">
+        </div>
+        <div class="form-group">
+          <label data-i18n="login.password">Password</label>
+          <input type="password" id="input-password" placeholder="Min 8 characters" required minlength="8" autocomplete="current-password">
+        </div>
+        <div id="form-error" class="error-box" style="display:none;margin-bottom:14px;font-size:13px;"></div>
+        <button type="submit" class="btn-primary" style="width:100%;padding:14px;" id="submit-btn" data-i18n="login.title">Sign In</button>
+      </form>
+
+      <div class="toggle-link">
+        <span id="toggle-text" data-i18n="login.no_account">Don't have an account?</span>
+        <a onclick="toggleMode()" id="toggle-link" data-i18n="login.register_link">Register</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/i18n.js"></script>
+  <script>
+    let isRegister = false;
+    const params = new URLSearchParams(window.location.search);
+    let nextUrl = params.get('next') || 'dashboard.html';
+    // Prevent open redirect — only allow relative same-origin paths
+    if (/^(https?:)?\/\//i.test(nextUrl)) nextUrl = 'dashboard.html';
+
+    // If already logged in, redirect
+    try { if (Aalayam.userStore.get()) window.location.href = nextUrl; } catch(e) {}
+
+    function toggleMode() {
+      isRegister = !isRegister;
+      document.getElementById('form-title').textContent = isRegister ? 'Create Account' : 'Sign In';
+      document.getElementById('form-subtitle').textContent = isRegister ? 'Join Aalayam today' : 'Access your bookings and more';
+      document.getElementById('name-group').style.display = isRegister ? 'block' : 'none';
+      document.getElementById('submit-btn').textContent = isRegister ? 'Create Account' : 'Sign In';
+      document.getElementById('toggle-text').textContent = isRegister ? 'Already have an account?' : "Don't have an account?";
+      document.getElementById('toggle-link').textContent = isRegister ? 'Sign In' : 'Register';
+      document.getElementById('form-error').style.display = 'none';
+    }
+
+    document.getElementById('auth-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('submit-btn');
+      const errEl = document.getElementById('form-error');
+      btn.disabled = true; btn.textContent = 'Please wait...'; errEl.style.display = 'none';
+
+      try {
+        if (isRegister) {
+          const data = await Aalayam.api.register({
+            name: document.getElementById('input-name').value,
+            email: document.getElementById('input-email').value,
+            password: document.getElementById('input-password').value
+          });
+          Aalayam.tokenStore.set(data.access_token);
+          Aalayam.userStore.set(data.user);
+        } else {
+          const data = await Aalayam.api.login({
+            email: document.getElementById('input-email').value,
+            password: document.getElementById('input-password').value
+          });
+          Aalayam.tokenStore.set(data.access_token);
+          Aalayam.userStore.set(data.user);
+        }
+        window.location.href = nextUrl;
+      } catch (err) {
+        errEl.textContent = err.message;
+        errEl.style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = isRegister ? 'Create Account' : 'Sign In';
+      }
+    });
+  </script>
+</body>
+</html>
